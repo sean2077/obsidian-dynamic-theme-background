@@ -7,6 +7,8 @@ plugins:
     - "@semantic-release/release-notes-generator"
     - - "@semantic-release/changelog"
       - changelogFile: CHANGELOG.md
+    - - "@semantic-release/npm"
+      - npmPublish: false # 不发布到 npm，只更新 package.json
     - - "@semantic-release/exec"
       - prepareCmd: |
             sed -i 's/"version": "[^"]*"/"version": "${nextRelease.version}"/' manifest.json
@@ -14,6 +16,8 @@ plugins:
       - assets:
             - CHANGELOG.md
             - manifest.json
+            - package.json
+            - package-lock.json
         message: |-
             chore(release): ${nextRelease.version} [skip ci]
 
