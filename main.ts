@@ -157,8 +157,6 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     // 当前的背景
     background: BackgroundItem | null = null;
 
-
-
     async onload() {
         await this.loadSettings();
 
@@ -219,7 +217,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                     this.settings.currentIndex =
                         (this.settings.currentIndex + 1) % this.settings.backgrounds.length;
                     this.background = this.settings.backgrounds[this.settings.currentIndex];
-                    this.updateBackground();
+                    this.updateStyleCss();
                     this.saveSettings();
                     new Notice(`背景已切换到: ${this.background.name}`);
                 }
@@ -235,7 +233,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                     const bg = this.settings.backgrounds.find(b => b.id === rule.backgroundId);
                     if (bg) {
                         this.background = bg;
-                        this.updateBackground();
+                        this.updateStyleCss();
                         new Notice(`当前时间段: ${rule.name}, 背景: ${bg.name}`);
                     } else {
                         new Notice(`时间段 ${rule.name} 没有设置背景`);
@@ -276,7 +274,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         return `url(${p})`; // 形如 app://local/path/to/image.jpg
     }
 
-    updateBackground() {
+    // 更新样式（真正更新背景的地方）
+    updateStyleCss() {
         if (!this.settings.enabled || !this.background) {
             console.warn('DTB: 背景更新被禁用或没有设置背景');
             return;
@@ -363,6 +362,45 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         return null;
     }
 
+    // 更新背景
+    updateBackground(forceUpdate: boolean = true) {
+        if (!this.settings.enabled) return;
+
+        let needsUpdate = false;
+        switch (this.settings.mode) {
+            case 'time-based':
+                const rule = this.getCurrentTimeRule();
+                if (rule) {
+                    this.background = this.settings.backgrounds.find(
+                        bg => bg.id === rule.backgroundId
+                    ) || null;
+
+                    // 判断是否与当前背景不同
+                    needsUpdate = this.background?.id !== rule.backgroundId;
+
+                    // 调试信息
+                    console.log('DTB: TimeRule mode - current time rule', rule);
+                }
+                break;
+
+            case 'interval':
+                if (this.settings.backgrounds.length > 0) {
+                    this.background = this.settings.backgrounds[this.settings.currentIndex];
+                    this.settings.currentIndex =
+                        (this.settings.currentIndex + 1) % this.settings.backgrounds.length;
+                    this.saveSettings();
+                    needsUpdate = true; // 每次间隔切换都需要更新背景
+
+                    console.log('DTB: Interval mode - current index and background', this.settings.currentIndex, this.background);
+                }
+                break;
+        }
+
+        if (forceUpdate || (needsUpdate && this.background)) {
+            this.updateStyleCss();
+        }
+    };
+
     startBackgroundManager() {
         this.stopBackgroundManager();
 
@@ -371,46 +409,15 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             document.body.classList.add('dtb-enabled');
         }
 
-        const updateBackground = () => {
-            if (!this.settings.enabled) return;
-
-
-            switch (this.settings.mode) {
-                case 'time-based':
-                    const rule = this.getCurrentTimeRule();
-                    if (rule) {
-                        this.background = this.settings.backgrounds.find(
-                            bg => bg.id === rule.backgroundId
-                        ) || null;
-
-                        // 调试信息
-                        console.log('DTB: Current time rule', rule);
-                        console.log('DTB: Found background', this.background);
-                    }
-                    break;
-
-                case 'interval':
-                    if (this.settings.backgrounds.length > 0) {
-                        this.background = this.settings.backgrounds[this.settings.currentIndex];
-                        this.settings.currentIndex =
-                            (this.settings.currentIndex + 1) % this.settings.backgrounds.length;
-                        this.saveSettings();
-                    }
-                    break;
-            }
-
-            this.updateBackground();
-        };
-
-        // 立即执行一次
-        updateBackground();
+        // 立即执行一次更新
+        this.updateBackground();
 
         // 设置定时器
         const intervalMs = this.settings.mode === 'time-based' ? 60000 : // 每分钟检查一次
             this.settings.intervalMinutes * 60000;
 
         this.intervalId = this.registerInterval(window.setInterval(() => {
-            updateBackground();
+            this.updateBackground(false);
         }, intervalMs));
 
         console.log('DTB: Background manager started', {
@@ -607,7 +614,7 @@ class DTBSettingTab extends PluginSettingTab {
                 .onChange(async (value: number) => {
                     this.plugin.settings.blurDepth = value;
                     await this.plugin.saveSettings();
-                    this.plugin.updateBackground();
+                    this.plugin.updateStyleCss();
                 }))
             .addExtraButton(button => button
                 .setIcon('reset')
@@ -615,7 +622,7 @@ class DTBSettingTab extends PluginSettingTab {
                 .onClick(async () => {
                     this.plugin.settings.blurDepth = DEFAULT_SETTINGS.blurDepth; // 恢复默认值
                     await this.plugin.saveSettings();
-                    this.plugin.updateBackground();
+                    this.plugin.updateStyleCss();
                     this.display();
                 }))
             ;
@@ -631,7 +638,7 @@ class DTBSettingTab extends PluginSettingTab {
                 .onChange(async (value: number) => {
                     this.plugin.settings.brightness4Bg = value;
                     await this.plugin.saveSettings();
-                    this.plugin.updateBackground();
+                    this.plugin.updateStyleCss();
                 }))
             .addExtraButton(button => button
                 .setIcon('reset')
@@ -639,7 +646,7 @@ class DTBSettingTab extends PluginSettingTab {
                 .onClick(async () => {
                     this.plugin.settings.brightness4Bg = DEFAULT_SETTINGS.brightness4Bg; // 恢复默认值
                     await this.plugin.saveSettings();
-                    this.plugin.updateBackground();
+                    this.plugin.updateStyleCss();
                     this.display();
                 }))
             ;
@@ -655,7 +662,7 @@ class DTBSettingTab extends PluginSettingTab {
                 .onChange(async (value: number) => {
                     this.plugin.settings.saturate4Bg = value;
                     await this.plugin.saveSettings();
-                    this.plugin.updateBackground();
+                    this.plugin.updateStyleCss();
                 }))
             .addExtraButton(button => button
                 .setIcon('reset')
@@ -663,7 +670,7 @@ class DTBSettingTab extends PluginSettingTab {
                 .onClick(async () => {
                     this.plugin.settings.saturate4Bg = DEFAULT_SETTINGS.saturate4Bg; // 恢复默认值
                     await this.plugin.saveSettings();
-                    this.plugin.updateBackground();
+                    this.plugin.updateStyleCss();
                     this.display();
                 }))
             ;
@@ -671,13 +678,13 @@ class DTBSettingTab extends PluginSettingTab {
         // 统一的背景颜色设置
         new Setting(containerEl)
             .setName('背景颜色')
-            .setDesc('设置背景颜色')
+            .setDesc('设置背景颜色（TODO：该配置暂时有问题，待解决后再使用）')
             .addColorPicker(colorPicker => colorPicker
                 .setValue(this.plugin.settings.bgColor)
                 .onChange(async (value: string) => {
                     this.plugin.settings.bgColor = value;
                     await this.plugin.saveSettings();
-                    this.plugin.updateBackground();
+                    this.plugin.updateStyleCss();
                 }))
             .addExtraButton(button => button
                 .setIcon('reset')
@@ -685,7 +692,7 @@ class DTBSettingTab extends PluginSettingTab {
                 .onClick(async () => {
                     this.plugin.settings.bgColor = DEFAULT_SETTINGS.bgColor; // 恢复默认值
                     await this.plugin.saveSettings();
-                    this.plugin.updateBackground();
+                    this.plugin.updateStyleCss();
                     this.display();
                 }))
             ;
@@ -782,7 +789,7 @@ class DTBSettingTab extends PluginSettingTab {
             actions.createEl('button', { text: '预览' })
                 .onclick = () => {
                     this.plugin.background = bg;
-                    this.plugin.updateBackground();
+                    this.plugin.updateStyleCss();
                 };
 
             actions.createEl('button', { text: '删除' })
