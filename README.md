@@ -1,46 +1,50 @@
 # Obsidian Dynamic Theme Background Plugin
 
-## 介绍
+[中文版](README.zh.md) | English
 
-这是一个用于 Obsidian 的插件，可以根据时间段和用户设置动态更改背景。
+## Introduction
 
-## 特性
+This is a plugin for Obsidian that dynamically changes backgrounds based on time periods and user settings.
 
-- **时间段背景**: 根据时间段自动切换背景
-- **手动切换**: 允许用户手动切换背景
-- **自定义设置**: 用户可以自定义背景模糊度、亮度、饱和度和颜色
-- **支持多种背景类型**: 包括图片、颜色背景和渐变背景，其中图片背景支持远程图片和仓库本地图片
-- **可与已有主题兼容**: 该插件可以与现有的 Obsidian 主题一起使用（但会覆盖一些样式，详见[注意](#注意)）
+## Features
+
+- **Time-based backgrounds**: Automatically switch backgrounds according to time periods
+- **Manual switching**: Allows users to manually switch backgrounds
+- **Custom settings**: Users can customize background blur, brightness, saturation, and color
+- **Multiple background types support**: Including image, color, and gradient backgrounds, with image backgrounds supporting both remote images and local vault images
+- **Compatible with existing themes**: This plugin can be used with existing Obsidian themes (but will override some styles, see [Notes](#notes))
 
 ![](assets/image.png)
 ![](assets/image2.png)
 
-## 安装
+## Installation
 
-### 方法一：通过 Obsidian 插件市场安装
+### Method 1: Install via Obsidian Plugin Market
 
-TODO：待 Obsidian 插件市场审核通过后
+TODO: Pending approval from Obsidian plugin market
 
-### 方法二：通过 BRAT 插件安装
+pull request: https://github.com/obsidianmd/obsidian-releases/pull/7291
 
-1. 安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件
-2. 在 BRAT 插件中 Add beta plugin -> 输入本项目的 GitHub 地址 `https://github.com/sean2077/obsidian-dynamic-theme-background`，并安装
-3. 在 Obsidian 中启用插件
+### Method 2: Install via BRAT Plugin
 
-### 方法二：手动安装
-1. 下载插件的 main.js, manifest.json 和 style.css 文件
-2. 将其放入 Obsidian 的插件文件夹 .obsidian/plugins/dynamic-theme-background/
-   - 确保文件夹结构正确
-3. 在 Obsidian 中启用插件
+1. Install the [BRAT](https://github.com/TfTHacker/obsidian42-brat) plugin
+2. In BRAT plugin, Add beta plugin -> Enter this project's GitHub URL `https://github.com/sean2077/obsidian-dynamic-theme-background`, and install
+3. Enable the plugin in Obsidian
 
-## 使用
+### Method 3: Manual Installation
+1. Download the plugin's main.js, manifest.json, and style.css files
+2. Place them in Obsidian's plugin folder .obsidian/plugins/dynamic-theme-background/
+   - Ensure the folder structure is correct
+3. Enable the plugin in Obsidian
 
-- 在设置中配置插件
-- 使用命令面板切换背景
+## Usage
 
-## 注意
+- Configure the plugin in settings
+- Use the command palette to switch backgrounds
 
-目前插件通过以下样式修改工作区背景，请知晓会覆盖已有主题样式的地方：
+## Notes
+
+Currently, the plugin works by modifying the workspace background through the following styles. Please be aware of the areas where existing theme styles will be overridden:
 
 ```css
 .dtb-enabled {
@@ -66,15 +70,15 @@ TODO：待 Obsidian 插件市场审核通过后
 }
 ```
 
-## 贡献
+## Contributing
 
-欢迎提交问题和功能请求！如果您想贡献代码，请遵循以下步骤：
+Issues and feature requests are welcome! If you'd like to contribute code, please follow these steps:
 
-1. Fork 本仓库
-2. 创建新分支
-3. 提交更改
-4. 创建 Pull Request
+1. Fork this repository
+2. Create a new branch
+3. Commit your changes
+4. Create a Pull Request
 
-## 许可证
+## License
 
-参阅 [LICENSE](LICENSE) 文件。
+See the [LICENSE](LICENSE) file.
