@@ -8,7 +8,7 @@ plugins:
       - changelogFile: CHANGELOG.md
     - - "@semantic-release/exec"
       - prepareCmd: |
-            sed -i "s/\"version\": \".*\"/\"version\": \"\${nextRelease.version}\"/" manifest.json
+            sed -i 's/"version": "[^"]*"/"version": "${nextRelease.version}"/' manifest.json
     - - "@semantic-release/git"
       - assets:
             - CHANGELOG.md
