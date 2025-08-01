@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/v1.1.0...1.1.1) (2025-08-01)
+
+
+### Bug Fixes
+
+* 添加 tagFormat 配置以支持不带v的版本标签 ([c25e3ed](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/c25e3ed4c389bcf4a60d5a111e92854715a8d751))
+
 # [1.1.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/v1.0.1...v1.1.0) (2025-08-01)
 
 
