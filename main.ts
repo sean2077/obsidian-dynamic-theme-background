@@ -36,7 +36,7 @@ interface BackgroundItem {
 }
 
 const DEFAULT_SETTINGS: DTBSettings = {
-    enabled: false,
+    enabled: true,
     blurDepth: 0, // 默认模糊度
     brightness4Bg: 0.9, // 默认亮度
     saturate4Bg: 1, // 默认饱和度
@@ -303,15 +303,15 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         // TODO .dtb-enabled 里可能会覆盖已有主题的样式，考虑更好的解法方案
         this.styleTag.innerText = `
 			.dtb-enabled {
-				--background-primary: ${this.settings.bgColor};
-				--background-primary-alt: ${this.settings.bgColor};
-				--background-secondary: ${this.settings.bgColor};
-				--background-secondary-alt: ${this.settings.bgColor};
-				--tab-background-active: transparent;
-				--tab-outline-width: transparent;
+				--background-primary: ${this.settings.bgColor} !important;
+				--background-primary-alt: ${this.settings.bgColor} !important;
+				--background-secondary: ${this.settings.bgColor} !important;
+				--background-secondary-alt: ${this.settings.bgColor} !important;
+				--tab-background-active: transparent !important;
+				--tab-outline-width: transparent !important;
 			}
 			.dtb-enabled .workspace::before {
-				${backgroundProperty}: ${cssValue};
+				${backgroundProperty}: ${cssValue} !important;
 				background-size: cover;
 				background-repeat: no-repeat;
 				filter: blur(${this.settings.blurDepth}px) brightness(${this.settings.brightness4Bg}) saturate(${this.settings.saturate4Bg});
