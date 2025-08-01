@@ -1,8 +1,70 @@
-/*
+/* Dynamic Theme Background Plugin Styles */
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.dtb-background-container {
+	margin: 1rem 0;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	padding: 1rem;
+}
 
-If your plugin does not need CSS, delete this file.
+.dtb-background-item {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.5rem;
+	border-bottom: 1px solid var(--background-modifier-border);
+	margin-bottom: 0.5rem;
+}
 
-*/
+.dtb-background-item:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+}
+
+.dtb-bg-name {
+	font-weight: 500;
+	flex: 1;
+}
+
+.dtb-bg-type {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	padding: 0.2rem 0.5rem;
+	border-radius: 4px;
+	font-size: 0.8rem;
+}
+
+.dtb-bg-preview {
+	width: 40px;
+	height: 40px;
+	border-radius: 4px;
+	border: 1px solid var(--background-modifier-border);
+	background-size: cover;
+	background-position: center;
+}
+
+.dtb-bg-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.dtb-bg-actions button {
+	padding: 0.3rem 0.6rem;
+	border-radius: 4px;
+	border: 1px solid var(--interactive-normal);
+	background: var(--interactive-normal);
+	color: var(--text-normal);
+	cursor: pointer;
+	font-size: 0.8rem;
+}
+
+.dtb-bg-actions button:hover {
+	background: var(--interactive-hover);
+}
+
+/* 时间规则样式 */
+.setting-item.mod-toggle .setting-item-control {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}

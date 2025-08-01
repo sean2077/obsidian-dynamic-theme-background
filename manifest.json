@@ -1,11 +1,10 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "dynamic-theme-background",
+	"name": "Dynamic Theme Background",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Automatically change theme backgrounds based on time schedules or intervals. Support custom time rules and multiple background types.",
+	"author": "sean2077",
+	"authorUrl": "https://github.com/sean2077",
 	"isDesktopOnly": false
 }
