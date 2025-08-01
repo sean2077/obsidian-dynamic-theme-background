@@ -306,7 +306,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             console.warn(`DTB: Cannot get resource path for image ${imagePath}`);
             return 'none';
         }
-        console.log(`DTB: Using resource path ${p} for image ${imagePath}`);
+        console.debug(`DTB: Using resource path ${p} for image ${imagePath}`);
         return `url(${p})`; // 形如 app://local/path/to/image.jpg
     }
 
@@ -414,8 +414,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                     // 判断是否与当前背景不同
                     needsUpdate = this.background?.id !== rule.backgroundId;
 
-                    // 调试信息
-                    console.log('DTB: TimeRule mode - current time rule', rule);
+                    // 调试信息, 降低等级，避免刷屏
+                    console.debug('DTB: TimeRule mode - current time rule', rule);
                 }
                 break;
 
@@ -427,7 +427,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                     this.saveSettings();
                     needsUpdate = true; // 每次间隔切换都需要更新背景
 
-                    console.log('DTB: Interval mode - current index and background', this.settings.currentIndex, this.background);
+                    console.debug('DTB: Interval mode - current index and background', this.settings.currentIndex, this.background);
                 }
                 break;
         }
