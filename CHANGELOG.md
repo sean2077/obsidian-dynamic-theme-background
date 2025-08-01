@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.1.1...1.2.0) (2025-08-01)
+
+
+### Features
+
+* Add language supportings for English and Chinese translations ([a509fd1](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/a509fd14e396e942ad16c8b6e38514a75f43cbf3))
+
 ## [1.1.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/v1.1.0...1.1.1) (2025-08-01)
 
 
