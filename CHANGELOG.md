@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/v1.0.1...v1.1.0) (2025-08-01)
+
+
+### Features
+
+* 重命名更新背景方法并优化背景更新逻辑 ([9346a73](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/9346a73445dbbdae4520bb64d4aa8d89c7fdcc6a))
+
 ## [1.0.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/v1.0.0...v1.0.1) (2025-08-01)
 
 
