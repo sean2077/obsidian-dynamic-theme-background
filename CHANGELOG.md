@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.2.0...1.2.1) (2025-08-01)
+
+
+### Bug Fixes
+
+* Reduce the log level of debugging information to avoid screen brushing ([dae5607](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/dae56073188f94ded59f487c6738a380cf40bf8e))
+
 # [1.2.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.1.1...1.2.0) (2025-08-01)
 
 
