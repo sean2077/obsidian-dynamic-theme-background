@@ -116,12 +116,50 @@
     height: 48px;
     border-radius: 8px;
     border: 2px solid var(--background-modifier-border);
-    background-size: cover;
-    background-position: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
+    /* 默认背景样式 */
+    background-color: var(--background-secondary);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* 图片类型预览的特殊样式 */
+.dtb-bg-preview.dtb-preview-image {
+    background-image: var(--dtb-preview-bg-image, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* 颜色和渐变类型预览的特殊样式 */
+.dtb-bg-preview.dtb-preview-color,
+.dtb-bg-preview.dtb-preview-gradient {
+    background: var(--dtb-preview-bg, var(--background-secondary));
+    background-size: auto;
+    background-position: initial;
+    background-repeat: initial;
+}
+
+/* 预览图加载失败时的占位样式 */
+.dtb-bg-preview::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--background-secondary);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: -1;
+}
+
+/* 当背景图片加载失败时显示占位符 */
+.dtb-bg-preview.dtb-preview-image:not(
+        [style*="--dtb-preview-bg-image"]
+    )::before {
+    opacity: 1;
 }
 
 /* 预览图内侧光晕效果 */

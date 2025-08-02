@@ -849,7 +849,7 @@ class ImagePathSuggestModal extends SuggestModal<string> {
 
         // 创建图标和文本
         const icon = container.createSpan({ cls: "suggestion-icon" });
-        icon.innerHTML = "🖼️"; // 图片图标
+        icon.textContent = "🖼️"; // 图片图标
 
         const text = container.createSpan({ cls: "suggestion-text" });
         text.textContent = imagePath;
@@ -1182,7 +1182,7 @@ class DTBSettingTab extends PluginSettingTab {
 
             // 添加拖拽手柄
             const dragHandle = bgEl.createDiv("dtb-drag-handle");
-            dragHandle.innerHTML = "⋮⋮"; // 使用双点符号作为拖拽手柄
+            dragHandle.textContent = "⋮⋮"; // 使用双点符号作为拖拽手柄
             dragHandle.title = t("drag_handle_tooltip");
 
             const contentDiv = bgEl.createDiv("dtb-bg-content");
@@ -1191,14 +1191,7 @@ class DTBSettingTab extends PluginSettingTab {
 
             // 预览
             const preview = contentDiv.createDiv("dtb-bg-preview");
-            if (bg.type === "image") {
-                preview.style.backgroundImage = this.plugin.sanitizeImagePath(
-                    bg.value
-                );
-                preview.style.backgroundSize = "cover";
-            } else {
-                preview.style.background = bg.value;
-            }
+            this.setPreviewBackground(preview, bg);
 
             // 操作按钮
             const actions = contentDiv.createDiv("dtb-bg-actions");
@@ -1549,6 +1542,50 @@ class DTBSettingTab extends PluginSettingTab {
             new Notice(t("folder_no_new_images"));
         }
     }
+
+    /**
+     * 设置预览元素的背景样式
+     * 使用 CSS 自定义属性而不是内联样式，遵循 Obsidian 官方建议
+     */
+    setPreviewBackground(preview: HTMLElement, bg: BackgroundItem) {
+        // 移除之前的类型特定类名
+        preview.removeClass(
+            "dtb-preview-image",
+            "dtb-preview-color",
+            "dtb-preview-gradient"
+        );
+
+        // 清除之前设置的 CSS 自定义属性
+        preview.style.removeProperty("--dtb-preview-bg-image");
+        preview.style.removeProperty("--dtb-preview-bg");
+
+        switch (bg.type) {
+            case "image":
+                preview.addClass("dtb-preview-image");
+                const sanitizedImagePath = this.plugin.sanitizeImagePath(
+                    bg.value
+                );
+                // 只有当图片路径有效时才设置 CSS 变量
+                if (sanitizedImagePath && sanitizedImagePath !== "none") {
+                    preview.style.setProperty(
+                        "--dtb-preview-bg-image",
+                        sanitizedImagePath
+                    );
+                }
+                break;
+            case "color":
+            case "gradient":
+                preview.addClass(`dtb-preview-${bg.type}`);
+                // 验证颜色/渐变值的有效性
+                if (bg.value && bg.value.trim()) {
+                    preview.style.setProperty("--dtb-preview-bg", bg.value);
+                }
+                break;
+            default:
+                console.warn(`DTB: Unknown background type: ${bg.type}`);
+                break;
+        }
+    }
 }
 
 // 自定义设置视图类 - 用于在标签页中显示设置
@@ -1556,7 +1593,7 @@ export const DTB_SETTINGS_VIEW_TYPE = "dtb-settings";
 
 export class DTBSettingsView extends ItemView {
     plugin: DynamicThemeBackgroundPlugin;
-    settingTab: DTBSettingTab;
+    settingTab: DTBSettingTab | null;
 
     constructor(leaf: WorkspaceLeaf, plugin: DynamicThemeBackgroundPlugin) {
         super(leaf);
@@ -1588,15 +1625,19 @@ export class DTBSettingsView extends ItemView {
         container.addClass("dtb-settings-view");
 
         // 使用设置标签页的显示逻辑，但在我们自己的容器中
-        this.settingTab.containerEl = container as HTMLElement;
-        this.settingTab.display();
+        if (this.settingTab) {
+            this.settingTab.containerEl = container as HTMLElement;
+            this.settingTab.display();
+        }
     }
 
     async onClose(): Promise<void> {
         // 清理资源
-        this.settingTab.containerEl.empty();
-        this.settingTab.containerEl.removeClass("dtb-settings-view");
-        this.settingTab = null as any; // 释放引用，帮助垃圾回收
+        if (this.settingTab && this.settingTab.containerEl) {
+            this.settingTab.containerEl.empty();
+            this.settingTab.containerEl.removeClass("dtb-settings-view");
+        }
+        this.settingTab = null; // 释放引用，帮助垃圾回收
         this.plugin.deactivateView(); // 确保视图被正确清理
         console.log("DTBSettingsView closed");
     }
