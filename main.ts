@@ -946,6 +946,20 @@ class DTBSettingTab extends PluginSettingTab {
                             this.plugin.stopBackgroundManager();
                         }
                     })
+            )
+            .addExtraButton((button) =>
+                button
+                    .setIcon("refresh-cw")
+                    .setTooltip(t("reload_plugin_tooltip"))
+                    .onClick(async () => {
+                        // 重新启动背景管理器
+                        if (this.plugin.settings.enabled) {
+                            this.plugin.startBackgroundManager();
+                        }
+                        // 强制更新当前背景
+                        this.plugin.updateBackground(true);
+                        new Notice(t("reload_plugin_notice"));
+                    })
             );
 
         // 统一的背景模糊度设置
@@ -1116,7 +1130,6 @@ class DTBSettingTab extends PluginSettingTab {
                         async (value: "time-based" | "interval" | "manual") => {
                             this.plugin.settings.mode = value;
                             await this.plugin.saveSettings();
-                            this.plugin.stopBackgroundManager();
                             this.plugin.startBackgroundManager();
                             this.display();
                         }

@@ -79,5 +79,7 @@
     "delete_button": "Delete",
     "edit_button": "Edit",
     "select_background_option": "Select Background",
-    "command_open_settings_tab_name": "Open Settings in New Tab"
+    "command_open_settings_tab_name": "Open Settings in New Tab",
+    "reload_plugin_tooltip": "Reload plugin",
+    "reload_plugin_notice": "Plugin reloaded"
 }
