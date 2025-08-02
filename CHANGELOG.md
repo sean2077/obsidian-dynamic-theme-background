@@ -1,3 +1,16 @@
+# [1.5.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.4.0...1.5.0) (2025-08-02)
+
+
+### Bug Fixes
+
+* Update background item name to display only the last folder name ([5e380a4](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/5e380a4b53693ced8e626bd7d66545e7eefab022))
+
+
+### Features
+
+* Add image path suggestion modal and folder suggestion modal to improve the experience of adding image backgrounds. ([cfa2a46](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/cfa2a460b85885a356ff0d6e65d14217e3bbc644))
+* Supports batch adding images from folders ([dbb504e](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/dbb504edc6b87cc6ad474e30bec71c4d73914477))
+
 # [1.4.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.3.0...1.4.0) (2025-08-02)
 
 
