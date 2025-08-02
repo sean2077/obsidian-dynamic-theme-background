@@ -81,5 +81,7 @@
     "select_background_option": "Select Background",
     "command_open_settings_tab_name": "Open Settings in New Tab",
     "reload_plugin_tooltip": "Reload plugin",
-    "reload_plugin_notice": "Plugin reloaded"
+    "reload_plugin_notice": "Plugin reloaded",
+    "drag_hint_text": "💡 Tip: You can drag background items to reorder them",
+    "drag_handle_tooltip": "Drag to reorder"
 }

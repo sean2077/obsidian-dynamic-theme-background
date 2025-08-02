@@ -1086,6 +1086,11 @@ class DTBSettingTab extends PluginSettingTab {
 
         // 背景管理
         containerEl.createEl("h3", { text: t("bg_management_title") });
+
+        // 添加拖拽提示
+        const dragHint = containerEl.createDiv("dtb-drag-hint");
+        dragHint.textContent = t("drag_hint_text");
+
         const addBgContainer = containerEl.createDiv("dtb-add-bg-container");
 
         new Setting(addBgContainer)
@@ -1182,11 +1187,23 @@ class DTBSettingTab extends PluginSettingTab {
 
         this.plugin.settings.backgrounds.forEach((bg, index) => {
             const bgEl = container.createDiv("dtb-background-item");
-            bgEl.createSpan({ text: bg.name, cls: "dtb-bg-name" });
-            bgEl.createSpan({ text: bg.type, cls: "dtb-bg-type" });
+
+            // 添加拖拽相关属性
+            bgEl.draggable = true;
+            bgEl.dataset.bgId = bg.id;
+            bgEl.dataset.index = index.toString();
+
+            // 添加拖拽手柄
+            const dragHandle = bgEl.createDiv("dtb-drag-handle");
+            dragHandle.innerHTML = "⋮⋮"; // 使用双点符号作为拖拽手柄
+            dragHandle.title = t("drag_handle_tooltip");
+
+            const contentDiv = bgEl.createDiv("dtb-bg-content");
+            contentDiv.createSpan({ text: bg.name, cls: "dtb-bg-name" });
+            contentDiv.createSpan({ text: bg.type, cls: "dtb-bg-type" });
 
             // 预览
-            const preview = bgEl.createDiv("dtb-bg-preview");
+            const preview = contentDiv.createDiv("dtb-bg-preview");
             if (bg.type === "image") {
                 preview.style.backgroundImage = this.plugin.sanitizeImagePath(
                     bg.value
@@ -1197,7 +1214,7 @@ class DTBSettingTab extends PluginSettingTab {
             }
 
             // 操作按钮
-            const actions = bgEl.createDiv("dtb-bg-actions");
+            const actions = contentDiv.createDiv("dtb-bg-actions");
 
             actions.createEl("button", { text: t("preview_button") }).onclick =
                 () => {
@@ -1215,7 +1232,145 @@ class DTBSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     this.display();
                 };
+
+            // 添加拖拽事件监听器
+            this.addDragListeners(bgEl);
         });
+    }
+
+    // 添加拖拽事件监听器的辅助方法
+    addDragListeners(element: HTMLElement) {
+        element.addEventListener("dragstart", (e) => {
+            if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData(
+                    "text/plain",
+                    element.dataset.bgId || ""
+                );
+                element.classList.add("dtb-dragging");
+            }
+        });
+
+        element.addEventListener("dragend", () => {
+            element.classList.remove("dtb-dragging");
+            // 移除所有拖拽相关的样式
+            const allItems = element.parentElement?.querySelectorAll(
+                ".dtb-background-item"
+            );
+            allItems?.forEach((item) => {
+                item.classList.remove(
+                    "dtb-drag-over",
+                    "dtb-drag-over-top",
+                    "dtb-drag-over-bottom"
+                );
+            });
+        });
+
+        element.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            if (e.dataTransfer) {
+                e.dataTransfer.dropEffect = "move";
+            }
+
+            // 确定拖拽位置（上半部分还是下半部分）
+            const rect = element.getBoundingClientRect();
+            const midpoint = rect.top + rect.height / 2;
+            const isTopHalf = e.clientY < midpoint;
+
+            // 移除之前的样式
+            element.classList.remove(
+                "dtb-drag-over-top",
+                "dtb-drag-over-bottom"
+            );
+
+            // 添加适当的样式
+            if (isTopHalf) {
+                element.classList.add("dtb-drag-over-top");
+            } else {
+                element.classList.add("dtb-drag-over-bottom");
+            }
+        });
+
+        element.addEventListener("dragleave", (e) => {
+            // 只有当鼠标真正离开元素时才移除样式
+            if (!element.contains(e.relatedTarget as Node)) {
+                element.classList.remove(
+                    "dtb-drag-over-top",
+                    "dtb-drag-over-bottom"
+                );
+            }
+        });
+
+        element.addEventListener("drop", async (e) => {
+            e.preventDefault();
+
+            const draggedId = e.dataTransfer?.getData("text/plain");
+            const targetId = element.dataset.bgId;
+
+            if (!draggedId || !targetId || draggedId === targetId) {
+                return;
+            }
+
+            // 确定插入位置
+            const rect = element.getBoundingClientRect();
+            const midpoint = rect.top + rect.height / 2;
+            const insertAfter = e.clientY >= midpoint;
+
+            await this.reorderBackgrounds(draggedId, targetId, insertAfter);
+
+            // 清理样式
+            element.classList.remove(
+                "dtb-drag-over-top",
+                "dtb-drag-over-bottom"
+            );
+        });
+    }
+
+    // 重新排序背景的方法
+    async reorderBackgrounds(
+        draggedId: string,
+        targetId: string,
+        insertAfter: boolean
+    ) {
+        const backgrounds = this.plugin.settings.backgrounds;
+        const draggedIndex = backgrounds.findIndex((bg) => bg.id === draggedId);
+        const targetIndex = backgrounds.findIndex((bg) => bg.id === targetId);
+
+        if (draggedIndex === -1 || targetIndex === -1) {
+            console.warn("DTB: Invalid drag operation - background not found");
+            return;
+        }
+
+        // 如果拖拽到相同位置，则不做任何操作
+        if (
+            draggedIndex === targetIndex ||
+            (insertAfter && draggedIndex === targetIndex + 1) ||
+            (!insertAfter && draggedIndex === targetIndex - 1)
+        ) {
+            return;
+        }
+
+        // 保存被拖拽的背景名称用于用户反馈
+        const draggedName = backgrounds[draggedIndex].name;
+
+        // 移除被拖拽的元素
+        const draggedItem = backgrounds.splice(draggedIndex, 1)[0];
+
+        // 计算新的插入位置
+        let newTargetIndex = backgrounds.findIndex((bg) => bg.id === targetId);
+        if (insertAfter) {
+            newTargetIndex++;
+        }
+
+        // 插入到新位置
+        backgrounds.splice(newTargetIndex, 0, draggedItem);
+
+        // 保存设置并重新显示
+        await this.plugin.saveSettings();
+        this.display();
+
+        // 给用户一个成功的反馈
+        console.log(`DTB: Successfully reordered background "${draggedName}"`);
     }
 
     displayTimeRules(container: HTMLElement) {

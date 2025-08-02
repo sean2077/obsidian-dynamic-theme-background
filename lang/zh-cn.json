@@ -81,5 +81,7 @@
     "select_background_option": "选择背景",
     "command_open_settings_tab_name": "在新标签页中打开设置",
     "reload_plugin_tooltip": "重新加载插件",
-    "reload_plugin_notice": "插件已重新加载"
+    "reload_plugin_notice": "插件已重新加载",
+    "drag_hint_text": "💡 提示：您可以拖拽背景项目来重新排序",
+    "drag_handle_tooltip": "拖拽以重新排序"
 }
