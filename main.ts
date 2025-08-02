@@ -91,7 +91,7 @@ function genDefaultSettings() {
                 name: t("default_morning_rule"),
                 startTime: "06:00",
                 endTime: "09:00",
-                backgroundId: "default-morning",
+                backgroundId: "blue-purple-gradient",
                 enabled: true,
             },
             {
@@ -99,7 +99,7 @@ function genDefaultSettings() {
                 name: t("default_later_morning_rule"),
                 startTime: "09:00",
                 endTime: "11:00",
-                backgroundId: "default-later-morning",
+                backgroundId: "pink-gradient",
                 enabled: true,
             },
             {
@@ -107,7 +107,7 @@ function genDefaultSettings() {
                 name: t("default_noon_rule"),
                 startTime: "11:00",
                 endTime: "13:00",
-                backgroundId: "default-noon",
+                backgroundId: "blue-cyan-gradient",
                 enabled: true,
             },
             {
@@ -115,7 +115,7 @@ function genDefaultSettings() {
                 name: t("default_afternoon_rule"),
                 startTime: "13:00",
                 endTime: "17:00",
-                backgroundId: "default-afternoon",
+                backgroundId: "green-cyan-gradient",
                 enabled: true,
             },
             {
@@ -123,7 +123,7 @@ function genDefaultSettings() {
                 name: t("default_dusk_rule"),
                 startTime: "17:00",
                 endTime: "18:00",
-                backgroundId: "default-dusk",
+                backgroundId: "pink-yellow-gradient",
                 enabled: true,
             },
             {
@@ -131,7 +131,7 @@ function genDefaultSettings() {
                 name: t("default_evening_rule"),
                 startTime: "18:00",
                 endTime: "22:00",
-                backgroundId: "default-evening",
+                backgroundId: "cyan-pink-gradient",
                 enabled: true,
             },
             {
@@ -139,51 +139,51 @@ function genDefaultSettings() {
                 name: t("default_night_rule"),
                 startTime: "22:00",
                 endTime: "06:00",
-                backgroundId: "default-night",
+                backgroundId: "dark-blue-gray-gradient",
                 enabled: true,
             },
         ],
         intervalMinutes: 60,
         backgrounds: [
             {
-                id: "default-morning",
-                name: t("default_morning_bg"),
+                id: "blue-purple-gradient",
+                name: t("blue_purple_gradient_bg"),
                 type: "gradient",
                 value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             },
             {
-                id: "default-later-morning",
-                name: t("default_later_morning_bg"),
+                id: "pink-gradient",
+                name: t("pink_gradient_bg"),
                 type: "gradient",
                 value: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
             },
             {
-                id: "default-noon",
-                name: t("default_noon_bg"),
+                id: "blue-cyan-gradient",
+                name: t("blue_cyan_gradient_bg"),
                 type: "gradient",
                 value: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
             },
             {
-                id: "default-afternoon",
-                name: t("default_afternoon_bg"),
+                id: "green-cyan-gradient",
+                name: t("green_cyan_gradient_bg"),
                 type: "gradient",
                 value: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
             },
             {
-                id: "default-dusk",
-                name: t("default_dusk_bg"),
+                id: "pink-yellow-gradient",
+                name: t("pink_yellow_gradient_bg"),
                 type: "gradient",
                 value: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
             },
             {
-                id: "default-evening",
-                name: t("default_evening_bg"),
+                id: "cyan-pink-gradient",
+                name: t("cyan_pink_gradient_bg"),
                 type: "gradient",
                 value: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
             },
             {
-                id: "default-night",
-                name: t("default_night_bg"),
+                id: "dark-blue-gray-gradient",
+                name: t("dark_blue_gray_gradient_bg"),
                 type: "gradient",
                 value: "linear-gradient(135deg, #2c3e50 0%, #34495e 100%)",
             },
@@ -1101,6 +1101,12 @@ class DTBSettingTab extends PluginSettingTab {
                 button
                     .setButtonText(t("add_folder_bg_button"))
                     .onClick(() => this.showAddFolderModal())
+            )
+            .addExtraButton((button) =>
+                button
+                    .setIcon("reset")
+                    .setTooltip(t("restore_default_bg_tooltip"))
+                    .onClick(() => this.restoreDefaultBackgrounds())
             );
         const backgroundContainer = containerEl.createDiv(
             "dtb-background-container"
@@ -1584,6 +1590,46 @@ class DTBSettingTab extends PluginSettingTab {
             default:
                 console.warn(`DTB: Unknown background type: ${bg.type}`);
                 break;
+        }
+    }
+
+    async restoreDefaultBackgrounds() {
+        // 重新生成默认设置以获取最新的默认背景
+        genDefaultSettings();
+        const defaultBackgrounds = DEFAULT_SETTINGS.backgrounds;
+
+        let addedCount = 0;
+
+        // 遍历默认背景，只添加不存在的
+        for (const defaultBg of defaultBackgrounds) {
+            const existingBg = this.plugin.settings.backgrounds.find(
+                (bg) => bg.id === defaultBg.id
+            );
+
+            if (!existingBg) {
+                // 创建新的背景项，确保 ID 唯一
+                const newBg: BackgroundItem = {
+                    id: defaultBg.id,
+                    name: defaultBg.name,
+                    type: defaultBg.type,
+                    value: defaultBg.value,
+                };
+
+                this.plugin.settings.backgrounds.push(newBg);
+                addedCount++;
+            }
+        }
+
+        if (addedCount > 0) {
+            await this.plugin.saveSettings();
+            this.display();
+            new Notice(
+                t("restore_default_bg_success", {
+                    count: addedCount.toString(),
+                })
+            );
+        } else {
+            new Notice(t("restore_default_bg_no_new"));
         }
     }
 }
