@@ -626,8 +626,7 @@ class BackgroundModal extends Modal {
         // Name input
         contentEl.createEl("label", { text: t("bg_name_label") });
         this.nameInput = contentEl.createEl("input", { type: "text" });
-        this.nameInput.style.width = "100%";
-        this.nameInput.style.marginBottom = "10px";
+        this.nameInput.addClass("dtb-modal-input");
 
         // Value input
         let valueLabel = "";
@@ -654,15 +653,13 @@ class BackgroundModal extends Modal {
         // 为图片类型创建带有浏览按钮的输入区域
         if (this.type === "image") {
             const inputContainer = contentEl.createDiv();
-            inputContainer.style.display = "flex";
-            inputContainer.style.gap = "8px";
-            inputContainer.style.marginBottom = "20px";
+            inputContainer.addClass("dtb-modal-flex-container-spaced");
 
             this.valueInput = inputContainer.createEl("input", {
                 type: "text",
                 placeholder,
             });
-            this.valueInput.style.flex = "1";
+            this.valueInput.addClass("dtb-flex-1");
 
             const browseButton = inputContainer.createEl("button", {
                 text: "Browse",
@@ -682,14 +679,12 @@ class BackgroundModal extends Modal {
                 type: "text",
                 placeholder,
             });
-            this.valueInput.style.width = "100%";
-            this.valueInput.style.marginBottom = "20px";
+            this.valueInput.addClass("dtb-modal-input-large");
         }
 
         // Buttons
         const buttonContainer = contentEl.createDiv();
-        buttonContainer.style.display = "flex";
-        buttonContainer.style.justifyContent = "flex-end";
+        buttonContainer.addClass("dtb-modal-flex-container");
 
         const cancelButton = buttonContainer.createEl("button", {
             text: t("cancel_button"),
@@ -699,7 +694,6 @@ class BackgroundModal extends Modal {
         const submitButton = buttonContainer.createEl("button", {
             text: t("confirm_button"),
         });
-        submitButton.style.marginLeft = "10px";
         submitButton.onclick = () => {
             this.onSubmit(
                 this.nameInput.value,
@@ -751,8 +745,7 @@ class TimeRuleModal extends Modal {
             type: "text",
             value: this.rule.name,
         });
-        this.nameInput.style.width = "100%";
-        this.nameInput.style.marginBottom = "10px";
+        this.nameInput.addClass("dtb-modal-input");
 
         // Start time input
         contentEl.createEl("label", { text: t("start_time_label") });
@@ -760,8 +753,7 @@ class TimeRuleModal extends Modal {
             type: "time",
             value: this.rule.startTime,
         });
-        this.startTimeInput.style.width = "100%";
-        this.startTimeInput.style.marginBottom = "10px";
+        this.startTimeInput.addClass("dtb-modal-input");
 
         // End time input
         contentEl.createEl("label", { text: t("end_time_label") });
@@ -769,13 +761,11 @@ class TimeRuleModal extends Modal {
             type: "time",
             value: this.rule.endTime,
         });
-        this.endTimeInput.style.width = "100%";
-        this.endTimeInput.style.marginBottom = "20px";
+        this.endTimeInput.addClass("dtb-modal-input-large");
 
         // Buttons
         const buttonContainer = contentEl.createDiv();
-        buttonContainer.style.display = "flex";
-        buttonContainer.style.justifyContent = "flex-end";
+        buttonContainer.addClass("dtb-modal-flex-container");
 
         const cancelButton = buttonContainer.createEl("button", {
             text: t("cancel_button"),
@@ -785,7 +775,6 @@ class TimeRuleModal extends Modal {
         const submitButton = buttonContainer.createEl("button", {
             text: t("confirm_button"),
         });
-        submitButton.style.marginLeft = "10px";
         submitButton.onclick = () => {
             this.onSubmit({
                 name: this.nameInput.value,
@@ -865,10 +854,8 @@ class ImagePathSuggestModal extends SuggestModal<string> {
         const text = container.createSpan({ cls: "suggestion-text" });
         text.textContent = imagePath;
 
-        // 添加一些基本样式
-        container.style.display = "flex";
-        container.style.alignItems = "center";
-        container.style.gap = "8px";
+        // 添加样式类
+        container.addClass("dtb-suggestion-item");
     }
 
     // 选择建议项时的回调
