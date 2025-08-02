@@ -1,4 +1,4 @@
-import { App, getLanguage, ItemView, Modal, Notice, Plugin, PluginSettingTab, Setting, WorkspaceLeaf } from 'obsidian';
+import { App, getLanguage, ItemView, Modal, Notice, Plugin, PluginSettingTab, Setting, SuggestModal, WorkspaceLeaf } from 'obsidian';
 
 // 导入语言文件
 import en from './lang/en.json';
@@ -589,9 +589,30 @@ class BackgroundModal extends Modal {
         }
 
         contentEl.createEl('label', { text: valueLabel });
-        this.valueInput = contentEl.createEl('input', { type: 'text', placeholder });
-        this.valueInput.style.width = '100%';
-        this.valueInput.style.marginBottom = '20px';
+
+        // 为图片类型创建带有浏览按钮的输入区域
+        if (this.type === 'image') {
+            const inputContainer = contentEl.createDiv();
+            inputContainer.style.display = 'flex';
+            inputContainer.style.gap = '8px';
+            inputContainer.style.marginBottom = '20px';
+
+            this.valueInput = inputContainer.createEl('input', { type: 'text', placeholder });
+            this.valueInput.style.flex = '1';
+
+            const browseButton = inputContainer.createEl('button', { text: 'Browse' });
+            browseButton.type = 'button';
+            browseButton.onclick = () => {
+                const modal = new ImagePathSuggestModal(this.app, (imagePath) => {
+                    this.valueInput.value = imagePath;
+                });
+                modal.open();
+            };
+        } else {
+            this.valueInput = contentEl.createEl('input', { type: 'text', placeholder });
+            this.valueInput.style.width = '100%';
+            this.valueInput.style.marginBottom = '20px';
+        }
 
         // Buttons
         const buttonContainer = contentEl.createDiv();
@@ -681,54 +702,100 @@ class TimeRuleModal extends Modal {
     }
 }
 
-class FolderModal extends Modal {
+
+class ImagePathSuggestModal extends SuggestModal<string> {
+    onSubmit: (imagePath: string) => void;
+
+    constructor(app: App, onSubmit: (imagePath: string) => void) {
+        super(app);
+        this.onSubmit = onSubmit;
+        this.setPlaceholder('https://example.com/image.jpg OR path/to/image.jpg');
+    }
+
+    // 获取所有建议项
+    getSuggestions(query: string): string[] {
+        // 只有当用户输入了内容时才显示建议
+        if (query.trim() === '') {
+            return [];
+        }
+
+        // 如果是远程URL，不提供补全
+        if (query.startsWith('http://') || query.startsWith('https://') || query.startsWith('www.')) {
+            return [];
+        }
+
+        // 获取所有图片文件
+        const files = this.app.vault.getFiles();
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
+
+        // 过滤出图片文件并匹配查询
+        return files
+            .filter(file => imageExtensions.some(ext => file.path.toLowerCase().endsWith(ext)))
+            .map(file => file.path)
+            .filter(path => path.toLowerCase().includes(query.toLowerCase()))
+            .sort()
+            .slice(0, 10); // 限制显示数量
+    }
+
+    // 渲染建议项
+    renderSuggestion(imagePath: string, el: HTMLElement) {
+        const container = el.createDiv({ cls: 'image-suggestion-item' });
+
+        // 创建图标和文本
+        const icon = container.createSpan({ cls: 'suggestion-icon' });
+        icon.innerHTML = '🖼️'; // 图片图标
+
+        const text = container.createSpan({ cls: 'suggestion-text' });
+        text.textContent = imagePath;
+
+        // 添加一些基本样式
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.gap = '8px';
+    }
+
+    // 选择建议项时的回调
+    onChooseSuggestion(imagePath: string, evt: MouseEvent | KeyboardEvent) {
+        this.onSubmit(imagePath);
+    }
+}
+
+class ImageFolderSuggestModal extends SuggestModal<string> {
     onSubmit: (folderPath: string) => void;
-    folderPathInput: HTMLInputElement;
 
     constructor(app: App, onSubmit: (folderPath: string) => void) {
         super(app);
         this.onSubmit = onSubmit;
+        this.setPlaceholder(t('folder_path_placeholder'));
     }
 
-    onOpen() {
-        const { contentEl } = this;
+    // 获取所有建议项
+    getSuggestions(query: string): string[] {
+        // 只有当用户输入了内容时才显示建议
+        if (query.trim() === '') {
+            return [];
+        }
 
-        contentEl.createEl('h2', { text: t('add_folder_modal_title') });
+        const folders = this.app.vault.getAllFolders();
 
-        // Folder path input
-        contentEl.createEl('label', { text: t('folder_path_label') });
-        this.folderPathInput = contentEl.createEl('input', {
-            type: 'text',
-            placeholder: t('folder_path_placeholder')
-        });
-        this.folderPathInput.style.width = '100%';
-        this.folderPathInput.style.marginBottom = '20px';
-
-        // Buttons
-        const buttonContainer = contentEl.createDiv();
-        buttonContainer.style.display = 'flex';
-        buttonContainer.style.justifyContent = 'flex-end';
-
-        const cancelButton = buttonContainer.createEl('button', { text: t('cancel_button') });
-        cancelButton.onclick = () => this.close();
-
-        const submitButton = buttonContainer.createEl('button', { text: t('confirm_button') });
-        submitButton.style.marginLeft = '10px';
-        submitButton.onclick = () => {
-            const folderPath = this.folderPathInput.value.trim();
-            if (folderPath) {
-                this.onSubmit(folderPath);
-                this.close();
-            }
-        };
+        // 过滤匹配的文件夹
+        return folders
+            .map(folder => folder.path)
+            .filter(path => path.toLowerCase().includes(query.toLowerCase()))
+            .sort()
+            .slice(0, 10); // 限制显示数量
     }
 
-    onClose() {
-        const { contentEl } = this;
-        contentEl.empty();
+    // 渲染建议项
+    renderSuggestion(folderPath: string, el: HTMLElement) {
+        el.createEl('div', { text: folderPath });
+    }
+
+    // 选择建议项时的回调
+    onChooseSuggestion(folderPath: string, evt: MouseEvent | KeyboardEvent) {
+        this.onSubmit(folderPath);
     }
 }
-
 
 // 设置面板
 class DTBSettingTab extends PluginSettingTab {
@@ -1048,7 +1115,7 @@ class DTBSettingTab extends PluginSettingTab {
     }
 
     showAddFolderModal() {
-        const modal = new FolderModal(this.app, async (folderPath) => {
+        const modal = new ImageFolderSuggestModal(this.app, async (folderPath: string) => {
             await this.addImagesFromFolder(folderPath);
         });
 
