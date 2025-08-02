@@ -1113,9 +1113,11 @@ class DTBSettingTab extends PluginSettingTab {
 
             if (!existingBg) {
                 const fileName = file.name.replace(/\.[^/.]+$/, ''); // 移除扩展名
+                // 只保留最后一级文件夹名称，避免长路径影响观感
+                const folderName = folderPath === '' ? 'root' : folderPath.split('/').pop() || folderPath;
                 const newBg: BackgroundItem = {
                     id: Date.now().toString() + '-' + addedCount, // 确保ID唯一
-                    name: `${fileName} (${folderPath})`,
+                    name: `${fileName} (${folderName})`,
                     type: 'image',
                     value: file.path
                 };
