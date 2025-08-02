@@ -1,3 +1,11 @@
+# [1.6.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.5.0...1.6.0) (2025-08-02)
+
+
+### Features
+
+* Add drag-and-drop functionality and prompts to enhance the background management experience ([a5515fa](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/a5515fa9c74c86e376470e2f80e0f78051502dc7))
+* Add the ability to reload plugins ([be25200](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/be2520037ef85eb3b9de66e428616cc0d15b0e03))
+
 # [1.5.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.4.0...1.5.0) (2025-08-02)
 
 
