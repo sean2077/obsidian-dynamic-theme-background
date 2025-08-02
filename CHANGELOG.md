@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.3.0...1.4.0) (2025-08-02)
+
+
+### Features
+
+* Add background color and transparency settings ([68bb57c](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/68bb57c94cb1574df6615b66425d003c02883215))
+
 # [1.3.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.2.1...1.3.0) (2025-08-02)
 
 
