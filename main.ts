@@ -37,6 +37,7 @@ interface DTBSettings {
     brightness4Bg: number; // 默认亮度
     saturate4Bg: number; // 默认饱和度
     bgColor: string; // 默认背景颜色
+    bgColorOpacity: number; // 默认背景颜色透明度
 
 
     mode: 'time-based' | 'interval' | 'manual';
@@ -71,7 +72,8 @@ function genDefaultSettings() {
         blurDepth: 0, // default blur
         brightness4Bg: 0.9, // default brightness
         saturate4Bg: 1, // default saturation
-        bgColor: '#1f1e1e80', // default background color
+        bgColor: '#1f1e1e', // default background color (without alpha)
+        bgColorOpacity: 0.5, // default background color opacity (0-1)
         mode: 'time-based',
         timeRules: [
             {
@@ -343,6 +345,28 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         return `url(${p})`; // 形如 app://local/path/to/image.jpg
     }
 
+    // 将十六进制颜色转换为带透明度的rgba格式
+    hexToRgba(hex: string, opacity: number): string {
+        // 移除 # 符号
+        hex = hex.replace('#', '');
+
+        // 处理3位和6位十六进制颜色
+        if (hex.length === 3) {
+            hex = hex.split('').map(char => char + char).join('');
+        }
+
+        if (hex.length !== 6) {
+            console.warn('DTB: Invalid hex color format:', hex);
+            return `rgba(31, 30, 30, ${opacity})`;
+        }
+
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    }
+
     // 更新样式（真正更新背景的地方）
     updateStyleCss() {
         if (!this.settings.enabled || !this.background) {
@@ -369,12 +393,14 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         }
 
         // TODO .dtb-enabled 里可能会覆盖已有主题的样式，考虑更好的解法方案
+        const bgColorWithOpacity = this.hexToRgba(this.settings.bgColor, this.settings.bgColorOpacity);
+
         this.styleTag.innerText = `
 			.dtb-enabled {
-				--background-primary: ${this.settings.bgColor} !important;
-				--background-primary-alt: ${this.settings.bgColor} !important;
-				--background-secondary: ${this.settings.bgColor} !important;
-				--background-secondary-alt: ${this.settings.bgColor} !important;
+				--background-primary: ${bgColorWithOpacity} !important;
+				--background-primary-alt: ${bgColorWithOpacity} !important;
+				--background-secondary: ${bgColorWithOpacity} !important;
+				--background-secondary-alt: ${bgColorWithOpacity} !important;
 				--tab-background-active: transparent !important;
 				--tab-outline-width: transparent !important;
 			}
@@ -760,7 +786,7 @@ class DTBSettingTab extends PluginSettingTab {
                 }))
             ;
 
-        // 统一的背景颜色设置
+        // 统一的背景颜色和透明度设置
         new Setting(containerEl)
             .setName(t('bg_color_name'))
             .setDesc(t('bg_color_desc'))
@@ -771,11 +797,21 @@ class DTBSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     this.plugin.updateStyleCss();
                 }))
+            .addSlider(slider => slider
+                .setLimits(0, 1, 0.01)
+                .setValue(this.plugin.settings.bgColorOpacity)
+                .setDynamicTooltip()
+                .onChange(async (value: number) => {
+                    this.plugin.settings.bgColorOpacity = value;
+                    await this.plugin.saveSettings();
+                    this.plugin.updateStyleCss();
+                }))
             .addExtraButton(button => button
                 .setIcon('reset')
                 .setTooltip(t('reset_bg_color_tooltip'))
                 .onClick(async () => {
-                    this.plugin.settings.bgColor = DEFAULT_SETTINGS.bgColor; // 恢复默认值
+                    this.plugin.settings.bgColor = DEFAULT_SETTINGS.bgColor;
+                    this.plugin.settings.bgColorOpacity = DEFAULT_SETTINGS.bgColorOpacity;
                     await this.plugin.saveSettings();
                     this.plugin.updateStyleCss();
                     this.display();
