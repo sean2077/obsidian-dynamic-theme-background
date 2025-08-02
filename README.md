@@ -14,8 +14,7 @@ This is a plugin for Obsidian that dynamically changes backgrounds based on time
 - **Multiple background types support**: Including image, color, and gradient backgrounds, with image backgrounds supporting both remote images and local vault images
 - **Compatible with existing themes**: This plugin can be used with existing Obsidian themes (but will override some styles, see [Notes](#notes))
 
-![](assets/image.png)
-![](assets/image2.png)
+![](assets/dtb-demo.gif)
 
 ## Installation
 
