@@ -549,7 +549,7 @@ class BackgroundModal extends Modal {
     onOpen() {
         const { contentEl } = this;
 
-        let titleKey = '';
+        let titleKey: keyof typeof en;
         switch (this.type) {
             case 'image':
                 titleKey = 'add_modal_title_image';
@@ -561,7 +561,7 @@ class BackgroundModal extends Modal {
                 titleKey = 'add_modal_title_gradient';
                 break;
         }
-        contentEl.createEl('h2', { text: t(titleKey as keyof typeof en) });
+        contentEl.createEl('h2', { text: t(titleKey) });
 
         // Name input
         contentEl.createEl('label', { text: t('bg_name_label') });
@@ -672,6 +672,54 @@ class TimeRuleModal extends Modal {
                 endTime: this.endTimeInput.value
             });
             this.close();
+        };
+    }
+
+    onClose() {
+        const { contentEl } = this;
+        contentEl.empty();
+    }
+}
+
+class FolderModal extends Modal {
+    onSubmit: (folderPath: string) => void;
+    folderPathInput: HTMLInputElement;
+
+    constructor(app: App, onSubmit: (folderPath: string) => void) {
+        super(app);
+        this.onSubmit = onSubmit;
+    }
+
+    onOpen() {
+        const { contentEl } = this;
+
+        contentEl.createEl('h2', { text: t('add_folder_modal_title') });
+
+        // Folder path input
+        contentEl.createEl('label', { text: t('folder_path_label') });
+        this.folderPathInput = contentEl.createEl('input', {
+            type: 'text',
+            placeholder: t('folder_path_placeholder')
+        });
+        this.folderPathInput.style.width = '100%';
+        this.folderPathInput.style.marginBottom = '20px';
+
+        // Buttons
+        const buttonContainer = contentEl.createDiv();
+        buttonContainer.style.display = 'flex';
+        buttonContainer.style.justifyContent = 'flex-end';
+
+        const cancelButton = buttonContainer.createEl('button', { text: t('cancel_button') });
+        cancelButton.onclick = () => this.close();
+
+        const submitButton = buttonContainer.createEl('button', { text: t('confirm_button') });
+        submitButton.style.marginLeft = '10px';
+        submitButton.onclick = () => {
+            const folderPath = this.folderPathInput.value.trim();
+            if (folderPath) {
+                this.onSubmit(folderPath);
+                this.close();
+            }
         };
     }
 
@@ -822,6 +870,8 @@ class DTBSettingTab extends PluginSettingTab {
         // 背景管理
         containerEl.createEl('h3', { text: t('bg_management_title') });
         const addBgContainer = containerEl.createDiv('dtb-add-bg-container');
+
+
         new Setting(addBgContainer)
             .setName(t('add_new_bg_name'))
             .addButton(button => button
@@ -832,7 +882,10 @@ class DTBSettingTab extends PluginSettingTab {
                 .onClick(() => this.showAddBackgroundModal('color')))
             .addButton(button => button
                 .setButtonText(t('add_gradient_bg_button'))
-                .onClick(() => this.showAddBackgroundModal('gradient')));
+                .onClick(() => this.showAddBackgroundModal('gradient')))
+            .addButton(button => button
+                .setButtonText(t('add_folder_bg_button'))
+                .onClick(() => this.showAddFolderModal()));
         const backgroundContainer = containerEl.createDiv('dtb-background-container');
         this.displayBackgrounds(backgroundContainer);
 
@@ -992,6 +1045,93 @@ class DTBSettingTab extends PluginSettingTab {
         });
 
         modal.open();
+    }
+
+    showAddFolderModal() {
+        const modal = new FolderModal(this.app, async (folderPath) => {
+            await this.addImagesFromFolder(folderPath);
+        });
+
+        modal.open();
+    }
+
+    async addImagesFromFolder(folderPath: string) {
+        try {
+            // 标准化路径：移除开头和结尾的斜杠，只处理 vault 内的相对路径
+            folderPath = folderPath.replace(/^\/+|\/+$/g, '');
+
+            let folderFiles: any[] = [];
+
+            if (folderPath !== '') {
+                // 尝试获取指定文件夹
+                const folder = this.app.vault.getFolderByPath(folderPath);
+                if (folder) {
+                    // 只获取该文件夹下的直接子文件（不递归）
+                    folderFiles = this.app.vault.getFiles().filter(file => {
+                        const fileDir = file.path.substring(0, file.path.lastIndexOf('/'));
+                        return fileDir === folderPath;
+                    });
+                } else {
+                    new Notice(t('folder_not_found'));
+                    return;
+                }
+            }
+
+            if (folderFiles.length === 0) {
+                new Notice(t('folder_not_found'));
+                return;
+            }
+
+            await this.processImageFiles(folderFiles, folderPath);
+        } catch (error) {
+            console.error('DTB: Error scanning folder:', error);
+            new Notice(t('folder_scan_error', { error: error.message }));
+        }
+    }
+
+    async processImageFiles(files: any[], folderPath: string) {
+        // 支持的图片格式
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
+
+        // 过滤出图片文件
+        const imageFiles = files.filter(file =>
+            imageExtensions.some(ext => file.path.toLowerCase().endsWith(ext))
+        );
+
+        if (imageFiles.length === 0) {
+            new Notice(t('folder_not_found'));
+            return;
+        }
+
+        let addedCount = 0;
+
+        for (const file of imageFiles) {
+            // 检查是否已存在相同路径的背景
+            const existingBg = this.plugin.settings.backgrounds.find(bg =>
+                bg.type === 'image' && bg.value === file.path
+            );
+
+            if (!existingBg) {
+                const fileName = file.name.replace(/\.[^/.]+$/, ''); // 移除扩展名
+                const newBg: BackgroundItem = {
+                    id: Date.now().toString() + '-' + addedCount, // 确保ID唯一
+                    name: `${fileName} (${folderPath})`,
+                    type: 'image',
+                    value: file.path
+                };
+
+                this.plugin.settings.backgrounds.push(newBg);
+                addedCount++;
+            }
+        }
+
+        if (addedCount > 0) {
+            await this.plugin.saveSettings();
+            this.display();
+            new Notice(t('folder_scan_success', { count: addedCount.toString() }));
+        } else {
+            new Notice(t('folder_no_new_images'));
+        }
     }
 }
 
