@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.2.1...1.3.0) (2025-08-02)
+
+
+### Features
+
+* Added command panel support, allowing settings to be opened in new tabs, optimizing styles and responsive design ([cb7831e](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/cb7831e5c3d8c72dbe2b5fa803918964fe29b6c8))
+
 ## [1.2.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.2.0...1.2.1) (2025-08-01)
 
 
