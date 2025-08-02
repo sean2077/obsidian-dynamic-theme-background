@@ -1,70 +1,406 @@
-/* Dynamic Theme Background Plugin Styles */
+/* Dynamic Theme Background Plugin Styles - Modern Design */
 
 .dtb-background-container {
     margin: 1rem 0;
+    background: var(--background-primary-alt);
     border: 1px solid var(--background-modifier-border);
-    border-radius: 6px;
+    border-radius: 12px;
     padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.dtb-background-container:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-color: var(--interactive-accent);
 }
 
 .dtb-background-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--background-modifier-border);
-    margin-bottom: 0.5rem;
+    gap: 1.2rem;
+    padding: 0.6rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    margin-bottom: 0.3rem;
+    background: var(--background-primary);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dtb-background-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--interactive-accent);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.dtb-background-item:hover {
+    border-color: var(--background-modifier-border-hover);
+    background: var(--background-secondary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dtb-background-item:hover::before {
+    opacity: 1;
 }
 
 .dtb-background-item:last-child {
-    border-bottom: none;
     margin-bottom: 0;
 }
 
 .dtb-bg-name {
-    font-weight: 500;
+    font-weight: 600;
     flex: 1;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
+    color: var(--text-normal);
 }
 
 .dtb-bg-type {
-    background: var(--interactive-accent);
+    background: linear-gradient(135deg, var(--interactive-accent), var(--interactive-accent-hover));
     color: var(--text-on-accent);
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
 }
 
 .dtb-bg-preview {
-    width: 40px;
-    height: 40px;
-    border-radius: 4px;
-    border: 1px solid var(--background-modifier-border);
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    border: 2px solid var(--background-modifier-border);
     background-size: cover;
     background-position: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dtb-bg-preview::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.dtb-bg-preview:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .dtb-bg-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.6rem;
 }
 
 .dtb-bg-actions button {
-    padding: 0.3rem 0.6rem;
-    border-radius: 4px;
-    border: 1px solid var(--interactive-normal);
-    background: var(--interactive-normal);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
     color: var(--text-normal);
     cursor: pointer;
     font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dtb-bg-actions button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
 }
 
 .dtb-bg-actions button:hover {
     background: var(--interactive-hover);
+    border-color: var(--interactive-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 时间规则样式 */
+.dtb-bg-actions button:hover::before {
+    left: 100%;
+}
+
+.dtb-bg-actions button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 时间规则样式 - 现代化设计 */
 .setting-item.mod-toggle .setting-item-control {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.8rem;
+    padding: 0.2rem 0;
+}
+
+/* Dynamic Theme Background Settings View Styles - 现代化布局 */
+.dtb-settings-view {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--background-primary);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.dtb-settings-view h1 {
+    border-bottom: 3px solid var(--interactive-accent);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+    color: var(--text-accent);
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text-accent), var(--interactive-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dtb-settings-view h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-accent);
+    font-size: 1.3rem;
+    font-weight: 600;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.dtb-settings-view h3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 1.2rem;
+    background: linear-gradient(135deg, var(--interactive-accent), var(--interactive-accent-hover));
+    border-radius: 2px;
+}
+
+.dtb-settings-view h4 {
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Time rules container for tab view - 现代化卡片设计 */
+.dtb-settings-view .dtb-time-rules-container .setting-item {
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 12px;
+    padding: 0.8rem;
+    margin-bottom: 0.4rem;
+    background: var(--background-primary-alt);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dtb-settings-view .dtb-time-rules-container .setting-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--interactive-accent), var(--interactive-accent-hover));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.dtb-settings-view .dtb-time-rules-container .setting-item:hover {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.dtb-settings-view .dtb-time-rules-container .setting-item:hover::before {
+    opacity: 1;
+}
+
+.dtb-settings-view .dtb-time-rules-container .setting-item-name {
+    font-weight: 600;
+    color: var(--text-normal);
+    font-size: 1rem;
+}
+
+/* Add background container for tab view - 现代化布局 */
+.dtb-settings-view .dtb-add-bg-container .setting-item-control {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.dtb-settings-view .dtb-add-bg-container button {
+    border-radius: 10px;
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, var(--interactive-accent), var(--interactive-accent-hover));
+    color: var(--text-on-accent);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dtb-settings-view .dtb-add-bg-container button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    border-color: var(--background-modifier-border);
+}
+
+/* 现代化的滑块和控件样式增强 */
+.dtb-settings-view .setting-item {
+    border-radius: 10px;
+    margin-bottom: 0.3rem;
+    transition: all 0.2s ease;
+}
+
+.dtb-settings-view .setting-item:hover {
+    background: var(--background-secondary);
+}
+
+/* Responsive design for tab view - 现代化响应式设计 */
+@media (max-width: 600px) {
+    .dtb-settings-view {
+        padding: 1.5rem;
+        margin: 1rem;
+        border-radius: 12px;
+    }
+
+    .dtb-settings-view h1 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .dtb-settings-view h3 {
+        font-size: 1.2rem;
+        margin-top: 2rem;
+    }
+
+    .dtb-background-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding: 0.8rem;
+    }
+
+    .dtb-bg-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .dtb-bg-actions button {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .dtb-bg-preview {
+        align-self: center;
+        width: 60px;
+        height: 60px;
+    }
+
+    .dtb-settings-view .dtb-add-bg-container .setting-item-control {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dtb-settings-view .dtb-add-bg-container button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* 深色模式优化 */
+@media (prefers-color-scheme: dark) {
+    .dtb-background-container {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .dtb-background-container:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .dtb-background-item:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .dtb-bg-preview {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .dtb-bg-preview:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* 动画和交互增强 */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dtb-settings-view {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.dtb-background-item {
+    animation: slideInUp 0.2s ease-out;
+    animation-fill-mode: both;
+}
+
+.dtb-background-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.dtb-background-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.dtb-background-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.dtb-background-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.dtb-background-item:nth-child(5) {
+    animation-delay: 0.25s;
 }

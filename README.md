@@ -42,9 +42,17 @@ pull request: https://github.com/obsidianmd/obsidian-releases/pull/7291
 - Configure the plugin in settings
 - Use the command palette to switch backgrounds
 
+### Commands
+
+Just type `dtb` in the command palette to find related commands.
+
+Note: You can use commands to open the settings page in a tab for better viewing and modifying settings.
+
 ## Notes
 
-Currently, the plugin works by modifying the workspace background through the following styles. Please be aware of the areas where existing theme styles will be overridden:
+1. Currently, the plugin is optimized for dark themes; light themes may have visual issues.
+
+2. Currently, the plugin works by modifying the workspace background through the following styles. Please be aware of the areas where existing theme styles will be overridden:
 
 ```css
 .dtb-enabled {

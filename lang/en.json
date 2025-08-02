@@ -70,5 +70,6 @@
     "preview_button": "Preview",
     "delete_button": "Delete",
     "edit_button": "Edit",
-    "select_background_option": "Select Background"
+    "select_background_option": "Select Background",
+    "command_open_settings_tab_name": "Open Settings in New Tab"
 }

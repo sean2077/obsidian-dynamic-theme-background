@@ -1,4 +1,4 @@
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting, getLanguage } from 'obsidian';
+import { App, getLanguage, ItemView, Modal, Notice, Plugin, PluginSettingTab, Setting, WorkspaceLeaf } from 'obsidian';
 
 // 导入语言文件
 import en from './lang/en.json';
@@ -11,6 +11,7 @@ const translations: Record<string, typeof en> = {
 
 // Global translation function
 let translationsForLang = translations['en'] || en;
+
 function t(key: keyof typeof en, vars?: Record<string, string>) {
     let text = translationsForLang[key] || en[key];
     if (vars) {
@@ -204,6 +205,12 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         this.styleTag.id = 'dtb-dynamic-styles';
         document.head.appendChild(this.styleTag);
 
+        // 注册自定义视图类型
+        this.registerView(
+            DTB_SETTINGS_VIEW_TYPE,
+            (leaf) => new DTBSettingsView(leaf, this)
+        );
+
         // 添加设置面板
         this.addSettingTab(new DTBSettingTab(this.app, this));
 
@@ -223,6 +230,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
     onunload() {
         this.stopBackgroundManager();
+        this.deactivateView(); // 清理自定义视图
         this.styleTag?.remove();
         console.log('Dynamic Theme Background plugin unloaded');
     }
@@ -279,6 +287,15 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                 }
             }
         });
+
+        // 在新标签页中打开设置
+        this.addCommand({
+            id: 'open-dtb-settings-tab',
+            name: t('command_open_settings_tab_name'),
+            callback: () => {
+                this.activateView();
+            }
+        });
     }
 
     async loadSettings() {
@@ -287,6 +304,22 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
     async saveSettings() {
         await this.saveData(this.settings);
+    }
+
+    deactivateView() {
+        this.app.workspace.detachLeavesOfType(DTB_SETTINGS_VIEW_TYPE);
+    }
+
+    async activateView() {
+        this.deactivateView();
+        const leaf = this.app.workspace.getLeaf('tab');
+        await leaf.setViewState({
+            type: DTB_SETTINGS_VIEW_TYPE,
+            active: true,
+        });
+
+        // 确保标签页获得焦点
+        this.app.workspace.revealLeaf(leaf);
     }
 
     // 将图片路径转换为可用的 CSS URL
@@ -563,7 +596,11 @@ class TimeRuleModal extends Modal {
     startTimeInput: HTMLInputElement;
     endTimeInput: HTMLInputElement;
 
-    constructor(app: App, rule: TimeRule, onSubmit: (rule: { name: string, startTime: string, endTime: string }) => void) {
+    constructor(app: App, rule: TimeRule, onSubmit: (rule: {
+        name: string,
+        startTime: string,
+        endTime: string
+    }) => void) {
         super(app);
         this.rule = rule;
         this.onSubmit = onSubmit;
@@ -888,6 +925,7 @@ class DTBSettingTab extends PluginSettingTab {
                     }));
         });
     }
+
     async showAddBackgroundModal(type: 'image' | 'color' | 'gradient') {
         const modal = new BackgroundModal(this.app, type, async (name, value) => {
             if (name && value) {
@@ -918,5 +956,56 @@ class DTBSettingTab extends PluginSettingTab {
         });
 
         modal.open();
+    }
+}
+
+// 自定义设置视图类 - 用于在标签页中显示设置
+export const DTB_SETTINGS_VIEW_TYPE = 'dtb-settings';
+
+export class DTBSettingsView extends ItemView {
+    plugin: DynamicThemeBackgroundPlugin;
+    settingTab: DTBSettingTab;
+
+    constructor(leaf: WorkspaceLeaf, plugin: DynamicThemeBackgroundPlugin) {
+        super(leaf);
+        this.plugin = plugin;
+        // 创建一个设置标签页实例，但不是真正的设置标签页
+        this.settingTab = new DTBSettingTab(this.app, plugin);
+    }
+
+    getViewType(): string {
+        return DTB_SETTINGS_VIEW_TYPE;
+    }
+
+    getDisplayText(): string {
+        return t('settings_title');
+    }
+
+    getIcon(): string {
+        return 'settings';
+    }
+
+    async onOpen(): Promise<void> {
+        const container = this.containerEl.children[1];
+        container.empty();
+
+        // 添加标题
+        container.createEl('h1', { text: t('settings_title') });
+
+        // 设置容器样式
+        container.addClass('dtb-settings-view');
+
+        // 使用设置标签页的显示逻辑，但在我们自己的容器中
+        this.settingTab.containerEl = container as HTMLElement;
+        this.settingTab.display();
+    }
+
+    async onClose(): Promise<void> {
+        // 清理资源
+        this.settingTab.containerEl.empty();
+        this.settingTab.containerEl.removeClass('dtb-settings-view');
+        this.settingTab = null as any; // 释放引用，帮助垃圾回收
+        this.plugin.deactivateView(); // 确保视图被正确清理
+        console.log('DTBSettingsView closed');
     }
 }
