@@ -10,6 +10,7 @@ This is a plugin for Obsidian that dynamically changes backgrounds based on time
 
 - **Time-based backgrounds**: Automatically switch backgrounds according to time periods
 - **Manual switching**: Allows users to manually switch backgrounds
+- **🆕 Random Wallpaper Support**: Fetch random wallpapers from popular APIs (Unsplash, Pixabax, Pexels) with automatic switching in interval mode.
 - **Custom settings**: Users can customize background blur, brightness, saturation, and color
 - **Multiple background types support**: Including image, color, and gradient backgrounds, with image backgrounds supporting both remote images and local vault images
 - **Compatible with existing themes**: This plugin can be used with existing Obsidian themes (but will override some styles, see [Notes](#notes))
