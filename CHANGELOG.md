@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.6.0...2.0.0) (2025-08-05)
+
+
+### Features
+
+* Add button to restore default background ([c6f1d46](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/c6f1d4675f8b9f3066cff4139bba3796dee28d1a))
+* Major Update: Added wallpaper API support; integrated Wallhaven API; optimized project structure and several other features. ([8c65861](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/8c658610807289721cd5b1f5dd844ce314f02d29))
+
+
+### BREAKING CHANGES
+
+*
+
 # [1.6.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.5.0...1.6.0) (2025-08-02)
 
 
