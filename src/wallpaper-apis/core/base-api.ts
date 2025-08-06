@@ -220,18 +220,40 @@ export abstract class BaseWallpaperApi {
         return url;
     }
 
-    // 辅助方法：构建查询字符串
-    protected buildQuery(params: WallpaperApiParams = this.params): string {
-        return Object.entries(params)
-            .filter(([, value]) => value !== undefined)
-            .map(([key, value]) => {
-                const encodedKey = encodeURIComponent(key);
-                const encodedValue = Array.isArray(value)
-                    ? encodeURIComponent(value.join(","))
-                    : encodeURIComponent(String(value));
-                return `${encodedKey}=${encodedValue}`;
-            })
-            .join("&");
+    /**
+     * 使用 URLSearchParams 构建查询字符串
+     *
+     * 设计理念：
+     * 1. 使用标准的 URLSearchParams API，符合 Web 标准
+     * 2. 数组处理：创建多个同名参数 (tags=nature&tags=landscape)
+     * 3. 如果 API 需要特殊格式（如逗号分隔），用户应输入相应格式的字符串
+     * 4. 避免在代码中做过多的格式假设，让用户掌控参数格式
+     *
+     * @param params 查询参数对象，默认使用实例的 params
+     * @returns 编码后的查询字符串，不包含前导 '?'
+     */
+    protected buildUrlParams(params: WallpaperApiParams = this.params): string {
+        const queryParams = new URLSearchParams();
+
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                // 对于字符串，额外检查是否为空
+                if (typeof value === "string" && value === "") {
+                    return;
+                }
+
+                if (Array.isArray(value)) {
+                    // 对于数组，使用标准的多参数格式
+                    value.forEach((item) => {
+                        queryParams.append(key, String(item));
+                    });
+                } else {
+                    queryParams.append(key, String(value));
+                }
+            }
+        });
+
+        return queryParams.toString();
     }
 
     // ============================================================================
