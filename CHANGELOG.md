@@ -1,3 +1,22 @@
+# [2.1.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.0.0...2.1.0) (2025-08-06)
+
+
+### Bug Fixes
+
+* 优化模态框样式 ([44448fc](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/44448fcfe132cc121848ff8c0b5237b29e88aeaa))
+
+
+### Features
+
+* Add a button to restore all default API settings ([91bce12](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/91bce12c06832a08da67b6ef40586105ee22b295))
+* Added support for Custom API ([a2733c1](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/a2733c18bc91253358238e15b765a5a00b92cc35))
+* Added support for custom settings, optimized wallpaper API configuration interface ([a378dcd](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/a378dcd9ae23f1928e9b2f12a13e9826571a5213))
+* Added support for Pexels API ([1a85776](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/1a85776500dbffb1fc182c101bc7957307de209d))
+* Added support for Pixabay API ([4fab173](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/4fab17329c753b563c4cd31a5020c30742e2b982))
+* Added support for Unsplash API ([b6b173e](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/b6b173e7dee7531bda8308434f76a94c61c75676))
+* Improve internationalization support, optimize notification messages and settings interface ([a78a8df](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/a78a8dfb8806c29ab8d3f829a19f5830c11e9087))
+* 添加拖拽排序功能，优化设置项的用户体验 ([860823c](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/860823c2e22f8dd58f8be49c6a53c799f0a50d47))
+
 # [2.0.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/1.6.0...2.0.0) (2025-08-05)
 
 
