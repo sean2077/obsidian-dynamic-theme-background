@@ -170,27 +170,22 @@
     flex-wrap: nowrap; /* 坚决不换行 */
     white-space: nowrap; /* 防止内容换行 */
 }
-/* 设置列表项顶部装饰条 */
-.dtb-item-list-container .setting-item::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--interactive-accent), var(--interactive-accent-hover));
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
 /* 设置列表项悬停效果 */
 .dtb-item-list-container .setting-item:hover {
     border-color: var(--interactive-accent);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
 }
-/* 悬停时显示顶部装饰条 */
-.dtb-item-list-container .setting-item:hover::before {
-    opacity: 1; /* 完全显示 */
+
+/* 设置列表项拖拽高亮效果的特殊调整 - 只调整圆角以匹配设置项的样式 */
+.dtb-item-list-container .setting-item.dtb-drag-over-top {
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+}
+
+.dtb-item-list-container .setting-item.dtb-drag-over-bottom {
+    border-bottom-left-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
 }
 
 /* 通用操作按钮容器，用于创建一组按钮 */
@@ -471,22 +466,6 @@
     flex: 1;
 }
 
-/* =============================================================================
-   拖拽功能样式 (Drag and Drop Functionality) - 通用化设计
-   
-   使用方法：
-   1. 为可拖拽元素添加 .dtb-draggable 类
-   2. 拖拽时添加 .dtb-dragging 类
-   3. 放置区域使用 .dtb-drag-over-top 或 .dtb-drag-over-bottom 类
-   4. 拖拽手柄使用 .dtb-drag-handle 类
-   
-   示例：
-   <div class="dtb-draggable">
-       <div class="dtb-drag-handle">⋮⋮</div>
-       <!-- 其他内容 -->
-   </div>
-   ============================================================================= */
-
 /* 可拖拽元素的基础样式 */
 .dtb-draggable {
     cursor: grab;
@@ -525,9 +504,9 @@
 }
 /* 拖拽放置区域样式 - 顶部（通用） */
 .dtb-drag-over-top {
-    border-top: 3px solid var(--interactive-accent);
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-top: 3px solid var(--interactive-accent) !important;
+    border-top-left-radius: 10px !important;
+    border-top-right-radius: 10px !important;
     margin-top: 6px;
     position: relative;
 }
@@ -542,12 +521,13 @@
     background: var(--interactive-accent);
     border-radius: 1px;
     box-shadow: 0 0 8px var(--interactive-accent);
+    z-index: 1;
 }
 /* 拖拽放置区域样式 - 底部（通用） */
 .dtb-drag-over-bottom {
-    border-bottom: 3px solid var(--interactive-accent);
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-bottom: 3px solid var(--interactive-accent) !important;
+    border-bottom-left-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
     margin-bottom: 6px;
     position: relative;
 }
@@ -562,6 +542,7 @@
     background: var(--interactive-accent);
     border-radius: 1px;
     box-shadow: 0 0 8px var(--interactive-accent);
+    z-index: 1;
 }
 
 /* =============================================================================
@@ -798,10 +779,6 @@
         align-self: center;
         width: 60px;
         height: 60px;
-    }
-
-    .dtb-bg-content {
-        gap: 0.8rem;
     }
 
     /* 添加背景容器响应式 */

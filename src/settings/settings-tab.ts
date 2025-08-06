@@ -8,6 +8,7 @@ import { t } from "../i18n";
 import { BackgroundModal, ImageFolderSuggestModal, TimeRuleModal, WallpaperApiEditorModal } from "../modals";
 import type DynamicThemeBackgroundPlugin from "../plugin";
 import type { BackgroundItem, DTBSettings, TimeRule } from "../types";
+import { DragSort } from "../utils";
 import {
     ApiStateSubscriber,
     BaseWallpaperApi,
@@ -20,6 +21,10 @@ export class DTBSettingTab extends PluginSettingTab {
     plugin: DynamicThemeBackgroundPlugin;
     defaultSettings: DTBSettings;
     private componentId: string;
+
+    private backgroundDragSort?: DragSort<BackgroundItem>;
+    private timeRuleDragSort?: DragSort<TimeRule>;
+    private apiDragSort?: DragSort<WallpaperApiConfig>;
 
     constructor(app: App, plugin: DynamicThemeBackgroundPlugin) {
         super(app, plugin);
@@ -300,8 +305,22 @@ export class DTBSettingTab extends PluginSettingTab {
     private displayTimeRules(container: HTMLElement): void {
         container.empty();
 
+        // 初始化时间规则拖拽排序
+        this.timeRuleDragSort = new DragSort<TimeRule>({
+            container,
+            items: this.plugin.settings.timeRules,
+            getItemId: (rule) => rule.id,
+            itemClass: "dtb-draggable",
+            idDataAttribute: "ruleId",
+            onReorder: async (reorderedRules) => {
+                this.plugin.settings.timeRules = reorderedRules;
+                await this.plugin.saveSettings();
+                this.displayTimeRules(container);
+            },
+        });
+
         this.plugin.settings.timeRules.forEach((rule: TimeRule) => {
-            new Setting(container)
+            const setting = new Setting(container)
                 .setName(rule.name)
                 .setDesc(`${rule.startTime} - ${rule.endTime}`)
                 .addToggle((toggle) =>
@@ -326,12 +345,21 @@ export class DTBSettingTab extends PluginSettingTab {
                 )
                 .addButton((button) =>
                     button.setButtonText(t("button_delete")).onClick(async () => {
-                        // 使用 filter 方法删除
                         this.plugin.settings.timeRules = this.plugin.settings.timeRules.filter((r) => r.id !== rule.id);
                         await this.plugin.saveSettings();
                         this.displayTimeRules(container);
                     })
                 );
+
+            // 设置拖拽属性
+            setting.settingEl.addClass("dtb-draggable");
+            setting.settingEl.dataset.ruleId = rule.id;
+
+            // 添加通用条目样式类
+            setting.settingEl.addClass("dtb-item");
+
+            // 启用拖拽功能
+            this.timeRuleDragSort?.enableDragForElement(setting.settingEl, rule);
         });
     }
 
@@ -422,7 +450,7 @@ export class DTBSettingTab extends PluginSettingTab {
                     .onClick(() => this.restoreDefaultBackgrounds())
             );
 
-        const backgroundContainer = containerEl.createDiv("dtb-item-list-container  dtb-section-container");
+        const backgroundContainer = containerEl.createDiv("dtb-item-list-container dtb-section-container");
         this.displayBackgrounds(backgroundContainer);
     }
 
@@ -567,6 +595,20 @@ export class DTBSettingTab extends PluginSettingTab {
     private displayBackgrounds(container: HTMLElement): void {
         container.empty();
 
+        // 初始化背景拖拽排序
+        this.backgroundDragSort = new DragSort<BackgroundItem>({
+            container,
+            items: this.plugin.settings.backgrounds,
+            getItemId: (bg) => bg.id,
+            itemClass: "dtb-draggable",
+            idDataAttribute: "bgId",
+            onReorder: async (reorderedBackgrounds) => {
+                this.plugin.settings.backgrounds = reorderedBackgrounds;
+                await this.plugin.saveSettings();
+                this.display();
+            },
+        });
+
         this.plugin.settings.backgrounds.forEach((bg: BackgroundItem, index: number) => {
             const bgEl = container.createDiv("dtb-item dtb-draggable");
 
@@ -611,116 +653,9 @@ export class DTBSettingTab extends PluginSettingTab {
                 this.displayBackgrounds(container);
             };
 
-            // 添加拖拽事件监听器
-            this.addDragListeners(bgEl);
+            // 启用拖拽功能
+            this.backgroundDragSort?.enableDragForElement(bgEl, bg);
         });
-    }
-
-    // 添加拖拽事件监听器的辅助方法
-    private addDragListeners(element: HTMLElement) {
-        element.addEventListener("dragstart", (e) => {
-            if (e.dataTransfer) {
-                e.dataTransfer.effectAllowed = "move";
-                e.dataTransfer.setData("text/plain", element.dataset.bgId || "");
-                element.classList.add("dtb-dragging");
-            }
-        });
-
-        element.addEventListener("dragend", () => {
-            element.classList.remove("dtb-dragging");
-            // 移除所有拖拽相关的样式
-            const allItems = element.parentElement?.querySelectorAll(".dtb-item");
-            allItems?.forEach((item) => {
-                item.classList.remove("dtb-drag-over", "dtb-drag-over-top", "dtb-drag-over-bottom");
-            });
-        });
-
-        element.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            if (e.dataTransfer) {
-                e.dataTransfer.dropEffect = "move";
-            }
-
-            // 确定拖拽位置（上半部分还是下半部分）
-            const rect = element.getBoundingClientRect();
-            const midpoint = rect.top + rect.height / 2;
-            const isTopHalf = e.clientY < midpoint;
-
-            // 移除之前的样式
-            element.classList.remove("dtb-drag-over-top", "dtb-drag-over-bottom");
-
-            // 添加适当的样式
-            if (isTopHalf) {
-                element.classList.add("dtb-drag-over-top");
-            } else {
-                element.classList.add("dtb-drag-over-bottom");
-            }
-        });
-
-        element.addEventListener("dragleave", (e) => {
-            // 只有当鼠标真正离开元素时才移除样式
-            if (!element.contains(e.relatedTarget as Node)) {
-                element.classList.remove("dtb-drag-over-top", "dtb-drag-over-bottom");
-            }
-        });
-
-        element.addEventListener("drop", async (e) => {
-            e.preventDefault();
-
-            const draggedId = e.dataTransfer?.getData("text/plain");
-            const targetId = element.dataset.bgId;
-
-            if (!draggedId || !targetId || draggedId === targetId) {
-                return;
-            }
-
-            // 确定插入位置
-            const rect = element.getBoundingClientRect();
-            const midpoint = rect.top + rect.height / 2;
-            const insertAfter = e.clientY >= midpoint;
-
-            await this.reorderBackgrounds(draggedId, targetId, insertAfter);
-
-            // 清理样式
-            element.classList.remove("dtb-drag-over-top", "dtb-drag-over-bottom");
-        });
-    }
-
-    // 重新排序背景的方法
-    private async reorderBackgrounds(draggedId: string, targetId: string, insertAfter: boolean) {
-        const backgrounds = this.plugin.settings.backgrounds;
-        const draggedIndex = backgrounds.findIndex((bg: BackgroundItem) => bg.id === draggedId);
-        const targetIndex = backgrounds.findIndex((bg: BackgroundItem) => bg.id === targetId);
-
-        if (draggedIndex === -1 || targetIndex === -1) {
-            console.warn("DTB: Invalid drag operation - background not found");
-            return;
-        }
-
-        // 如果拖拽到相同位置，则不做任何操作
-        if (
-            draggedIndex === targetIndex ||
-            (insertAfter && draggedIndex === targetIndex + 1) ||
-            (!insertAfter && draggedIndex === targetIndex - 1)
-        ) {
-            return;
-        }
-
-        // 移除被拖拽的元素
-        const draggedItem = backgrounds.splice(draggedIndex, 1)[0];
-
-        // 计算新的插入位置
-        let newTargetIndex = backgrounds.findIndex((bg: BackgroundItem) => bg.id === targetId);
-        if (insertAfter) {
-            newTargetIndex++;
-        }
-
-        // 插入到新位置
-        backgrounds.splice(newTargetIndex, 0, draggedItem);
-
-        // 保存设置并重新显示
-        await this.plugin.saveSettings();
-        this.display();
     }
 
     // 设置预览元素的背景样式 * 使用 CSS 自定义属性而不是内联样式，遵循 Obsidian 官方建议
@@ -887,7 +822,7 @@ export class DTBSettingTab extends PluginSettingTab {
         hint.textContent = t("wallpaper_api_hint");
 
         // 显示现有API列表
-        const apiContainer = containerEl.createDiv("dtb-item-list-container");
+        const apiContainer = containerEl.createDiv("dtb-item-list-container dtb-section-container");
         this.displayWallpaperApis(apiContainer);
     }
 
@@ -897,6 +832,20 @@ export class DTBSettingTab extends PluginSettingTab {
     private displayWallpaperApis(container: HTMLElement) {
         container.empty();
 
+        // 初始化 API 拖拽排序
+        this.apiDragSort = new DragSort<WallpaperApiConfig>({
+            container,
+            items: this.plugin.settings.wallpaperApis,
+            getItemId: (api) => api.id,
+            itemClass: "dtb-draggable",
+            idDataAttribute: "apiId",
+            onReorder: async (reorderedApis) => {
+                this.plugin.settings.wallpaperApis = reorderedApis;
+                await this.plugin.saveSettings();
+                this.displayWallpaperApis(container);
+            },
+        });
+
         // API 列表
         this.plugin.settings.wallpaperApis.forEach((apiConfig: WallpaperApiConfig, index: number) => {
             const apiInstance = apiManager.getApiById(apiConfig.id);
@@ -905,10 +854,7 @@ export class DTBSettingTab extends PluginSettingTab {
                 return;
             }
 
-            // 描述
-            const desc = apiInstance.getDescription();
-
-            const setting = new Setting(container).setName(apiConfig.name).setDesc(desc);
+            const setting = new Setting(container).setName(apiConfig.name).setDesc(apiInstance.getDescription());
 
             // 在设置项的控件区域直接添加类型标签
             setting.controlEl.createSpan({ text: apiConfig.type || "Unknown", cls: "dtb-type-badge" });
@@ -1043,6 +989,16 @@ export class DTBSettingTab extends PluginSettingTab {
                         this.displayWallpaperApis(container);
                     })
                 );
+
+            // 设置拖拽属性
+            setting.settingEl.addClass("dtb-draggable");
+            setting.settingEl.dataset.apiId = apiConfig.id;
+
+            // 添加通用条目样式类
+            setting.settingEl.addClass("dtb-item");
+
+            // 启用拖拽功能
+            this.apiDragSort?.enableDragForElement(setting.settingEl, apiConfig);
         });
     }
 
@@ -1136,6 +1092,11 @@ export class DTBSettingTab extends PluginSettingTab {
     cleanup(): void {
         // 使用组件ID清理该组件的所有订阅
         apiManager.stateManager.cleanupByComponent(this.componentId);
+
+        // 清理拖拽排序实例
+        this.backgroundDragSort?.disableAllDrag();
+        this.timeRuleDragSort?.disableAllDrag();
+        this.apiDragSort?.disableAllDrag();
     }
 
     // ============================================================================
