@@ -349,7 +349,7 @@ export class DTBSettingTab extends PluginSettingTab {
 
         const modal = new TimeRuleModal(this.app, editRule, async (updatedRule) => {
             if (!updatedRule.name.trim() || !updatedRule.startTime || !updatedRule.endTime) {
-                new Notice("Please provide all required fields");
+                new Notice(t("notice_all_fields_required"));
                 return;
             }
 
@@ -430,7 +430,7 @@ export class DTBSettingTab extends PluginSettingTab {
     private async showAddBackgroundModal(type: "image" | "color" | "gradient") {
         const modal = new BackgroundModal(this.app, type, async (name: string, value: string) => {
             if (!name.trim() || !value.trim()) {
-                new Notice("Please provide both name and value");
+                new Notice(t("notice_name_and_value_required"));
                 return;
             }
 
@@ -460,7 +460,7 @@ export class DTBSettingTab extends PluginSettingTab {
     private async showEditBackgroundModal(bg: BackgroundItem, index: number) {
         const modal = new BackgroundModal(this.app, bg.type, async (name: string, value: string) => {
             if (!name.trim() || !value.trim()) {
-                new Notice("Please provide both name and value");
+                new Notice(t("notice_name_and_value_required"));
                 return;
             }
 
@@ -498,14 +498,14 @@ export class DTBSettingTab extends PluginSettingTab {
     private showAddFolderModal() {
         const modal = new ImageFolderSuggestModal(this.app, async (folderPath: string) => {
             if (!folderPath.trim()) {
-                new Notice("Please provide a valid folder path");
+                new Notice(t("notice_valid_folder_path_required"));
                 return;
             }
 
             // 检查文件夹是否存在
             const folder = this.app.vault.getAbstractFileByPath(folderPath);
             if (!folder) {
-                new Notice("Folder not found");
+                new Notice(t("notice_folder_not_found"));
                 return;
             }
 
@@ -513,13 +513,13 @@ export class DTBSettingTab extends PluginSettingTab {
                 // 处理文件夹中的图片文件
                 if (typeof this.addImagesFromFolder === "function") {
                     await this.addImagesFromFolder(folderPath);
-                    new Notice(`Images from folder "${folderPath}" added successfully`);
+                    new Notice(t("notice_folder_added_successfully", { folderPath }));
                 } else {
-                    new Notice("Folder processing method not available");
+                    new Notice(t("notice_folder_processing_unavailable"));
                 }
             } catch (error) {
                 console.error("Error adding images from folder:", error);
-                new Notice("Error adding images from folder");
+                new Notice(t("notice_error_adding_folder_images"));
             }
         });
 
@@ -900,10 +900,10 @@ export class DTBSettingTab extends PluginSettingTab {
             // 根据API的启用状态设置初始状态
             if (apiInstance.getEnabled()) {
                 statusDot.addClass("enabled");
-                statusText.textContent = "Enabled";
+                statusText.textContent = t("status_enabled");
             } else {
                 statusDot.addClass("disabled");
-                statusText.textContent = "Disabled";
+                statusText.textContent = t("status_disabled");
             }
 
             // 创建 toggle 并保存引用
@@ -929,14 +929,22 @@ export class DTBSettingTab extends PluginSettingTab {
                             success = await apiManager.disableApi(apiConfig.id);
                         }
 
+                        const action = value ? t("action_enable") : t("action_disable");
                         if (!success) {
-                            new Notice(`❌ Failed to ${value ? "enable" : "disable"} ${apiConfig.name}`, 3000);
+                            new Notice(
+                                t("notice_api_failed_enable_disable", { action, apiName: apiConfig.name }),
+                                3000
+                            );
                         } else {
-                            new Notice(`✅ Successfully ${value ? "enabled" : "disabled"} ${apiConfig.name}`, 3000);
+                            new Notice(
+                                t("notice_api_success_enable_disable", { action, apiName: apiConfig.name }),
+                                3000
+                            );
                         }
                     } catch (error) {
                         console.error(`DTB: Error ${value ? "enabling" : "disabling"} API:`, error);
-                        new Notice(`❌ Error ${value ? "enabling" : "disabling"} ${apiConfig.name}`, 3000);
+                        const action = value ? t("action_enable") : t("action_disable");
+                        new Notice(t("notice_api_error_enable_disable", { action, apiName: apiConfig.name }), 3000);
                     } finally {
                         // 重新启用toggle并移除loading样式
                         toggle.setDisabled(false);
@@ -955,10 +963,10 @@ export class DTBSettingTab extends PluginSettingTab {
 
                 if (state.isLoading) {
                     statusDot.addClass("loading");
-                    statusText.textContent = "Loading...";
+                    statusText.textContent = t("status_loading");
                 } else if (state.error) {
                     statusDot.addClass("error");
-                    statusText.textContent = "Error";
+                    statusText.textContent = t("status_error");
                     statusText.title = state.error;
                     // 同步更新 toggle 状态
                     if (toggleComponent && toggleComponent.getValue() !== false) {
@@ -968,7 +976,7 @@ export class DTBSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 } else if (state.instanceEnabled) {
                     statusDot.addClass("enabled");
-                    statusText.textContent = "Enabled";
+                    statusText.textContent = t("status_enabled");
                     // 同步更新 toggle 状态
                     if (toggleComponent && toggleComponent.getValue() !== true) {
                         toggleComponent.setValue(true);
@@ -977,7 +985,7 @@ export class DTBSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 } else {
                     statusDot.addClass("disabled");
-                    statusText.textContent = "Disabled";
+                    statusText.textContent = t("status_disabled");
                     // 同步更新 toggle 状态
                     if (toggleComponent && toggleComponent.getValue() !== false) {
                         toggleComponent.setValue(false);
@@ -1056,13 +1064,13 @@ export class DTBSettingTab extends PluginSettingTab {
     // 从API获取壁纸并添加到背景列表
     private async fetchWallpaperFromApi(api: BaseWallpaperApi) {
         if (!api.getEnabled()) {
-            new Notice(`❌ ${api.getName()}: API is disabled`);
+            new Notice(t("notice_api_disabled", { apiName: api.getName() }));
             return;
         }
 
         try {
             // 显示加载提示
-            const loadingNotice = new Notice(`🔄 Fetching wallpaper from ${api.getName()}...`, 0);
+            const loadingNotice = new Notice(t("notice_api_fetching", { apiName: api.getName() }), 0);
 
             // 使用API管理器获取随机壁纸
             const wallpaperImages = await apiManager.getRandomWallpapers(api.getId());
@@ -1090,12 +1098,12 @@ export class DTBSettingTab extends PluginSettingTab {
                 // 刷新显示
                 this.display();
 
-                new Notice(`✅ Successfully applied wallpaper from ${api.getName()}`);
+                new Notice(t("notice_api_success_applied", { apiName: api.getName() }));
             } else {
-                new Notice(`❌ Failed to fetch wallpaper from ${api.getName()}`);
+                new Notice(t("notice_api_failed_fetch", { apiName: api.getName() }));
             }
         } catch (error) {
-            new Notice(`❌ Error fetching wallpaper from ${api.getName()}: ${error.message}`);
+            new Notice(t("notice_api_error_fetch", { apiName: api.getName(), error: error.message }));
             console.error("DTB: Error fetching wallpaper:", error);
         }
     }

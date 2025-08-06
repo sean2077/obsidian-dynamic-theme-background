@@ -17,7 +17,7 @@ export function createFetchWallpaperCommand(plugin: DynamicThemeBackgroundPlugin
             }
 
             // 显示加载提示
-            const loadingNotice = new Notice("🔄 Fetching wallpaper from API...", 0);
+            const loadingNotice = new Notice(t("notice_api_fetching_generic"), 0);
 
             try {
                 // 使用API管理器获取随机壁纸，这样可以受益于状态管理
@@ -35,16 +35,16 @@ export function createFetchWallpaperCommand(plugin: DynamicThemeBackgroundPlugin
                         value: wallpaperImages[0].url,
                     };
                     plugin.updateStyleCss();
-                    new Notice("✅ Successfully applied random wallpaper!");
+                    new Notice(t("notice_api_success_applied_generic"));
                 } else {
-                    new Notice("❌ No wallpaper APIs available or all APIs failed");
+                    new Notice(t("notice_api_no_available"));
                 }
             } catch (error) {
                 // 关闭加载提示
                 loadingNotice.hide();
 
                 console.error("DTB: Error fetching random wallpaper:", error);
-                new Notice("❌ Error fetching wallpaper from API");
+                new Notice(t("notice_api_error_generic"));
             }
         },
     };

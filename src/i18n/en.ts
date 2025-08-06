@@ -1,11 +1,12 @@
 export default {
-    // 基础设置
+    // ===== 基础设置 =====
     settings_title: "Dynamic Theme Background Settings",
     enable_plugin_name: "Enable dynamic background",
     enable_plugin_desc: "Turn the dynamic background feature on or off.",
     basic_settings_title: "Basic Settings",
     reload_plugin_tooltip: "Refresh Background",
-    // 外观设置
+
+    // ===== 外观设置 =====
     appearance_settings_title: "Appearance Settings",
     blur_depth_name: "Background Blur",
     blur_depth_desc: "Set the background blurriness, from 0 to 30.",
@@ -19,7 +20,8 @@ export default {
     bg_mask_color_name: "Background Mask Color & Opacity",
     bg_mask_color_desc: "Set the background mask color and adjust its opacity with the slider on the right.",
     reset_bg_mask_color_tooltip: "Reset background mask color and opacity to default",
-    // 模式设置
+
+    // ===== 模式设置 =====
     mode_settings_title: "Mode Settings",
     switch_mode_name: "Switch Mode",
     switch_mode_desc: "Choose how the background switches.",
@@ -41,7 +43,8 @@ export default {
     end_time_label: "End Time (HH:MM):",
     interval_name: "Switch Interval",
     interval_desc: "How often to switch the background (in minutes).",
-    // 背景管理
+
+    // ===== 背景管理 =====
     bg_management_title: "Background Management",
     add_new_bg_name: "Add new background",
     add_new_bg_desc: "Add a new background to the list.",
@@ -75,7 +78,8 @@ export default {
     enable_random_wallpaper_name: "Enable Random Wallpaper",
     enable_random_wallpaper_desc:
         "When enabled, random wallpapers will be fetched from wallpaper APIs and the background list, otherwise it will use the background list in order.",
-    // 壁纸API管理
+
+    // ===== 壁纸API管理 =====
     wallpaper_api_management_title: "Wallpaper API Management",
     add_api_name: "Add API",
     add_api_desc: "Add a new wallpaper API configuration",
@@ -90,7 +94,8 @@ export default {
     fallback_on_error_desc: "When API request fails, fallback to use local background list",
     test_api_connection_name: "Test API Connection",
     test_api_connection_desc: "Test whether current API settings can fetch wallpapers normally",
-    // 命令
+
+    // ===== 命令相关 =====
     command_open_settings_tab_name: "Open Settings in New Tab",
     command_toggle_name: "Toggle dynamic background",
     command_toggle_enabled_notice: "Dynamic background enabled",
@@ -107,7 +112,8 @@ export default {
     command_fetch_random_wallpaper_notice_success: "Applied random wallpaper",
     command_fetch_random_wallpaper_notice_failed:
         "Failed to fetch random wallpaper, please check API settings and network connection",
-    // 通用按钮文本
+
+    // ===== 通用按钮文本 =====
     button_cancel: "Cancel",
     button_confirm: "Confirm",
     button_preview: "Preview",
@@ -117,7 +123,8 @@ export default {
     button_test: "Test",
     button_update: "Update",
     button_add: "Add",
-    // 默认配置相关
+
+    // ===== 默认配置相关 =====
     default_morning_rule: "Morning",
     default_later_morning_rule: "Later Morning",
     default_noon_rule: "Noon",
@@ -132,4 +139,68 @@ export default {
     pink_yellow_gradient_bg: "Pink Yellow Gradient",
     cyan_pink_gradient_bg: "Cyan Pink Gradient",
     dark_blue_gray_gradient_bg: "Dark Blue Gray Gradient",
+
+    // ===== Notice 消息 =====
+    notice_all_fields_required: "Please provide all required fields",
+    notice_name_and_value_required: "Please provide both name and value",
+    notice_valid_folder_path_required: "Please provide a valid folder path",
+    notice_folder_not_found: "Folder not found",
+    notice_folder_added_successfully: 'Images from folder "{folderPath}" added successfully',
+    notice_folder_processing_unavailable: "Folder processing method not available",
+    notice_error_adding_folder_images: "Error adding images from folder",
+    notice_api_failed_enable_disable: "❌ Failed to {action} {apiName}",
+    notice_api_success_enable_disable: "✅ Successfully {action} {apiName}",
+    notice_api_error_enable_disable: "❌ Error {action} {apiName}",
+    notice_api_disabled: "❌ {apiName}: API is disabled",
+    notice_api_fetching: "🔄 Fetching wallpaper from {apiName}...",
+    notice_api_success_applied: "✅ Successfully applied wallpaper from {apiName}",
+    notice_api_failed_fetch: "❌ Failed to fetch wallpaper from {apiName}",
+    notice_api_error_fetch: "❌ Error fetching wallpaper from {apiName}: {error}",
+    notice_api_fetching_generic: "🔄 Fetching wallpaper from API...",
+    notice_api_success_applied_generic: "✅ Successfully applied random wallpaper!",
+    notice_api_no_available: "❌ No wallpaper APIs available or all APIs failed",
+    notice_api_error_generic: "❌ Error fetching wallpaper from API",
+
+    // ===== API 模态窗口 =====
+    api_modal_invalid_json: "Invalid JSON in extra parameters",
+    api_modal_enter_api_name: "Please enter an API name",
+    api_modal_invalid_params: "Invalid API parameters: {errors}",
+    api_modal_testing_config: "Testing API configuration...",
+    api_modal_cannot_test_invalid: "Cannot test due to invalid configuration",
+    api_modal_test_successful: "API test successful!",
+    api_modal_test_failed: "API test failed: {error}",
+    api_modal_api_url: "API URL",
+    api_modal_headers_optional: "Headers (optional)",
+    api_modal_add_header: "Add Header",
+    api_modal_header_key: "Header Key",
+    api_modal_header_value: "Header Value",
+    api_modal_api_parameters: "API Parameters",
+    api_modal_api_documentation: "📖 API Documentation",
+    api_modal_token_url: "🔑 Token URL",
+    api_modal_extra_params: "Extra Parameters (JSON)",
+    api_modal_extra_params_desc: "Additional parameters not covered above, in JSON format",
+    api_modal_extra_params_placeholder: '{\n  "customParam": "value",\n  "anotherParam": 123\n}',
+    api_modal_custom_settings: "Custom Settings (Not Implemented)",
+    api_modal_test_api: "Test API",
+    api_modal_save: "Save",
+    api_modal_title_edit: "Edit Wallpaper API",
+    api_modal_title_add: "Add Wallpaper API",
+    api_modal_basic_config: "Basic Configuration",
+    api_modal_api_name: "API Name",
+    api_modal_api_name_placeholder: "e.g., Unsplash Nature",
+    api_modal_description_optional: "Description (optional)",
+    api_modal_api_type: "API Type",
+    api_modal_image_url_json_path: "Image URL JSON Path",
+    api_modal_no_description: "No description provided.",
+    api_modal_unnamed_api: "Unnamed API",
+
+    // ===== 状态文本 =====
+    status_loading: "Loading...",
+    status_error: "Error",
+    status_enabled: "Enabled",
+    status_disabled: "Disabled",
+
+    // ===== 动作词 =====
+    action_enable: "enable",
+    action_disable: "disable",
 };

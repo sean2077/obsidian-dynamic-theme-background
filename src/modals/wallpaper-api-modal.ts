@@ -1,4 +1,5 @@
 import { App, Modal, Notice } from "obsidian";
+import { t } from "../i18n";
 import {
     apiManager,
     apiRegistry,
@@ -47,7 +48,7 @@ export class WallpaperApiEditorModal extends Modal {
         contentEl.addClass("dtb-api-modal-container");
 
         contentEl.createEl("h2", {
-            text: this.apiConfig.id ? "Edit Wallpaper API" : "Add Wallpaper API",
+            text: this.apiConfig.id ? t("api_modal_title_edit") : t("api_modal_title_add"),
         });
 
         // 第一部分：基础配置
@@ -66,18 +67,18 @@ export class WallpaperApiEditorModal extends Modal {
     // 创建基础配置部分
     private createBasicConfigSection(container: HTMLElement) {
         const section = container.createDiv("dtb-section-container");
-        section.createEl("h3", { text: "Basic Configuration" });
+        section.createEl("h3", { text: t("api_modal_basic_config") });
 
         // API名称
-        section.createEl("label", { text: "API Name" });
+        section.createEl("label", { text: t("api_modal_api_name") });
         this.nameInput = section.createEl("input", {
             type: "text",
             value: this.apiConfig.name || "",
-            placeholder: "e.g., Unsplash Nature",
+            placeholder: t("api_modal_api_name_placeholder"),
             cls: ["dtb-input"],
         });
         // 可选描述
-        section.createEl("label", { text: "Description (optional)" });
+        section.createEl("label", { text: t("api_modal_description_optional") });
         this.descInput = section.createEl("input", {
             type: "text",
             value: this.apiConfig.description || "",
@@ -86,7 +87,7 @@ export class WallpaperApiEditorModal extends Modal {
         });
 
         // API类型选择
-        section.createEl("label", { text: "API Type" });
+        section.createEl("label", { text: t("api_modal_api_type") });
         this.typeSelect = section.createEl("select", { cls: "dtb-dropdown" });
 
         const apiTypes = Object.values(WallpaperApiType);
@@ -108,7 +109,7 @@ export class WallpaperApiEditorModal extends Modal {
         });
 
         // API URL
-        section.createEl("label", { text: "API URL" });
+        section.createEl("label", { text: t("api_modal_api_url") });
 
         // 获取默认 URL 作为 placeholder
         const defaultUrl = this.getDefaultUrlForType(this.apiConfig.type);
@@ -125,7 +126,7 @@ export class WallpaperApiEditorModal extends Modal {
 
     // 创建Headers配置部分
     private createHeadersSection(container: HTMLElement) {
-        container.createEl("label", { text: "Headers (optional)" });
+        container.createEl("label", { text: t("api_modal_headers_optional") });
         this.headersContainer = container.createDiv("dtb-list-container");
 
         // 渲染已有的headers
@@ -137,7 +138,7 @@ export class WallpaperApiEditorModal extends Modal {
 
         // 添加header按钮
         const addHeaderBtn = container.createEl("button", {
-            text: "Add Header",
+            text: t("api_modal_add_header"),
             type: "button",
             cls: "dtb-action-button",
         });
@@ -151,14 +152,14 @@ export class WallpaperApiEditorModal extends Modal {
         const keyInput = headerRow.createEl("input", {
             type: "text",
             value: key,
-            placeholder: "Header Key",
+            placeholder: t("api_modal_header_key"),
             cls: "dtb-input",
         });
 
         const valueInput = headerRow.createEl("input", {
             type: "text",
             value: value,
-            placeholder: "Header Value",
+            placeholder: t("api_modal_header_value"),
             cls: "dtb-input",
         });
 
@@ -213,7 +214,7 @@ export class WallpaperApiEditorModal extends Modal {
     // 创建参数部分的标题和文档链接
     private createParamsSectionHeader() {
         const headerContainer = this.paramsSectionContainer.createDiv("dtb-section-header");
-        headerContainer.createEl("h3", { text: "API Parameters" });
+        headerContainer.createEl("h3", { text: t("api_modal_api_parameters") });
 
         // 创建链接容器，放在右侧
         const linksContainer = headerContainer.createDiv("dtb-doc-links");
@@ -224,7 +225,7 @@ export class WallpaperApiEditorModal extends Modal {
         const docUrl = apiRegistry.getApiDocUrl(selectedType);
         if (docUrl) {
             const docLink = linksContainer.createEl("a", {
-                text: "📖 API Documentation",
+                text: t("api_modal_api_documentation"),
                 href: docUrl,
                 cls: "dtb-doc-link",
             });
@@ -236,7 +237,7 @@ export class WallpaperApiEditorModal extends Modal {
         const tokenUrl = apiRegistry.getTokenUrl(selectedType);
         if (tokenUrl) {
             const tokenLink = linksContainer.createEl("a", {
-                text: "🔑 Token URL",
+                text: t("api_modal_token_url"),
                 href: tokenUrl,
                 cls: "dtb-doc-link",
             });
@@ -260,7 +261,7 @@ export class WallpaperApiEditorModal extends Modal {
 
     // 获取默认描述
     private getDefaultDescriptionForType(type: WallpaperApiType): string {
-        return apiRegistry.getDefaultDescription(type) || "No description provided.";
+        return apiRegistry.getDefaultDescription(type) || t("api_modal_no_description");
     }
 
     // 更新 描述 placeholder
@@ -429,9 +430,9 @@ export class WallpaperApiEditorModal extends Modal {
 
     // 创建额外参数JSON输入
     private createExtraParamsInput(container: HTMLElement) {
-        container.createEl("label", { text: "Extra Parameters (JSON)" });
+        container.createEl("label", { text: t("api_modal_extra_params") });
         container.createEl("small", {
-            text: "Additional parameters not covered above, in JSON format",
+            text: t("api_modal_extra_params_desc"),
             cls: "dtb-field-description",
         });
 
@@ -447,7 +448,7 @@ export class WallpaperApiEditorModal extends Modal {
 
         this.extraParamsTextarea = container.createEl("textarea", {
             value: Object.keys(extraParams).length > 0 ? JSON.stringify(extraParams, null, 2) : "",
-            placeholder: '{\n  "customParam": "value",\n  "anotherParam": 123\n}',
+            placeholder: t("api_modal_extra_params_placeholder"),
             cls: "dtb-modal-textarea",
         });
     }
@@ -455,10 +456,10 @@ export class WallpaperApiEditorModal extends Modal {
     // 创建自定义设置部分
     private createCustomSettingsSection(container: HTMLElement) {
         const section = container.createDiv("dtb-section-container");
-        section.createEl("h3", { text: "Custom Settings (Not Implemented)" });
+        section.createEl("h3", { text: t("api_modal_custom_settings") });
 
         const customSettings = [
-            { key: "imageUrlJsonPath", label: "Image URL JSON Path", placeholder: "images[].url" },
+            { key: "imageUrlJsonPath", label: t("api_modal_image_url_json_path"), placeholder: "images[].url" },
             // TODO: 添加更多自定义设置项
         ];
 
@@ -479,7 +480,7 @@ export class WallpaperApiEditorModal extends Modal {
         const buttonContainer = container.createDiv("dtb-flex-container-end");
 
         const testButton = buttonContainer.createEl("button", {
-            text: "Test API",
+            text: t("api_modal_test_api"),
             cls: "dtb-action-button",
         });
         testButton.onclick = async () => {
@@ -487,13 +488,13 @@ export class WallpaperApiEditorModal extends Modal {
         };
 
         const cancelButton = buttonContainer.createEl("button", {
-            text: "Cancel",
+            text: t("button_cancel"),
             cls: "dtb-action-button",
         });
         cancelButton.onclick = () => this.close();
 
         const submitButton = buttonContainer.createEl("button", {
-            text: "Save",
+            text: t("api_modal_save"),
             cls: ["dtb-action-button", "mod-cta"],
         });
         submitButton.onclick = () => {
@@ -552,7 +553,7 @@ export class WallpaperApiEditorModal extends Modal {
                 const extraParams = JSON.parse(this.extraParamsTextarea.value);
                 Object.assign(params, extraParams);
             } catch (error) {
-                new Notice("Invalid JSON in extra parameters");
+                new Notice(t("api_modal_invalid_json"));
             }
         }
 
@@ -574,7 +575,7 @@ export class WallpaperApiEditorModal extends Modal {
 
         return {
             id: this.apiConfig.id || `api-${Date.now()}`,
-            name: this.nameInput.value || "Unnamed API",
+            name: this.nameInput.value || t("api_modal_unnamed_api"),
             description: this.descInput.value || "",
             type: this.typeSelect.value as WallpaperApiType,
             baseUrl: this.urlInput.value,
@@ -588,13 +589,13 @@ export class WallpaperApiEditorModal extends Modal {
     validateApiConfig(config: WallpaperApiConfig): boolean {
         // 基本验证
         if (!config.name.trim()) {
-            new Notice("Please enter an API name");
+            new Notice(t("api_modal_enter_api_name"));
             return false;
         }
         // 调用 API 注册器验证参数
         const validation = apiRegistry.validateParams(config.type, config.params);
         if (!validation.valid) {
-            new Notice("Invalid API parameters: " + validation.errors);
+            new Notice(t("api_modal_invalid_params", { errors: validation.errors?.join(", ") || "Unknown error" }));
             return false;
         }
         return true;
@@ -613,11 +614,11 @@ export class WallpaperApiEditorModal extends Modal {
     // 测试API配置
     async testApiConfig() {
         try {
-            new Notice("Testing API configuration...");
+            new Notice(t("api_modal_testing_config"));
 
             const config = this.buildApiConfig();
             if (!this.validateApiConfig(config)) {
-                new Notice("Cannot test due to invalid configuration");
+                new Notice(t("api_modal_cannot_test_invalid"));
                 return;
             }
 
@@ -626,11 +627,11 @@ export class WallpaperApiEditorModal extends Modal {
             // 如果能成功启用则测试通过
             await apiManager.enableApi(config.id);
 
-            new Notice("API test successful!");
+            new Notice(t("api_modal_test_successful"));
 
             apiManager.deleteApi(config.id); // 测试后删除临时实例
         } catch (error) {
-            new Notice(`API test failed: ${(error as Error).message}`);
+            new Notice(t("api_modal_test_failed", { error: (error as Error).message }));
         }
     }
 
