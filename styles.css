@@ -837,9 +837,7 @@
 /* 通用模态框容器样式 - 限制宽度并居中 */
 .dtb-api-modal-container {
     max-width: 800px;
-    width: 90vw;
     margin: 0 auto;
-    padding: 20px;
 }
 
 /* 模态框文本域样式 */
@@ -882,12 +880,6 @@
         max-width: 90vw;
         padding: 16px;
     }
-
-    .dtb-api-modal-container h2,
-    .dtb-modal-container h2 {
-        font-size: 1.3rem;
-        margin-bottom: 20px;
-    }
 }
 
 @media (max-width: 600px) {
@@ -900,12 +892,6 @@
     .dtb-flex-container-end {
         flex-direction: column;
         align-items: stretch;
-    }
-
-    .dtb-api-modal-container h2,
-    .dtb-modal-container h2 {
-        font-size: 1.2rem;
-        margin-bottom: 16px;
     }
 }
 
