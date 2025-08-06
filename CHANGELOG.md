@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.1.0...2.1.1) (2025-08-06)
+
+
+### Bug Fixes
+
+* Fixed drop-down box style issue in modal window ([21e2281](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/21e2281b192ccb920dca12f9e7d422e246301dc4))
+
 # [2.1.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.0.0...2.1.0) (2025-08-06)
 
 
