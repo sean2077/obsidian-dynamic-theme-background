@@ -88,15 +88,14 @@ export class WallhavenApi extends BaseWallpaperApi {
                     { value: "anime", label: "Anime" },
                     { value: "people", label: "People" },
                 ],
-                toApiValue: (uiValue: string | number | boolean | string[]) => {
-                    if (!Array.isArray(uiValue)) return defaultParams.categories as string;
+                toApiValue: (uiValue: string[]) => {
                     let result = "";
                     result += uiValue.includes("general") ? "1" : "0";
                     result += uiValue.includes("anime") ? "1" : "0";
                     result += uiValue.includes("people") ? "1" : "0";
                     return result || (defaultParams.categories as string);
                 },
-                fromApiValue: (apiValue: string | number | boolean | string[]) => {
+                fromApiValue: (apiValue: string) => {
                     const str = apiValue?.toString() || (defaultParams.categories as string);
                     const result: string[] = [];
                     if (str[0] === "1") result.push("general");
@@ -116,15 +115,15 @@ export class WallhavenApi extends BaseWallpaperApi {
                     { value: "sketchy", label: "Sketchy" },
                     { value: "nsfw", label: "NSFW (18+)" },
                 ],
-                toApiValue: (uiValue: string | number | boolean | string[]) => {
-                    if (!Array.isArray(uiValue)) return defaultParams.purity as string;
+                toApiValue: (uiValue: string[]) => {
+                    const arr = Array.isArray(uiValue) ? (uiValue as string[]) : [];
                     let result = "";
-                    result += uiValue.includes("sfw") ? "1" : "0";
-                    result += uiValue.includes("sketchy") ? "1" : "0";
-                    result += uiValue.includes("nsfw") ? "1" : "0";
+                    result += arr.includes("sfw") ? "1" : "0";
+                    result += arr.includes("sketchy") ? "1" : "0";
+                    result += arr.includes("nsfw") ? "1" : "0";
                     return result || (defaultParams.purity as string);
                 },
-                fromApiValue: (apiValue: string | number | boolean | string[]) => {
+                fromApiValue: (apiValue: string) => {
                     const str = apiValue?.toString() || (defaultParams.purity as string);
                     const result: string[] = [];
                     if (str[0] === "1") result.push("sfw");

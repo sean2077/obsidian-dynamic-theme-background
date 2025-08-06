@@ -23,6 +23,7 @@ interface WallpaperApiClass {
     getDefaultParams(): WallpaperApiParams;
     getParamDescriptors(): WallpaperApiParamDescriptor[];
     validateParams(params: WallpaperApiParams): { valid: boolean; errors?: string[] };
+    getCustomSettingDescriptors(): WallpaperApiParamDescriptor[];
 }
 
 /**
@@ -141,6 +142,14 @@ class ApiRegistry {
     validateParams(type: WallpaperApiType, params: WallpaperApiParams): { valid: boolean; errors?: string[] } {
         const ApiClass = this.apiClasses.get(type);
         return ApiClass ? ApiClass.validateParams(params) : { valid: false, errors: ["API type not registered"] };
+    }
+
+    /**
+     * 获取自定义设置
+     */
+    getCustomSettingDescriptors(type: WallpaperApiType): WallpaperApiParamDescriptor[] {
+        const ApiClass = this.apiClasses.get(type);
+        return ApiClass ? ApiClass.getCustomSettingDescriptors() : [];
     }
 }
 

@@ -6,12 +6,35 @@
  * API 类型枚举
  */
 export enum WallpaperApiType {
+    Custom = "Custom",
+    Wallhaven = "Wallhaven",
     Unsplash = "Unsplash",
     Pexels = "Pexels",
     Pixabay = "Pixabay",
-    Wallhaven = "Wallhaven",
-    Custom = "Custom",
 }
+
+/**
+ * API 参数值类型
+ * 直接拼接到 URL 上的值类型
+ */
+export type ApiValueType = string | number | boolean;
+
+/**
+ * UI 显示值类型
+ * 用于在界面上显示的值，可能与实际API参数值不同
+ * 注：数组类型只有 string[] 是有意义的，因为 HTML 表单元素只能返回字符串值
+ */
+export type UiValueType = string | number | boolean | string[];
+
+/**
+ * 可选的UI值类型 - 常用于输入处理
+ */
+export type OptionalUiValueType = UiValueType | undefined;
+
+/**
+ * 可选的API值类型 - 常用于配置获取
+ */
+export type OptionalApiValueType = ApiValueType | undefined;
 
 /**
  * API 参数描述
@@ -21,7 +44,7 @@ export interface WallpaperApiParamDescriptor {
     label: string; // 显示标签
     type: "string" | "number" | "boolean" | "select" | "multiselect" | "password"; // 参数类型
     required?: boolean; // 是否必填
-    defaultValue?: string | number | boolean | string[]; // 默认值（注: 提供的值应为 api 参数值
+    defaultValue?: ApiValueType; // 默认值（注: 提供的值应为 api 参数值
     placeholder?: string; // 占位符
     description?: string; // 参数描述
     options?: { value: string | number; label: string }[]; // 选择项（用于select和multiselect）
@@ -29,9 +52,9 @@ export interface WallpaperApiParamDescriptor {
     // 注：界面值为便于用户理解的值，API参数值为实际传递给API的值
 
     // 转换函数：将界面值转换为API参数值
-    toApiValue?: (uiValue: string | number | boolean | string[]) => string | number | boolean | string[];
+    toApiValue?: (uiValue: UiValueType) => ApiValueType;
     // 转换函数：将API参数值转换为界面值
-    fromApiValue?: (apiValue: string | number | boolean | string[]) => string | number | boolean | string[];
+    fromApiValue?: (apiValue: ApiValueType) => UiValueType;
 }
 
 /**
@@ -49,7 +72,7 @@ export interface WallpaperApiEndpoints {
  * 通用参数接口，允许各个API实现类定义自己需要的参数
  */
 export interface WallpaperApiParams {
-    [key: string]: string | number | boolean | string[] | undefined;
+    [key: string]: ApiValueType;
 }
 
 /**
@@ -82,7 +105,6 @@ export interface WallpaperApiConfig {
 
     // 自定义设置
     customSettings?: {
-        imageUrlJsonPath?: string; // 从响应中提取图片URL的JSON路径
         [key: string]: string | undefined; // 允许其他自定义设置
     };
 }

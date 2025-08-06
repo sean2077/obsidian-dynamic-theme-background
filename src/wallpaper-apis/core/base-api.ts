@@ -109,6 +109,10 @@ export abstract class BaseWallpaperApi {
         return { valid: true };
     }
 
+    static getCustomSettingDescriptors(): WallpaperApiParamDescriptor[] {
+        return [];
+    }
+
     // ============================================================================
     // 基础信息获取方法
     // ============================================================================
