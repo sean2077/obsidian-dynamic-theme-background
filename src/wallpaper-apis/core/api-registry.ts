@@ -47,7 +47,6 @@ class ApiRegistry {
      */
     register(type: WallpaperApiType, apiClass: WallpaperApiClass): void {
         this.apiClasses.set(type, apiClass);
-        console.log(`✅ API class registered: ${apiClass.name} (${type})`);
     }
 
     /**

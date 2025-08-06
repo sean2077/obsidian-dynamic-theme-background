@@ -435,8 +435,6 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             const randomIndex = Math.floor(Math.random() * enabledApis.length);
             const selectedApi = enabledApis[randomIndex];
 
-            console.debug(`DTB: Selected API: ${selectedApi.name} (${selectedApi.type})`);
-
             // 使用选中的API获取壁纸
             const wallpaperImages = await apiManager.getRandomWallpapers();
             if (!wallpaperImages || wallpaperImages.length === 0) {
@@ -445,7 +443,6 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             }
             const randomImage = wallpaperImages[Math.floor(Math.random() * wallpaperImages.length)];
             if (randomImage && randomImage.url) {
-                console.debug("DTB: Fetched random wallpaper:", randomImage.url);
                 return randomImage.url;
             } else {
                 console.warn(`DTB: No wallpaper image returned from API: ${selectedApi.name}`);
@@ -478,7 +475,6 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             console.warn(`DTB: Cannot get resource path for image ${imagePath}`);
             return "none";
         }
-        console.debug(`DTB: Using resource path ${p} for image ${imagePath}`);
         return `url(${p})`; // 形如 app://local/path/to/image.jpg
     }
 }

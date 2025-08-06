@@ -706,9 +706,6 @@ export class DTBSettingTab extends PluginSettingTab {
             return;
         }
 
-        // 保存被拖拽的背景名称用于用户反馈
-        const draggedName = backgrounds[draggedIndex].name;
-
         // 移除被拖拽的元素
         const draggedItem = backgrounds.splice(draggedIndex, 1)[0];
 
@@ -724,9 +721,6 @@ export class DTBSettingTab extends PluginSettingTab {
         // 保存设置并重新显示
         await this.plugin.saveSettings();
         this.display();
-
-        // 给用户一个成功的反馈
-        console.debug(`DTB: Successfully reordered background "${draggedName}"`);
     }
 
     // 设置预览元素的背景样式 * 使用 CSS 自定义属性而不是内联样式，遵循 Obsidian 官方建议
