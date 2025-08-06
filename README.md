@@ -58,7 +58,7 @@ Obsidian Dynamic Theme Background is a highly customizable and intelligent wallp
 
 TODO: Pending approval in Obsidian Plugin Marketplace
 
-pull request: https://github.com/obsidianmd/obsidian-releases/pull/7291
+pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
 
 ### 🛠️ Method 2: Install via BRAT Plugin
 

@@ -59,7 +59,7 @@ Obsidian Dynamic Theme Background 插件旨在为用户提供一个高度可定�
 
 TODO：待 Obsidian 插件市场审核通过后
 
-pull request: https://github.com/obsidianmd/obsidian-releases/pull/7291
+pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
 
 ### 🛠️ 方法二：通过 BRAT 插件安装
 
