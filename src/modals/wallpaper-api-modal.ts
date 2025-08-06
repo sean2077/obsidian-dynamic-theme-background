@@ -408,8 +408,8 @@ export class WallpaperApiEditorModal extends Modal {
         const selectedValues = Array.isArray(currentValue)
             ? currentValue
             : typeof currentValue === "string"
-            ? currentValue.split(",")
-            : [];
+              ? currentValue.split(",")
+              : [];
 
         descriptor.options?.forEach((option) => {
             const checkboxContainer = multiContainer.createDiv("dtb-checkbox-container");
