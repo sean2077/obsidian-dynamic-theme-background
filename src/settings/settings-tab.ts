@@ -858,6 +858,28 @@ export class DTBSettingTab extends PluginSettingTab {
                 button.setButtonText(t("add_api_button"));
                 button.buttonEl.addClass("dtb-action-button");
                 button.onClick(() => this.showAddWallpaperApiModal());
+            })
+            // 添加新增所有默认 API 设置的恢复按钮，如果 API 已经存在则不添加
+            .addExtraButton((button) => {
+                button.setIcon("refresh-cw");
+                button.setTooltip(t("restore_default_apis_tooltip"));
+                button.onClick(async () => {
+                    // 重新生成默认设置以获取最新的默认 API
+                    const defaultApis = this.defaultSettings.wallpaperApis;
+
+                    // 遍历默认 API，检查是否已存在
+                    for (const apiConfig of defaultApis) {
+                        const existingApi = this.plugin.settings.wallpaperApis.find((api) => api.id === apiConfig.id);
+                        if (!existingApi) {
+                            // 如果不存在，则添加并创建 API 实例
+                            this.plugin.settings.wallpaperApis.push(apiConfig);
+                            apiManager.createApi(apiConfig);
+                        }
+                    }
+
+                    await this.plugin.saveSettings();
+                    this.displayWallpaperApiSettings(containerEl);
+                });
             });
 
         // 添加 API 提示

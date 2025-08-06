@@ -83,6 +83,7 @@ export default {
     add_api_name: "添加 API",
     add_api_desc: "添加新的壁纸 API 配置",
     add_api_button: "添加 API",
+    restore_default_apis_tooltip: "恢复插件提供的默认壁纸 API（不会覆盖现有的 API）",
     wallpaper_api_hint: "💡 您可以创建同一种类型的 API 但参数不同的多个 API 实例，以获取不同类型的壁纸",
     add_api_bg_tooltip: "点击从 API 添加新的壁纸",
     wallpaper_api_url_name: "壁纸 API 地址",

@@ -84,6 +84,8 @@ export default {
     add_api_name: "Add API",
     add_api_desc: "Add a new wallpaper API configuration",
     add_api_button: "Add API",
+    restore_default_apis_tooltip:
+        "Restore the default wallpaper APIs provided by the plugin (will not overwrite existing APIs)",
     wallpaper_api_hint:
         "💡 You can add multiple API instances of the same type with different parameters to get different types of wallpapers.",
     add_api_bg_tooltip: "Click to add a new wallpaper from API",

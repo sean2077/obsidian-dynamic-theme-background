@@ -134,6 +134,18 @@ function genDefaultSettings(): DTBSettings {
                 enabled: false,
                 params: apiRegistry.getDefaultParams(WallpaperApiType.Wallhaven),
             },
+            {
+                id: "api-peapix-bing-cn",
+                type: WallpaperApiType.Custom,
+                enabled: false,
+                name: "Peapix API (Bing CN)",
+                description: "For details, see https://peapix.com/api",
+                baseUrl: "https://peapix.com/bing/feed?country=cn",
+                params: apiRegistry.getDefaultParams(WallpaperApiType.Custom),
+                customSettings: {
+                    imageUrlJsonPath: "$[*].imageUrl",
+                },
+            },
         ],
     };
     return DEFAULT_SETTINGS;
