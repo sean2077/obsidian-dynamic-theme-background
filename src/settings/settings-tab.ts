@@ -306,6 +306,7 @@ export class DTBSettingTab extends PluginSettingTab {
                     button.buttonEl.addClass("dtb-action-button");
                     button.onClick(async () => {
                         this.plugin.settings.timeRules = [];
+                        this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                         await this.plugin.saveSettings();
                         this.displayBasicSettings(containerEl);
                     });
@@ -316,6 +317,7 @@ export class DTBSettingTab extends PluginSettingTab {
                     button.buttonEl.addClass("dtb-action-button");
                     button.onClick(async () => {
                         this.plugin.settings.timeRules = this.defaultSettings.timeRules;
+                        this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                         await this.plugin.saveSettings();
                         this.displayBasicSettings(containerEl);
                     });
@@ -386,6 +388,7 @@ export class DTBSettingTab extends PluginSettingTab {
                 .addToggle((toggle) =>
                     toggle.setValue(rule.enabled).onChange(async (value) => {
                         rule.enabled = value;
+                        this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                         await this.plugin.saveSettings();
                     })
                 )
@@ -411,7 +414,7 @@ export class DTBSettingTab extends PluginSettingTab {
                     return dropdown.setValue(rule.backgroundId).onChange(async (value) => {
                         rule.backgroundId = value;
                         await this.plugin.saveSettings();
-                        this.plugin.updateBackground();
+                        this.plugin.updateBackground(true);
                     });
                 })
                 .addButton((button) =>
@@ -420,6 +423,7 @@ export class DTBSettingTab extends PluginSettingTab {
                 .addButton((button) =>
                     button.setButtonText(t("button_delete")).onClick(async () => {
                         this.plugin.settings.timeRules = this.plugin.settings.timeRules.filter((r) => r.id !== rule.id);
+                        this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                         await this.plugin.saveSettings();
                         this.displayTimeRules(container);
                     })
@@ -479,6 +483,7 @@ export class DTBSettingTab extends PluginSettingTab {
                 this.plugin.settings.timeRules.push(newRule);
             }
 
+            this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
             await this.plugin.saveSettings();
             this.display();
         });

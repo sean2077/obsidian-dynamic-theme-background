@@ -12,10 +12,11 @@ import { apiManager } from "./wallpaper-apis";
 
 export default class DynamicThemeBackgroundPlugin extends Plugin {
     settings: DTBSettings;
-    intervalId: number | null = null;
 
-    // 当前的背景
-    background: BackgroundItem | null = null;
+    // 内部状态
+    background: BackgroundItem | null = null; // 当前的背景
+    intervalId: number | null = null; // 用于间隔模式的定时器 ID
+    timeoutId: number | null = null; // 用于时段规则的定时器 ID
 
     // ============================================================================
     // 主要接口方法
@@ -99,8 +100,12 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
+        if (this.timeoutId) {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = null;
+        }
         document.body.classList.remove("dtb-enabled");
-        console.log("DTB: Background manager stopped");
+        console.debug("DTB: Background manager stopped");
     }
 
     /**
@@ -115,24 +120,66 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         }
 
         // 立即执行一次更新
-        this.updateBackground();
+        this.updateBackground(true);
 
-        // 设置定时器
-        const intervalMs =
-            this.settings.mode === "time-based"
-                ? 60000 // 每分钟检查一次
-                : this.settings.intervalMinutes * 60000;
+        if (this.settings.mode === "time-based") {
+            // 时段模式：使用 setTimeout，计算到下一个时段的时间
+            this.startTimeBasedManager();
+        } else if (this.settings.mode === "interval") {
+            // 间隔模式：使用 setInterval
+            const intervalMs = this.settings.intervalMinutes * 60000;
+            this.intervalId = this.registerInterval(
+                window.setInterval(async () => {
+                    await this.updateBackground(false);
+                }, intervalMs)
+            );
 
-        this.intervalId = this.registerInterval(
-            window.setInterval(async () => {
-                await this.updateBackground(false);
-            }, intervalMs)
-        );
+            console.debug("DTB: Background manager started (interval mode)", {
+                mode: this.settings.mode,
+                interval: intervalMs / 1000 + "s",
+            });
+        } else {
+            console.debug("DTB: Background manager started (manual mode)", {
+                mode: this.settings.mode,
+            });
+        }
+    }
 
-        console.log("DTB: Background manager started", {
-            mode: this.settings.mode,
-            interval: intervalMs / 1000 + "s",
-        });
+    // 时段规则下的背景更新循环，通过 setTimeout 实现
+    async startTimeBasedManager() {
+        const scheduleNext = () => {
+            const nextRuleChangeTime = this.getNextRuleChangeTime();
+            if (nextRuleChangeTime) {
+                const delay = nextRuleChangeTime - Date.now();
+
+                // 确保延迟时间为正数，最少1秒
+                const actualDelay = Math.max(delay, 1000);
+
+                this.timeoutId = window.setTimeout(async () => {
+                    await this.updateBackground(false);
+                    scheduleNext(); // 递归调度下一个时段
+                }, actualDelay);
+
+                console.debug("DTB: Next background change scheduled", {
+                    mode: this.settings.mode,
+                    delay: Math.round(actualDelay / 1000) + "s",
+                    nextTime: new Date(nextRuleChangeTime).toLocaleTimeString(),
+                });
+            } else {
+                // 如果没有下一个时段，24小时后重新检查
+                this.timeoutId = window.setTimeout(
+                    async () => {
+                        await this.updateBackground(false);
+                        scheduleNext();
+                    },
+                    24 * 60 * 60 * 1000
+                );
+
+                console.debug("DTB: No next rule found, checking again in 24 hours");
+            }
+        };
+
+        scheduleNext();
     }
 
     /**
@@ -148,14 +195,18 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             case "time-based": {
                 const rule = this.getCurrentTimeRule();
                 if (rule) {
-                    this.background = this.settings.backgrounds.find((bg) => bg.id === rule.backgroundId) ?? null;
-
                     // 判断是否与当前背景不同
                     needsUpdate = this.background?.id !== rule.backgroundId;
-
-                    // 调试信息, 降低等级，避免刷屏
-                    console.debug("DTB: TimeRule mode - current time rule", rule);
+                    if (needsUpdate) {
+                        this.background = this.settings.backgrounds.find((bg) => bg.id === rule.backgroundId) ?? null;
+                    }
+                } else {
+                    // 当前没有匹配的时段规则，取消背景
+                    this.background = null;
+                    needsUpdate = true; // 强制更新样式以清除背景
                 }
+                // 调试信息, 降低等级，避免刷屏
+                console.debug("DTB: TimeRule mode - current time rule", rule, needsUpdate);
                 break;
             }
             // 基于时间间隔切换
@@ -206,42 +257,9 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             }
         }
 
-        if (forceUpdate || (needsUpdate && this.background)) {
+        if (forceUpdate || needsUpdate) {
             this.updateStyleCss();
         }
-    }
-
-    /**
-     * 获取当前时段规则
-     */
-    getCurrentTimeRule(): TimeRule | null {
-        if (this.settings.mode !== "time-based") return null;
-
-        const now = new Date();
-        const currentTime = now.getHours() * 60 + now.getMinutes();
-
-        for (const rule of this.settings.timeRules) {
-            if (!rule.enabled) continue;
-
-            const [startHour, startMin] = rule.startTime.split(":").map(Number);
-            const [endHour, endMin] = rule.endTime.split(":").map(Number);
-
-            const startTime = startHour * 60 + startMin;
-            const endTime = endHour * 60 + endMin;
-
-            // 处理跨天的情况（如22:00-06:00）
-            if (startTime > endTime) {
-                if (currentTime >= startTime || currentTime < endTime) {
-                    return rule;
-                }
-            } else {
-                if (currentTime >= startTime && currentTime < endTime) {
-                    return rule;
-                }
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -249,41 +267,46 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
      * @param bgSize 可选的自定义背景尺寸，如果不提供则自动计算
      */
     updateStyleCss(bgSize?: string) {
-        if (!this.settings.enabled || !this.background) {
-            console.warn("DTB: Background update is disabled or no background is set");
+        if (!this.settings.enabled) {
             return;
         }
 
-        const bgCssValue =
-            this.background.type === "image" ? this.sanitizeImagePath(this.background.value) : this.background.value;
-
-        // 模糊度、亮度、饱和度、遮罩颜色和透明度、填充方式的优先级统一为:
-        // 传入的自定义值 > 背景单独的设置 > 全局默认设置
-        const blurDepth = this.background.blurDepth ?? this.settings.blurDepth;
-        const brightness4Bg = this.background.brightness4Bg ?? this.settings.brightness4Bg;
-        const saturate4Bg = this.background.saturate4Bg ?? this.settings.saturate4Bg;
-        const bgColor = this.background.bgColor ?? this.settings.bgColor;
-        const bgColorOpacity = this.background.bgColorOpacity ?? this.settings.bgColorOpacity;
-        const bgColorWithOpacity = hexToRgba(bgColor, bgColorOpacity);
-        bgSize = bgSize ?? this.background.bgSize ?? this.settings.bgSize ?? "intelligent";
-        // 如果是 "intelligent"，则根据图片和屏幕比例动态选择
-        if (bgSize === "intelligent") {
-            if (this.background.type === "image") {
-                bgSize = this.getOptimalBackgroundSize(this.background.value);
-            } else {
-                bgSize = "auto"; // 对于非图片背景，使用 auto
+        if (!this.background) {
+            document.documentElement.setCssProps({
+                "--dtb-bg-image": "none",
+            });
+        } else {
+            const bgCssValue =
+                this.background.type === "image"
+                    ? this.sanitizeImagePath(this.background.value)
+                    : this.background.value;
+            // 模糊度、亮度、饱和度、遮罩颜色和透明度、填充方式的优先级统一为:
+            // 传入的自定义值 > 背景单独的设置 > 全局默认设置
+            const blurDepth = this.background.blurDepth ?? this.settings.blurDepth;
+            const brightness4Bg = this.background.brightness4Bg ?? this.settings.brightness4Bg;
+            const saturate4Bg = this.background.saturate4Bg ?? this.settings.saturate4Bg;
+            const bgColor = this.background.bgColor ?? this.settings.bgColor;
+            const bgColorOpacity = this.background.bgColorOpacity ?? this.settings.bgColorOpacity;
+            const bgColorWithOpacity = hexToRgba(bgColor, bgColorOpacity);
+            bgSize = bgSize ?? this.background.bgSize ?? this.settings.bgSize ?? "intelligent";
+            // 如果是 "intelligent"，则根据图片和屏幕比例动态选择
+            if (bgSize === "intelligent") {
+                if (this.background.type === "image") {
+                    bgSize = this.getOptimalBackgroundSize(this.background.value);
+                } else {
+                    bgSize = "auto"; // 对于非图片背景，使用 auto
+                }
             }
+            // 通过修改根元素的 CSS 属性来更新背景样式
+            document.documentElement.setCssProps({
+                "--dtb-bg-image": bgCssValue,
+                "--dtb-blur-depth": `${blurDepth}px`,
+                "--dtb-brightness": `${brightness4Bg}`,
+                "--dtb-saturate": `${saturate4Bg}`,
+                "--dtb-bg-color": bgColorWithOpacity,
+                "--dtb-bg-size": bgSize,
+            });
         }
-
-        // 通过修改根元素的 CSS 属性来更新背景样式
-        document.documentElement.setCssProps({
-            "--dtb-bg-image": bgCssValue,
-            "--dtb-blur-depth": `${blurDepth}px`,
-            "--dtb-brightness": `${brightness4Bg}`,
-            "--dtb-saturate": `${saturate4Bg}`,
-            "--dtb-bg-color": bgColorWithOpacity,
-            "--dtb-bg-size": bgSize,
-        });
 
         // 通知 css-change
         this.app.workspace.trigger("css-change", { source: "dtb" });
@@ -442,5 +465,129 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             return "none";
         }
         return `url(${p})`; // 形如 app://local/path/to/image.jpg
+    }
+
+    /**
+     * 获取当前时段规则
+     * 按时间顺序排序规则，找到第一个匹配当前时间的规则
+     */
+    getCurrentTimeRule(): TimeRule | null {
+        if (this.settings.mode !== "time-based") return null;
+
+        const now = new Date();
+        const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+
+        // 构建排序用的规则数组
+        const sortedRules = this.settings.timeRules
+            .filter((rule) => rule.enabled)
+            .map((rule) => {
+                const { startTime, endTime } = this.parseTimeRule(rule);
+
+                // 如果 endTime < startTime，说明跨天，endTime 需要加一天
+                const normalizedEndTime = endTime < startTime ? endTime + 24 * 60 : endTime;
+
+                return {
+                    rule,
+                    startTime,
+                    normalizedEndTime,
+                };
+            })
+            // 按 startTime 排序, 如果 startTime 相同则按 normalizedEndTime 排序
+            .sort((a, b) => a.startTime - b.startTime || a.normalizedEndTime - b.normalizedEndTime);
+
+        // 遍历排序后的规则，找到第一个匹配的
+        for (const { rule, startTime, normalizedEndTime } of sortedRules) {
+            if (this.isTimeInRule(currentTimeMinutes, startTime, normalizedEndTime)) {
+                return rule;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 获取下一个时段规则变化的时间点
+     */
+    getNextRuleChangeTime(): number | null {
+        if (this.settings.mode !== "time-based" || this.settings.timeRules.length === 0) {
+            return null;
+        }
+
+        const now = new Date();
+        const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+
+        // 收集所有启用的时段规则的开始和结束时间点
+        const timePoints: Array<{ time: number; isStart: boolean; rule: TimeRule }> = [];
+
+        for (const rule of this.settings.timeRules) {
+            if (!rule.enabled) continue;
+
+            const { startTime, endTime } = this.parseTimeRule(rule);
+
+            timePoints.push({ time: startTime, isStart: true, rule });
+            timePoints.push({ time: endTime, isStart: false, rule });
+        }
+
+        // 按时间排序
+        timePoints.sort((a, b) => a.time - b.time);
+
+        // 查找下一个时间点
+        let nextPoint = null;
+
+        // 首先查找今天剩余时间内的下一个时间点
+        for (const point of timePoints) {
+            if (point.time > currentTimeMinutes) {
+                nextPoint = point;
+                break;
+            }
+        }
+
+        // 如果今天没有找到，取明天的第一个时间点
+        if (!nextPoint && timePoints.length > 0) {
+            nextPoint = timePoints[0];
+        }
+
+        if (!nextPoint) {
+            return null;
+        }
+
+        // 计算具体的时间戳
+        const targetDate = new Date(now);
+        const targetHours = Math.floor(nextPoint.time / 60);
+        const targetMinutes = nextPoint.time % 60;
+
+        targetDate.setHours(targetHours, targetMinutes, 0, 0);
+
+        // 如果目标时间已经过了，说明是明天的时间点
+        if (targetDate.getTime() <= now.getTime()) {
+            targetDate.setDate(targetDate.getDate() + 1);
+        }
+
+        return targetDate.getTime();
+    }
+
+    /**
+     * 解析时间规则，返回标准化的时间信息
+     */
+    private parseTimeRule(rule: TimeRule) {
+        const [startHour, startMin] = rule.startTime.split(":").map(Number);
+        const [endHour, endMin] = rule.endTime.split(":").map(Number);
+
+        const startTime = startHour * 60 + startMin;
+        const endTime = endHour * 60 + endMin;
+
+        return { startTime, endTime };
+    }
+
+    /**
+     * 检查当前时间是否在时段规则内
+     */
+    private isTimeInRule(currentTimeMinutes: number, startTime: number, endTime: number): boolean {
+        // 处理跨天的情况（如22:00-06:00）
+        if (startTime > endTime) {
+            return currentTimeMinutes >= startTime || currentTimeMinutes < endTime;
+        } else {
+            return currentTimeMinutes >= startTime && currentTimeMinutes < endTime;
+        }
     }
 }
