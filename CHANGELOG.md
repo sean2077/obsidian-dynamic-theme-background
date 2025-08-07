@@ -1,3 +1,15 @@
+# [2.4.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.3.0...2.4.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* Update background item properties to retain existing values ([6f0cc09](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/6f0cc099e5c1d2b87d9db1c905f6664300e12c8d))
+
+
+### Features
+
+* Update settings header and add version info to the settings tab ([d6d4da0](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/d6d4da026c82402d60eaaf7e70f72985e695fb95))
+
 # [2.3.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.2.0...2.3.0) (2025-08-07)
 
 
