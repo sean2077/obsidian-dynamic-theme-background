@@ -108,20 +108,19 @@ pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
 2. **样式覆盖说明**：插件会修改以下 CSS 变量来实现背景效果，请了解可能对现有主题的影响：
 
 ```css
-.dtb-enabled {
-    --background-primary: ${this.settings.bgColor} !important;
-    --background-primary-alt: ${this.settings.bgColor} !important;
-    --background-secondary: ${this.settings.bgColor} !important;
-    --background-secondary-alt: ${this.settings.bgColor} !important;
-    --tab-background-active: transparent !important;
-    --tab-outline-width: transparent !important;
+.dtb-enabled :not(.modal):not(.modal *) {
+    --background-primary: var(--dtb-bg-color) !important;
+    --background-primary-alt: var(--dtb-bg-color) !important;
+    --background-secondary: var(--dtb-bg-color) !important;
+    --background-secondary-alt: var(--dtb-bg-color) !important;
 }
 .dtb-enabled .workspace::before {
-    ${backgroundProperty}: ${cssValue} !important;
-    background-size: cover;
+    background-image: var(--dtb-bg-image);
+    background-size: var(--dtb-bg-size);
     background-repeat: no-repeat;
-    filter: blur(${this.settings.blurDepth}px) brightness(${this.settings.brightness4Bg}) saturate(${this.settings.saturate4Bg});
-    content: '';
+    background-position: center;
+    filter: blur(var(--dtb-blur-depth)) brightness(var(--dtb-brightness)) saturate(var(--dtb-saturate));
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
