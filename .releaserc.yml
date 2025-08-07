@@ -20,6 +20,7 @@ plugins:
             - manifest.json
             - package.json
             - package-lock.json
+            - src/version.ts
         message: |-
             chore(release): ${nextRelease.version} [skip ci]
 

@@ -148,9 +148,9 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     // 时段规则下的背景更新循环，通过 setTimeout 实现
     async startTimeBasedManager() {
         const scheduleNext = () => {
-            const nextRuleChangeTime = this.getNextRuleChangeTime();
-            if (nextRuleChangeTime) {
-                const delay = nextRuleChangeTime - Date.now();
+            const nextRuleChange = this.getNextRuleChangeTime();
+            if (nextRuleChange) {
+                const delay = nextRuleChange - Date.now();
 
                 // 确保延迟时间为正数，最少1秒
                 const actualDelay = Math.max(delay, 1000);
@@ -163,7 +163,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                 console.debug("DTB: Next background change scheduled", {
                     mode: this.settings.mode,
                     delay: Math.round(actualDelay / 1000) + "s",
-                    nextTime: new Date(nextRuleChangeTime).toLocaleTimeString(),
+                    nextTime: new Date(nextRuleChange).toLocaleTimeString(),
                 });
             } else {
                 // 如果没有下一个时段，24小时后重新检查
@@ -477,31 +477,28 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         const now = new Date();
         const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
 
-        // 构建排序用的规则数组
+        // 按 startTime 排序，优先匹配靠前的规则
         const sortedRules = this.settings.timeRules
             .filter((rule) => rule.enabled)
             .map((rule) => {
                 const { startTime, endTime } = this.parseTimeRule(rule);
-
-                // 如果 endTime < startTime，说明跨天，endTime 需要加一天
-                const normalizedEndTime = endTime < startTime ? endTime + 24 * 60 : endTime;
-
-                return {
-                    rule,
-                    startTime,
-                    normalizedEndTime,
-                };
+                return { rule, startTime, endTime };
             })
-            // 按 startTime 排序, 如果 startTime 相同则按 normalizedEndTime 排序
-            .sort((a, b) => a.startTime - b.startTime || a.normalizedEndTime - b.normalizedEndTime);
+            .sort((a, b) => a.startTime - b.startTime);
 
         // 遍历排序后的规则，找到第一个匹配的
-        for (const { rule, startTime, normalizedEndTime } of sortedRules) {
-            if (this.isTimeInRule(currentTimeMinutes, startTime, normalizedEndTime)) {
-                return rule;
+        for (const { rule, startTime, endTime } of sortedRules) {
+            // 跨天时段处理：如 20:00-06:00
+            if (startTime > endTime) {
+                if (currentTimeMinutes >= startTime || currentTimeMinutes < endTime) {
+                    return rule;
+                }
+            } else {
+                if (currentTimeMinutes >= startTime && currentTimeMinutes < endTime) {
+                    return rule;
+                }
             }
         }
-
         return null;
     }
 
@@ -577,17 +574,5 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         const endTime = endHour * 60 + endMin;
 
         return { startTime, endTime };
-    }
-
-    /**
-     * 检查当前时间是否在时段规则内
-     */
-    private isTimeInRule(currentTimeMinutes: number, startTime: number, endTime: number): boolean {
-        // 处理跨天的情况（如22:00-06:00）
-        if (startTime > endTime) {
-            return currentTimeMinutes >= startTime || currentTimeMinutes < endTime;
-        } else {
-            return currentTimeMinutes >= startTime && currentTimeMinutes < endTime;
-        }
     }
 }
