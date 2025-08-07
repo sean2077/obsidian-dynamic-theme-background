@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.2.0...2.3.0) (2025-08-07)
+
+
+### Features
+
+* Restart background manager on settings change to apply updates ([4afd9ff](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/4afd9ff9f2aef4c30b2f919c8638dc6b1e2d2c1a))
+
 # [2.2.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.1.1...2.2.0) (2025-08-07)
 
 
