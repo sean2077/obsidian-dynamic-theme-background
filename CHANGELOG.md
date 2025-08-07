@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.1.1...2.2.0) (2025-08-07)
+
+
+### Features
+
+* Enhance background management and settings ([075c8cb](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/075c8cbdc835cb8541276c6236e2b6f1423d6dda))
+
 ## [2.1.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.1.0...2.1.1) (2025-08-06)
 
 
