@@ -226,8 +226,8 @@ export class PexelsApi extends BaseWallpaperApi {
 
             // 更新分页信息
             this.totalPages = response.total_results ? Math.ceil(response.total_results / this.perPage) : -1;
-            this.totalCount = response.total_results || -1;
-            this.perPage = Number(this.params.per_page) || 15;
+            this.totalCount = response.total_results ?? -1;
+            this.perPage = Number(this.params.per_page) ?? 15;
 
             // 初始化数据缓存
             this.wallpaperImageCache = [];
@@ -293,7 +293,7 @@ export class PexelsApi extends BaseWallpaperApi {
 
             // 更新分页信息
             this.totalPages = data.total_results ? Math.ceil(data.total_results / this.perPage) : -1;
-            this.totalCount = data.total_results || -1;
+            this.totalCount = data.total_results ?? -1;
 
             // 缓存当前页的数据
             this.wallpaperImageCache = data.photos.map((photo: Record<string, unknown>) => this.transformPhoto(photo));
@@ -379,7 +379,7 @@ export class PexelsApi extends BaseWallpaperApi {
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformPhoto(photo: Record<string, unknown>): WallpaperImage {
-        const src = (photo.src as Record<string, unknown>) || {};
+        const src = (photo.src as Record<string, unknown>) ?? {};
 
         return {
             id: String(photo.id || ""),

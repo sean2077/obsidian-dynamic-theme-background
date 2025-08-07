@@ -14,7 +14,7 @@ const localeMap: Record<string, typeof en> = {
 
 const locale = localeMap[moment.locale()];
 export function t(str: keyof typeof en, vars?: Record<string, string>): string {
-    let text = (locale && locale[str]) || en[str];
+    let text = (locale && locale[str]) ?? en[str];
     if (vars) {
         for (const varKey in vars) {
             text = text.replace(`{${varKey}}`, vars[varKey]);

@@ -20,6 +20,16 @@ export default {
     bg_mask_color_name: "Background Mask Color & Opacity",
     bg_mask_color_desc: "Set the background mask color and adjust its opacity with the slider on the right.",
     reset_bg_mask_color_tooltip: "Reset background mask color and opacity to default",
+    bg_size_name: "Background Size",
+    bg_size_desc:
+        "Set how the background image is sized. 'Intelligent'  means choosing size based on image and window dimensions.",
+    reset_bg_size_tooltip: "Reset to default background size",
+    bg_size_option_cover:
+        "Scale the background image to completely cover the background area, maintaining aspect ratio. Commonly used for full-screen backgrounds.",
+    bg_size_option_contain:
+        "Scale the background image to be fully contained within the background area, maintaining aspect ratio. Commonly used to ensure the entire image is visible.",
+    bg_size_option_auto: "Use the original image dimensions as the background size without scaling.",
+    bg_size_option_intelligent: "Automatically choose the best background size based on image and window dimensions.",
 
     // ===== 模式设置 =====
     mode_settings_title: "Mode Settings",
@@ -28,6 +38,11 @@ export default {
     mode_time_based: "Time-Slot",
     mode_interval: "Interval",
     mode_manual: "Manual",
+    mode_time_based_tooltip:
+        "Automatically switch background based on configured time slots, suitable for using different backgrounds at different times",
+    mode_interval_tooltip:
+        "Automatically switch background at set time intervals, suitable for regular background rotation",
+    mode_manual_tooltip: "Completely manual background control, requiring manual switching through commands or buttons",
     time_rules_title: "Time Slot Rules",
     manage_time_rules_name: "Manage Time Slot Rules",
     manage_time_rules_desc: "Add, edit or remove time slot rules for background switching.",
@@ -148,7 +163,6 @@ export default {
     notice_valid_folder_path_required: "Please provide a valid folder path",
     notice_folder_not_found: "Folder not found",
     notice_folder_added_successfully: 'Images from folder "{folderPath}" added successfully',
-    notice_folder_processing_unavailable: "Folder processing method not available",
     notice_error_adding_folder_images: "Error adding images from folder",
     notice_api_failed_enable_disable: "❌ Failed to {action} {apiName}",
     notice_api_success_enable_disable: "✅ Successfully {action} {apiName}",

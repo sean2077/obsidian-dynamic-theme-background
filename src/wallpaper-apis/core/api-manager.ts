@@ -41,7 +41,7 @@ class WallpaperApiManager {
         if (!validation.valid) {
             const error = new ApiError(
                 ApiErrorType.PARAMETER_ERROR,
-                `Invalid parameters for API "${config.name}": ${validation.errors?.join(", ") || "Unknown error"}`,
+                `Invalid parameters for API "${config.name}": ${validation.errors?.join(", ") ?? "Unknown error"}`,
                 config.id
             );
             console.warn(`WallpaperApiManager: ${error.message}`);
@@ -92,8 +92,8 @@ class WallpaperApiManager {
      * 根据ID获取API实例
      * @param apiId API实例唯一标识符
      */
-    getApiById(apiId: string): BaseWallpaperApi | null {
-        return this.apis.get(apiId) || null;
+    getApiById(apiId: string): BaseWallpaperApi | undefined {
+        return this.apis.get(apiId);
     }
 
     /**

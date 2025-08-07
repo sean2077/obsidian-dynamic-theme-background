@@ -40,6 +40,28 @@
    ⚠️  新增组件时请遵循现有的命名规范和设计模式
    ============================================================================= */
 
+/* 工作区背景 */
+.dtb-enabled :not(.modal):not(.modal *) {
+    --background-primary: var(--dtb-bg-color) !important;
+    --background-primary-alt: var(--dtb-bg-color) !important;
+    --background-secondary: var(--dtb-bg-color) !important;
+    --background-secondary-alt: var(--dtb-bg-color) !important;
+}
+.dtb-enabled .workspace::before {
+    background-image: var(--dtb-bg-image);
+    background-size: var(--dtb-bg-size);
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: blur(var(--dtb-blur-depth)) brightness(var(--dtb-brightness)) saturate(var(--dtb-saturate));
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+}
+
 /* 通用条目容器 */
 .dtb-item {
     display: flex;

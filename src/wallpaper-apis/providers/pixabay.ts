@@ -308,8 +308,8 @@ export class PixabayApi extends BaseWallpaperApi {
 
             // 更新分页信息
             this.totalPages = response.totalHits ? Math.ceil(response.totalHits / this.perPage) : -1;
-            this.totalCount = response.total || -1;
-            this.perPage = Number(this.params.per_page) || 20;
+            this.totalCount = response.total ?? -1;
+            this.perPage = Number(this.params.per_page) ?? 20;
 
             // 初始化数据缓存
             this.wallpaperImageCache = [];
@@ -367,7 +367,7 @@ export class PixabayApi extends BaseWallpaperApi {
 
             // 更新分页信息
             this.totalPages = data.totalHits ? Math.ceil(data.totalHits / this.perPage) : -1;
-            this.totalCount = data.total || -1;
+            this.totalCount = data.total ?? -1;
 
             // 缓存当前页的数据
             this.wallpaperImageCache = data.hits.map((image: Record<string, unknown>) => this.transformImage(image));
@@ -385,9 +385,9 @@ export class PixabayApi extends BaseWallpaperApi {
         const queryParams = new URLSearchParams();
 
         // 必需参数
-        queryParams.append("key", String(this.params.key || ""));
+        queryParams.append("key", String(this.params.key ?? ""));
         queryParams.append("page", String(page));
-        queryParams.append("per_page", String(this.params.per_page || this.perPage));
+        queryParams.append("per_page", String(this.params.per_page ?? this.perPage));
 
         // 可选参数
         if (this.params.q) {
@@ -432,7 +432,7 @@ export class PixabayApi extends BaseWallpaperApi {
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformImage(image: Record<string, unknown>): WallpaperImage {
         return {
-            id: String(image.id || ""),
+            id: String(image.id ?? ""),
             url: String(image.largeImageURL || image.fullHDURL || image.webformatURL || ""),
             width: Number(image.imageWidth) || Number(image.webformatWidth) || undefined,
             height: Number(image.imageHeight) || Number(image.webformatHeight) || undefined,

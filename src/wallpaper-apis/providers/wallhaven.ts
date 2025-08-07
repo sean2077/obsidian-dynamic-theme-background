@@ -93,10 +93,10 @@ export class WallhavenApi extends BaseWallpaperApi {
                     result += uiValue.includes("general") ? "1" : "0";
                     result += uiValue.includes("anime") ? "1" : "0";
                     result += uiValue.includes("people") ? "1" : "0";
-                    return result || (defaultParams.categories as string);
+                    return result ?? (defaultParams.categories as string);
                 },
                 fromApiValue: (apiValue: string) => {
-                    const str = apiValue?.toString() || (defaultParams.categories as string);
+                    const str = apiValue?.toString() ?? (defaultParams.categories as string);
                     const result: string[] = [];
                     if (str[0] === "1") result.push("general");
                     if (str[1] === "1") result.push("anime");
@@ -121,10 +121,10 @@ export class WallhavenApi extends BaseWallpaperApi {
                     result += arr.includes("sfw") ? "1" : "0";
                     result += arr.includes("sketchy") ? "1" : "0";
                     result += arr.includes("nsfw") ? "1" : "0";
-                    return result || (defaultParams.purity as string);
+                    return result ?? (defaultParams.purity as string);
                 },
                 fromApiValue: (apiValue: string) => {
-                    const str = apiValue?.toString() || (defaultParams.purity as string);
+                    const str = apiValue?.toString() ?? (defaultParams.purity as string);
                     const result: string[] = [];
                     if (str[0] === "1") result.push("sfw");
                     if (str[1] === "1") result.push("sketchy");
@@ -300,9 +300,9 @@ export class WallhavenApi extends BaseWallpaperApi {
             console.warn("Wallhaven API response missing meta information.");
             return false;
         }
-        this.totalPages = meta.last_page || -1;
-        this.totalCount = meta.total || -1;
-        this.perPage = meta.per_page || -1;
+        this.totalPages = meta.last_page ?? -1;
+        this.totalCount = meta.total ?? -1;
+        this.perPage = meta.per_page ?? -1;
         if (this.totalPages <= 0 || this.totalCount < 0 || this.perPage <= 0) {
             console.warn("Wallhaven API response has invalid pagination data.");
             return false;
@@ -375,8 +375,8 @@ export class WallhavenApi extends BaseWallpaperApi {
     } // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformImage(apiImage: Record<string, unknown>): WallpaperImage {
         return {
-            id: String(apiImage.id || ""),
-            url: String(apiImage.path || ""),
+            id: String(apiImage.id ?? ""),
+            url: String(apiImage.path ?? ""),
             width: Number(apiImage.dimension_x) || undefined,
             height: Number(apiImage.dimension_y) || undefined,
         };

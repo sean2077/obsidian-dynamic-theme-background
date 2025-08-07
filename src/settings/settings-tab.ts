@@ -8,7 +8,7 @@ import { t } from "../i18n";
 import { BackgroundModal, ImageFolderSuggestModal, TimeRuleModal, WallpaperApiEditorModal } from "../modals";
 import type DynamicThemeBackgroundPlugin from "../plugin";
 import type { BackgroundItem, DTBSettings, TimeRule } from "../types";
-import { DragSort } from "../utils";
+import { DragSort, addDropdownOptionHoverTooltip, addDropdownTooltip, addEnhancedDropdownTooltip } from "../utils";
 import {
     ApiStateSubscriber,
     BaseWallpaperApi,
@@ -209,12 +209,59 @@ export class DTBSettingTab extends PluginSettingTab {
                     })
             );
 
+        // 背景填充方式设置
+        new Setting(containerEl)
+            .setName(t("bg_size_name"))
+            .setDesc(t("bg_size_desc"))
+            .addDropdown((dropdown) => {
+                // 添加下拉选项
+                dropdown.addOption("intelligent", "intelligent");
+                dropdown.addOption("cover", "cover");
+                dropdown.addOption("contain", "contain");
+                dropdown.addOption("auto", "auto");
+                // 使用专门的悬停选项方法添加 tooltip（推荐用法）
+                addDropdownOptionHoverTooltip(
+                    dropdown,
+                    {
+                        cover: t("bg_size_option_cover"),
+                        contain: t("bg_size_option_contain"),
+                        auto: t("bg_size_option_auto"),
+                        intelligent: t("bg_size_option_intelligent"),
+                    },
+                    {
+                        defaultTooltip: t("bg_size_desc"),
+                        updateOnChange: true, // 选择后也更新整个下拉框的 tooltip
+                    }
+                );
+
+                dropdown
+                    .setValue(this.plugin.settings.bgSize)
+                    .onChange(async (value: "cover" | "contain" | "auto" | "intelligent") => {
+                        this.plugin.settings.bgSize = value;
+                        await this.plugin.saveSettings();
+                        this.plugin.updateStyleCss();
+                    });
+
+                return dropdown;
+            })
+            .addExtraButton((button) =>
+                button
+                    .setIcon("reset")
+                    .setTooltip(t("reset_bg_size_tooltip"))
+                    .onClick(async () => {
+                        this.plugin.settings.bgSize = this.defaultSettings.bgSize;
+                        await this.plugin.saveSettings();
+                        this.plugin.updateStyleCss();
+                        this.displayBasicSettings(containerEl);
+                    })
+            );
+
         // 模式设置
         containerEl.createEl("h4", { text: t("mode_settings_title") });
         new Setting(containerEl)
             .setName(t("switch_mode_name"))
             .setDesc(t("switch_mode_desc"))
-            .addDropdown((dropdown) =>
+            .addDropdown((dropdown) => {
                 dropdown
                     .addOption("time-based", t("mode_time_based"))
                     .addOption("interval", t("mode_interval"))
@@ -225,8 +272,21 @@ export class DTBSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                         this.plugin.startBackgroundManager();
                         this.displayBasicSettings(containerEl);
-                    })
-            );
+                    });
+
+                // 添加模式切换的 tooltip
+                addDropdownTooltip(
+                    dropdown,
+                    {
+                        "time-based": t("mode_time_based_tooltip"),
+                        interval: t("mode_interval_tooltip"),
+                        manual: t("mode_manual_tooltip"),
+                    },
+                    t("switch_mode_desc")
+                );
+
+                return dropdown;
+            });
 
         // 时间规则（仅在时间模式下显示）
         if (this.plugin.settings.mode === "time-based") {
@@ -334,6 +394,20 @@ export class DTBSettingTab extends PluginSettingTab {
                     this.plugin.settings.backgrounds.forEach((bg) => {
                         dropdown.addOption(bg.id, bg.name);
                     });
+                    // 使用增强版 tooltip 方法为背景选择下拉框添加动态提示
+                    addEnhancedDropdownTooltip(dropdown, {
+                        defaultTooltip: t("select_background_option"),
+                        showSelectedValue: true,
+                        customFormatter: (value, text) => {
+                            if (!value) return t("select_background_option");
+                            const bg = this.plugin.settings.backgrounds.find((b) => b.id === value);
+                            if (bg) {
+                                return `${text} (${bg.type.toUpperCase()})`;
+                            }
+                            return text;
+                        },
+                    });
+
                     return dropdown.setValue(rule.backgroundId).onChange(async (value) => {
                         rule.backgroundId = value;
                         await this.plugin.saveSettings();
@@ -366,7 +440,7 @@ export class DTBSettingTab extends PluginSettingTab {
     // 显示添加或编辑时间规则的模态窗口
     private showTimeRuleModal(rule?: TimeRule) {
         // 如果没有提供规则，创建一个新的空规则
-        const editRule: TimeRule = rule || {
+        const editRule: TimeRule = rule ?? {
             id: "",
             name: "",
             startTime: "09:00",
@@ -399,7 +473,7 @@ export class DTBSettingTab extends PluginSettingTab {
                     name: updatedRule.name.trim(),
                     startTime: updatedRule.startTime,
                     endTime: updatedRule.endTime,
-                    backgroundId: this.plugin.settings.backgrounds[0]?.id || "",
+                    backgroundId: this.plugin.settings.backgrounds[0]?.id ?? "",
                     enabled: true,
                 };
                 this.plugin.settings.timeRules.push(newRule);
@@ -456,25 +530,26 @@ export class DTBSettingTab extends PluginSettingTab {
 
     // 显示添加或编辑背景的模态窗口
     private async showAddBackgroundModal(type: "image" | "color" | "gradient") {
-        const modal = new BackgroundModal(this.app, type, async (name: string, value: string) => {
-            if (!name.trim() || !value.trim()) {
+        // 创建一个新的背景项，初始值为空
+        const bg: BackgroundItem = {
+            id: "",
+            name: "",
+            type,
+            value: "",
+        };
+        const modal = new BackgroundModal(this.app, this.plugin, bg, async (newBg: BackgroundItem) => {
+            if (!newBg.name.trim() || !newBg.value.trim()) {
                 new Notice(t("notice_name_and_value_required"));
                 return;
             }
+            newBg.name = newBg.name.trim();
+            newBg.value = newBg.value.trim();
 
             // 生成唯一ID
-            const id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
-
-            // 创建新的背景项
-            const newBackground: BackgroundItem = {
-                id,
-                name: name.trim(),
-                type,
-                value: value.trim(),
-            };
+            newBg.id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
 
             // 添加到设置中
-            this.plugin.settings.backgrounds.push(newBackground);
+            this.plugin.settings.backgrounds.push(newBg);
             await this.plugin.saveSettings();
 
             // 直接全刷新
@@ -486,18 +561,16 @@ export class DTBSettingTab extends PluginSettingTab {
 
     // 显示编辑背景的模态窗口
     private async showEditBackgroundModal(bg: BackgroundItem, index: number) {
-        const modal = new BackgroundModal(this.app, bg.type, async (name: string, value: string) => {
-            if (!name.trim() || !value.trim()) {
+        const modal = new BackgroundModal(this.app, this.plugin, bg, async (newBg: BackgroundItem) => {
+            if (!newBg.name.trim() || !newBg.value.trim()) {
                 new Notice(t("notice_name_and_value_required"));
                 return;
             }
+            newBg.name = newBg.name.trim();
+            newBg.value = newBg.value.trim();
 
             // 更新现有背景项
-            this.plugin.settings.backgrounds[index] = {
-                ...bg,
-                name: name.trim(),
-                value: value.trim(),
-            };
+            this.plugin.settings.backgrounds[index] = newBg;
 
             await this.plugin.saveSettings();
 
@@ -539,12 +612,8 @@ export class DTBSettingTab extends PluginSettingTab {
 
             try {
                 // 处理文件夹中的图片文件
-                if (typeof this.addImagesFromFolder === "function") {
-                    await this.addImagesFromFolder(folderPath);
-                    new Notice(t("notice_folder_added_successfully", { folderPath }));
-                } else {
-                    new Notice(t("notice_folder_processing_unavailable"));
-                }
+                await this.addImagesFromFolder(folderPath);
+                new Notice(t("notice_folder_added_successfully", { folderPath }));
             } catch (error) {
                 console.error("Error adding images from folder:", error);
                 new Notice(t("notice_error_adding_folder_images"));
@@ -622,6 +691,7 @@ export class DTBSettingTab extends PluginSettingTab {
             dragHandle.textContent = "⋮⋮"; // 使用双点符号作为拖拽手柄
             dragHandle.title = t("drag_handle_tooltip");
 
+            // 背景名称和类型
             const contentDiv = bgEl.createDiv("dtb-bg-content");
             contentDiv.createSpan({ text: bg.name, cls: "dtb-bg-name" });
             contentDiv.createSpan({ text: bg.type, cls: "dtb-type-badge" });
@@ -664,8 +734,10 @@ export class DTBSettingTab extends PluginSettingTab {
         preview.removeClass("dtb-preview-image", "dtb-preview-color", "dtb-preview-gradient");
 
         // 清除之前设置的 CSS 自定义属性
-        preview.style.removeProperty("--dtb-preview-bg-image");
-        preview.style.removeProperty("--dtb-preview-bg");
+        preview.setCssProps({
+            "--dtb-preview-bg-image": "",
+            "--dtb-preview-bg": "",
+        });
 
         switch (bg.type) {
             case "image": {
@@ -673,7 +745,9 @@ export class DTBSettingTab extends PluginSettingTab {
                 const sanitizedImagePath = this.plugin.sanitizeImagePath(bg.value);
                 // 只有当图片路径有效时才设置 CSS 变量
                 if (sanitizedImagePath && sanitizedImagePath !== "none") {
-                    preview.style.setProperty("--dtb-preview-bg-image", sanitizedImagePath);
+                    preview.setCssProps({
+                        "--dtb-preview-bg-image": sanitizedImagePath,
+                    });
                 }
                 break;
             }
@@ -682,7 +756,9 @@ export class DTBSettingTab extends PluginSettingTab {
                 preview.addClass(`dtb-preview-${bg.type}`);
                 // 验证颜色/渐变值的有效性
                 if (bg.value && bg.value.trim()) {
-                    preview.style.setProperty("--dtb-preview-bg", bg.value);
+                    preview.setCssProps({
+                        "--dtb-preview-bg": bg.value,
+                    });
                 }
                 break;
             }
@@ -751,7 +827,7 @@ export class DTBSettingTab extends PluginSettingTab {
             if (!existingBg) {
                 const fileName = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
                 // 只保留最后一级文件夹名称，避免长路径影响观感
-                const folderName = folderPath === "" ? "root" : folderPath.split("/").pop() || folderPath;
+                const folderName = folderPath === "" ? "root" : (folderPath.split("/").pop() ?? folderPath);
                 const newBg: BackgroundItem = {
                     id: Date.now().toString() + "-" + addedCount, // 确保ID唯一
                     name: `${fileName} (${folderName})`,
@@ -857,7 +933,7 @@ export class DTBSettingTab extends PluginSettingTab {
             const setting = new Setting(container).setName(apiConfig.name).setDesc(apiInstance.getDescription());
 
             // 在设置项的控件区域直接添加类型标签
-            setting.controlEl.createSpan({ text: apiConfig.type || "Unknown", cls: "dtb-type-badge" });
+            setting.controlEl.createSpan({ text: apiConfig.type ?? "Unknown", cls: "dtb-type-badge" });
 
             // 注意：状态指示器和启用按钮的状态都以 API 实例的状态为准，配置项的 enabled 字段仅用于初始状态和保存设置时的同步。
 

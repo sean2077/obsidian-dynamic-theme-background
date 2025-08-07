@@ -214,15 +214,15 @@ export class UnsplashApi extends BaseWallpaperApi {
                     console.warn("Unsplash API initialization failed: No response from search endpoint.");
                     return false;
                 }
-                this.totalPages = searchResp.total_pages || -1;
-                this.totalCount = searchResp.total || -1;
+                this.totalPages = searchResp.total_pages ?? -1;
+                this.totalCount = searchResp.total ?? -1;
             } else {
                 // 对于随机图片，我们无法预知总数，设置为无限模式
                 this.totalPages = -1;
                 this.totalCount = -1;
             }
 
-            this.perPage = Number(this.params.per_page) || 10;
+            this.perPage = Number(this.params.per_page) ?? 10;
 
             // 初始化数据缓存
             this.wallpaperImageCache = [];
@@ -284,8 +284,8 @@ export class UnsplashApi extends BaseWallpaperApi {
             }
 
             // 更新分页信息
-            this.totalPages = data.total_pages || -1;
-            this.totalCount = data.total || -1;
+            this.totalPages = data.total_pages ?? -1;
+            this.totalCount = data.total ?? -1;
 
             // 缓存当前页的数据
             this.wallpaperImageCache = data.results.map((photo: Record<string, unknown>) => this.transformPhoto(photo));
@@ -324,10 +324,10 @@ export class UnsplashApi extends BaseWallpaperApi {
         const queryParams = new URLSearchParams();
 
         // 必需参数
-        queryParams.append("client_id", String(this.params.client_id || ""));
-        queryParams.append("query", String(this.params.query || ""));
+        queryParams.append("client_id", String(this.params.client_id ?? ""));
+        queryParams.append("query", String(this.params.query ?? ""));
         queryParams.append("page", String(page));
-        queryParams.append("per_page", String(this.params.per_page || this.perPage));
+        queryParams.append("per_page", String(this.params.per_page ?? this.perPage));
 
         // 可选参数
         if (this.params.order_by) {
@@ -356,7 +356,7 @@ export class UnsplashApi extends BaseWallpaperApi {
         const queryParams = new URLSearchParams();
 
         // 必需参数
-        queryParams.append("client_id", String(this.params.client_id || ""));
+        queryParams.append("client_id", String(this.params.client_id ?? ""));
         queryParams.append("count", String(count));
 
         // 可选参数
@@ -380,11 +380,11 @@ export class UnsplashApi extends BaseWallpaperApi {
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformPhoto(photo: Record<string, unknown>): WallpaperImage {
-        const user = (photo.user as Record<string, unknown>) || {};
-        const urls = (photo.urls as Record<string, unknown>) || {};
+        const user = (photo.user as Record<string, unknown>) ?? {};
+        const urls = (photo.urls as Record<string, unknown>) ?? {};
 
         return {
-            id: String(photo.id || ""),
+            id: String(photo.id ?? ""),
             url: String(urls.regular || urls.full || urls.raw || ""),
             width: Number(photo.width) || undefined,
             height: Number(photo.height) || undefined,

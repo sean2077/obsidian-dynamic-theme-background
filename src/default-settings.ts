@@ -12,11 +12,16 @@ let DEFAULT_SETTINGS: DTBSettings;
 function genDefaultSettings(): DTBSettings {
     DEFAULT_SETTINGS = {
         enabled: true,
-        blurDepth: 0, // default blur
-        brightness4Bg: 0.9, // default brightness
-        saturate4Bg: 1, // default saturation
-        bgColor: "#1f1e1e", // default background color (without alpha)
-        bgColorOpacity: 0.5, // default background color opacity (0-1)
+
+        // 全局背景模糊度、亮度和饱和度变量、背景颜色等
+        blurDepth: 0,
+        brightness4Bg: 0.9,
+        saturate4Bg: 1,
+        bgColor: "#1f1e1e",
+        bgColorOpacity: 0.38,
+        bgSize: "intelligent",
+
+        // 背景切换模式和规则
         mode: "time-based",
         timeRules: [
             {
@@ -77,6 +82,8 @@ function genDefaultSettings(): DTBSettings {
             },
         ],
         intervalMinutes: 60,
+
+        // 背景管理
         backgrounds: [
             {
                 id: "blue-purple-gradient",
@@ -123,7 +130,7 @@ function genDefaultSettings(): DTBSettings {
         ],
         currentIndex: 0,
 
-        // 随机壁纸设置
+        // 壁纸 API 管理
         enableRandomWallpaper: false, // 默认不启用随机壁纸
         wallpaperApis: [
             {

@@ -13,7 +13,6 @@ import { apiManager } from "./wallpaper-apis";
 export default class DynamicThemeBackgroundPlugin extends Plugin {
     settings: DTBSettings;
     intervalId: number | null = null;
-    styleTag: HTMLStyleElement;
 
     // 当前的背景
     background: BackgroundItem | null = null;
@@ -24,11 +23,6 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
     async onload() {
         await this.loadSettings();
-
-        // 创建样式元素
-        this.styleTag = document.createElement("style");
-        this.styleTag.id = "dtb-dynamic-styles";
-        document.head.appendChild(this.styleTag);
 
         // 注册自定义视图类型
         this.registerView(DTB_SETTINGS_VIEW_TYPE, (leaf) => new DTBSettingsView(leaf, this));
@@ -59,7 +53,6 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     onunload() {
         this.stopBackgroundManager();
         this.deactivateView(); // 清理自定义视图
-        this.styleTag?.remove();
 
         // 清理所有注册的API实例（包括状态管理器中的所有订阅）
         apiManager.deleteAllApis();
@@ -155,7 +148,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             case "time-based": {
                 const rule = this.getCurrentTimeRule();
                 if (rule) {
-                    this.background = this.settings.backgrounds.find((bg) => bg.id === rule.backgroundId) || null;
+                    this.background = this.settings.backgrounds.find((bg) => bg.id === rule.backgroundId) ?? null;
 
                     // 判断是否与当前背景不同
                     needsUpdate = this.background?.id !== rule.backgroundId;
@@ -253,74 +246,47 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
     /**
      * 更新样式 CSS（真正更新背景的地方）, 调用前请确保已设置 this.background
-     * @param customBackgroundSize 可选的自定义背景尺寸，如果不提供则自动计算
+     * @param bgSize 可选的自定义背景尺寸，如果不提供则自动计算
      */
-    updateStyleCss(customBackgroundSize?: string) {
+    updateStyleCss(bgSize?: string) {
         if (!this.settings.enabled || !this.background) {
             console.warn("DTB: Background update is disabled or no background is set");
             return;
         }
 
-        let cssValue = "";
-        let backgroundProperty = "";
+        const bgCssValue =
+            this.background.type === "image" ? this.sanitizeImagePath(this.background.value) : this.background.value;
 
-        switch (this.background.type) {
-            case "image":
-                cssValue = this.sanitizeImagePath(this.background.value);
-                backgroundProperty = "background-image";
-                break;
-            case "color":
-                cssValue = this.background.value;
-                backgroundProperty = "background";
-                break;
-            case "gradient":
-                cssValue = this.background.value;
-                backgroundProperty = "background";
-                break;
-        }
-
-        const bgColorWithOpacity = hexToRgba(this.settings.bgColor, this.settings.bgColorOpacity);
-
-        // 确定背景尺寸：优先使用传入的自定义尺寸，否则自动计算
-        let backgroundSize = customBackgroundSize;
-        if (!backgroundSize) {
+        // 模糊度、亮度、饱和度、遮罩颜色和透明度、填充方式的优先级统一为:
+        // 传入的自定义值 > 背景单独的设置 > 全局默认设置
+        const blurDepth = this.background.blurDepth ?? this.settings.blurDepth;
+        const brightness4Bg = this.background.brightness4Bg ?? this.settings.brightness4Bg;
+        const saturate4Bg = this.background.saturate4Bg ?? this.settings.saturate4Bg;
+        const bgColor = this.background.bgColor ?? this.settings.bgColor;
+        const bgColorOpacity = this.background.bgColorOpacity ?? this.settings.bgColorOpacity;
+        const bgColorWithOpacity = hexToRgba(bgColor, bgColorOpacity);
+        bgSize = bgSize ?? this.background.bgSize ?? this.settings.bgSize ?? "intelligent";
+        // 如果是 "intelligent"，则根据图片和屏幕比例动态选择
+        if (bgSize === "intelligent") {
             if (this.background.type === "image") {
-                backgroundSize = this.getOptimalBackgroundSize(this.background.value);
+                bgSize = this.getOptimalBackgroundSize(this.background.value);
             } else {
-                backgroundSize = "auto";
+                bgSize = "auto"; // 对于非图片背景，使用 auto
             }
         }
 
-        // TODO 样式还需要优化
-        this.styleTag.innerText = `
-			.dtb-enabled :not(.modal):not(.modal *) {
-                --background-primary: ${bgColorWithOpacity} !important;
-                --background-primary-alt: ${bgColorWithOpacity} !important;
-                --background-secondary: ${bgColorWithOpacity} !important;
-                --background-secondary-alt: ${bgColorWithOpacity} !important;
-            }
-            .dtb-enabled .workspace::before {
-				${backgroundProperty}: ${cssValue} !important;
-				background-size: ${backgroundSize};
-				background-repeat: no-repeat;
-				background-position: center;
-				filter: blur(${this.settings.blurDepth}px) brightness(${this.settings.brightness4Bg}) saturate(${this.settings.saturate4Bg});
-				content: '';
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				z-index: -1;
-			}
-			`
-            .trim()
-            .replace(/[\r\n\s]+/g, " ");
+        // 通过修改根元素的 CSS 属性来更新背景样式
+        document.documentElement.setCssProps({
+            "--dtb-bg-image": bgCssValue,
+            "--dtb-blur-depth": `${blurDepth}px`,
+            "--dtb-brightness": `${brightness4Bg}`,
+            "--dtb-saturate": `${saturate4Bg}`,
+            "--dtb-bg-color": bgColorWithOpacity,
+            "--dtb-bg-size": bgSize,
+        });
 
         // 通知 css-change
-        this.app.workspace.trigger("css-change", {
-            source: "dtb",
-        });
+        this.app.workspace.trigger("css-change", { source: "dtb" });
     }
 
     /**

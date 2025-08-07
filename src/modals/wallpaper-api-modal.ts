@@ -79,7 +79,7 @@ export class WallpaperApiEditorModal extends Modal {
         section.createEl("label", { text: t("api_modal_api_name") });
         this.nameInput = section.createEl("input", {
             type: "text",
-            value: this.apiConfig.name || "",
+            value: this.apiConfig.name,
             placeholder: t("api_modal_api_name_placeholder"),
             cls: ["dtb-input"],
         });
@@ -87,7 +87,7 @@ export class WallpaperApiEditorModal extends Modal {
         section.createEl("label", { text: t("api_modal_description_optional") });
         this.descInput = section.createEl("input", {
             type: "text",
-            value: this.apiConfig.description || "",
+            value: this.apiConfig.description,
             placeholder: this.getDefaultDescriptionForType(this.apiConfig.type),
             cls: ["dtb-input"],
         });
@@ -122,7 +122,7 @@ export class WallpaperApiEditorModal extends Modal {
         const defaultUrl = this.getDefaultUrlForType(this.apiConfig.type);
         this.urlInput = section.createEl("input", {
             type: "text",
-            value: this.apiConfig.baseUrl || "",
+            value: this.apiConfig.baseUrl,
             placeholder: defaultUrl || "https://api.example.com/...",
             cls: "dtb-input",
         });
@@ -343,7 +343,7 @@ export class WallpaperApiEditorModal extends Modal {
         this.customSettingsSectionContainer.createEl("h3", { text: t("api_modal_custom_settings") });
 
         // 获取当前选择的API类型的自定义设置描述符
-        const selectedType = this.typeSelect?.value || this.apiConfig.type;
+        const selectedType = this.typeSelect?.value ?? this.apiConfig.type;
         const customSettingDescriptors = apiRegistry.getCustomSettingDescriptors(selectedType as WallpaperApiType);
 
         if (customSettingDescriptors.length > 0) {
@@ -395,7 +395,7 @@ export class WallpaperApiEditorModal extends Modal {
             }
 
             // 使用转换函数处理当前值，转为 UI 显示值
-            let currentValue: OptionalUiValueType = getCurrentValue(descriptor.key) || descriptor.defaultValue;
+            let currentValue: OptionalUiValueType = getCurrentValue(descriptor.key) ?? descriptor.defaultValue;
             if (descriptor.fromApiValue && currentValue !== undefined) {
                 try {
                     currentValue = descriptor.fromApiValue(currentValue as ApiValueType);
@@ -459,8 +459,8 @@ export class WallpaperApiEditorModal extends Modal {
     ): HTMLInputElement {
         return container.createEl("input", {
             type: "text",
-            value: currentValue?.toString() || descriptor.defaultValue?.toString() || "",
-            placeholder: descriptor.placeholder || "",
+            value: currentValue?.toString() ?? descriptor.defaultValue?.toString() ?? "",
+            placeholder: descriptor.placeholder ?? "",
             cls: "dtb-input",
         });
     }
@@ -473,8 +473,8 @@ export class WallpaperApiEditorModal extends Modal {
     ): HTMLInputElement {
         return container.createEl("input", {
             type: "number",
-            value: currentValue?.toString() || descriptor.defaultValue?.toString() || "",
-            placeholder: descriptor.placeholder || "",
+            value: currentValue?.toString() ?? descriptor.defaultValue?.toString() ?? "",
+            placeholder: descriptor.placeholder ?? "",
             cls: "dtb-input",
         });
     }
@@ -693,7 +693,7 @@ export class WallpaperApiEditorModal extends Modal {
         // 调用 API 注册器验证参数
         const validation = apiRegistry.validateParams(config.type, config.params);
         if (!validation.valid) {
-            new Notice(t("api_modal_invalid_params", { errors: validation.errors?.join(", ") || "Unknown error" }));
+            new Notice(t("api_modal_invalid_params", { errors: validation.errors?.join(", ") ?? "Unknown error" }));
             return false;
         }
         return true;
