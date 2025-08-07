@@ -1,10 +1,10 @@
 {
-	"id": "dynamic-theme-background",
-	"name": "Dynamic Theme Background",
-	"version": "2.3.0",
-	"minAppVersion": "0.15.0",
-	"description": "Automatically change theme backgrounds based on time schedules or intervals. Support custom time rules and multiple background types.",
-	"author": "sean2077",
-	"authorUrl": "https://github.com/sean2077",
-	"isDesktopOnly": false
+    "id": "dynamic-theme-background",
+    "name": "Dynamic Theme Background",
+    "version": "2.3.0",
+    "minAppVersion": "0.15.0",
+    "description": "Build Your Own Wallpaper Library! Make every note-taking experience visually inspiring.",
+    "author": "sean2077",
+    "authorUrl": "https://github.com/sean2077",
+    "isDesktopOnly": false
 }
