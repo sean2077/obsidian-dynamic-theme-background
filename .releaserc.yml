@@ -12,6 +12,8 @@ plugins:
     - - "@semantic-release/exec"
       - prepareCmd: |
             sed -i 's/"version": "[^"]*"/"version": "${nextRelease.version}"/' manifest.json
+            sed -i 's/export const VERSION = ".*"/export const VERSION = "${nextRelease.version}"/' src/version.ts
+            npm run build
     - - "@semantic-release/git"
       - assets:
             - CHANGELOG.md

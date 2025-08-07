@@ -1,6 +1,11 @@
 export default {
-    // ===== 基础设置 =====
+    // ===== 设置标题 =====
     settings_title: "Dynamic Theme Background Settings",
+    version: "🛠️ Version: ",
+    author: "🎨 Author: ",
+    tutorial: "📖 Tutorial: ",
+
+    // ===== 基础设置 =====
     enable_plugin_name: "Enable dynamic background",
     enable_plugin_desc: "Turn the dynamic background feature on or off.",
     basic_settings_title: "Basic Settings",

@@ -23,7 +23,6 @@ jobs:
             - name: Build plugin
               run: |
                   npm install
-                  npm run build
 
             - name: Semantic Release
               uses: cycjimmy/semantic-release-action@v4

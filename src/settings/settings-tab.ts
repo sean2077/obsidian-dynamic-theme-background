@@ -9,6 +9,7 @@ import { BackgroundModal, ImageFolderSuggestModal, TimeRuleModal, WallpaperApiEd
 import type DynamicThemeBackgroundPlugin from "../plugin";
 import type { BackgroundItem, DTBSettings, TimeRule } from "../types";
 import { DragSort, addDropdownOptionHoverTooltip, addDropdownTooltip, addEnhancedDropdownTooltip } from "../utils";
+import { VERSION } from "../version";
 import {
     ApiStateSubscriber,
     BaseWallpaperApi,
@@ -41,7 +42,7 @@ export class DTBSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        containerEl.createEl("h2", { text: t("settings_title") });
+        this.displayHeader(containerEl);
 
         // 创建基本设置容器，便于分组更新
         const basicSettingEl = containerEl.createDiv(); // 这里适合使用默认的 div 容器，因为 displayXXX 内部会清理该容器
@@ -52,6 +53,34 @@ export class DTBSettingTab extends PluginSettingTab {
 
         const wallpaperApiSettingsEl = containerEl.createDiv(); // 这里适合使用默认的 div 容器，因为 displayXXX 内部会清理该容器
         this.displayWallpaperApiSettings(wallpaperApiSettingsEl);
+    }
+
+    // 显示设置页头
+    private displayHeader(containerEl: HTMLElement) {
+        const headerContainer = containerEl.createDiv("dtb-section-header");
+
+        // 创建左侧标题容器
+        const titleContainer = headerContainer.createDiv();
+        titleContainer.createEl("h2", { text: t("settings_title"), cls: "" });
+
+        // 创建右侧信息容器
+        const infoContainer = headerContainer.createDiv("dtb-doc-links");
+
+        infoContainer.createEl("a", {
+            text: t("version") + VERSION,
+            href: `https://github.com/sean2077/obsidian-dynamic-theme-background/releases/tag/${VERSION}`,
+            cls: "dtb-doc-link",
+        });
+        infoContainer.createEl("a", {
+            text: t("author") + "Sean2077 ✨",
+            href: "https://github.com/sean2077",
+            cls: "dtb-doc-link",
+        });
+        infoContainer.createEl("a", {
+            text: t("tutorial") + "github",
+            href: "https://github.com/sean2077/obsidian-dynamic-theme-background",
+            cls: "dtb-doc-link",
+        });
     }
 
     // ============================================================================
