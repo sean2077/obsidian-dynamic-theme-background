@@ -134,12 +134,12 @@ export class BackgroundModal extends Modal {
             this.bgItem.name = this.nameInput.value;
             this.bgItem.value = this.valueInput.value;
             // 如果设置了模糊度、亮度、饱和度、遮罩颜色和透明度、填充方式, 则更新这些属性
-            this.bgItem.blurDepth = this.blurDepth ?? this.plugin.settings.blurDepth;
-            this.bgItem.brightness4Bg = this.brightness4Bg ?? this.plugin.settings.brightness4Bg;
-            this.bgItem.saturate4Bg = this.saturate4Bg ?? this.plugin.settings.saturate4Bg;
-            this.bgItem.bgColor = this.bgColor ?? this.plugin.settings.bgColor;
-            this.bgItem.bgColorOpacity = this.bgColorOpacity ?? this.plugin.settings.bgColorOpacity;
-            this.bgItem.bgSize = this.bgSize ?? this.plugin.settings.bgSize;
+            this.bgItem.blurDepth = this.blurDepth ?? this.bgItem.blurDepth;
+            this.bgItem.brightness4Bg = this.brightness4Bg ?? this.bgItem.brightness4Bg;
+            this.bgItem.saturate4Bg = this.saturate4Bg ?? this.bgItem.saturate4Bg;
+            this.bgItem.bgColor = this.bgColor ?? this.bgItem.bgColor;
+            this.bgItem.bgColorOpacity = this.bgColorOpacity ?? this.bgItem.bgColorOpacity;
+            this.bgItem.bgSize = this.bgSize ?? this.bgItem.bgSize;
             // call onSubmit callback with updated bgItem
             this.onSubmit(this.bgItem);
             this.close();
