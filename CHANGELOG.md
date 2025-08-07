@@ -1,3 +1,10 @@
+## [2.4.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.4.0...2.4.1) (2025-08-07)
+
+
+### Bug Fixes
+
+* Fix for inter-day time zone matching ([b435f53](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/b435f53190a80514506baeba171557cf518edff4))
+
 # [2.4.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.3.0...2.4.0) (2025-08-07)
 
 
