@@ -4,9 +4,7 @@
 ### Build Your Own Wallpaper Library in Obsidian!
 *Make every note-taking experience visually inspiring*
 
-<p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/🇺🇸_English-4285f4?style=for-the-badge" alt="English" /></a> <a href="README.zh.md"><img src="https://img.shields.io/badge/🇨🇳_中文版-ff6b35?style=for-the-badge" alt="中文版" /></a>
-</p>
+**🇺🇸 English ｜ [🇨🇳 中文版](README.zh.md)**
 
 <p align="center">
   <a href="https://obsidian.md/"><img src="https://img.shields.io/badge/Obsidian%20Plugin-1e1e1e?logo=obsidian&logoColor=white&style=for-the-badge" alt="Obsidian Plugin" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases/latest"><img src="https://img.shields.io/github/v/release/sean2077/obsidian-dynamic-theme-background?style=for-the-badge" alt="Latest Release" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"><img src="https://img.shields.io/github/downloads/sean2077/obsidian-dynamic-theme-background/total?style=for-the-badge" alt="GitHub Downloads" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/stargazers"><img src="https://img.shields.io/github/stars/sean2077/obsidian-dynamic-theme-background?style=for-the-badge" alt="GitHub Stars" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/actions"><img src="https://img.shields.io/github/actions/workflow/status/sean2077/obsidian-dynamic-theme-background/release.yml?branch=master&style=for-the-badge" alt="Build Status" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/blob/master/LICENSE"><img src="https://img.shields.io/github/license/sean2077/obsidian-dynamic-theme-background?style=for-the-badge" alt="License" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues"><img src="https://img.shields.io/github/issues/sean2077/obsidian-dynamic-theme-background?style=for-the-badge" alt="Issues" /></a>
