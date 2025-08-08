@@ -560,7 +560,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             const loadingNotice = new Notice(t("notice_api_fetching", { apiName: selectedApi.getName() }), 0);
 
             // 使用选中的API获取壁纸
-            const wallpaperImages = await apiManager.getRandomWallpapers();
+            const wallpaperImages = await apiManager.getRandomWallpapers(selectedApi.getId());
 
             // 关闭加载提示
             loadingNotice.hide();
