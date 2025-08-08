@@ -1,3 +1,10 @@
+## [2.5.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.5.1...2.5.2) (2025-08-08)
+
+
+### Bug Fixes
+
+* Pass selected API ID to getRandomWallpapers method ([f385382](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/f38538287723aadd53b6529667a415b811e7edc3))
+
 ## [2.5.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.5.0...2.5.1) (2025-08-08)
 
 
