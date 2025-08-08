@@ -7,12 +7,11 @@ plugins:
     - "@semantic-release/release-notes-generator"
     - - "@semantic-release/changelog"
       - changelogFile: CHANGELOG.md
-    - - "@semantic-release/npm"
-      - npmPublish: false # 不发布到 npm，只更新 package.json
     - - "@semantic-release/exec"
       - prepareCmd: |
             sed -i 's/"version": "[^"]*"/"version": "${nextRelease.version}"/' manifest.json
             sed -i 's/export const VERSION = ".*"/export const VERSION = "${nextRelease.version}"/' src/version.ts
+            npm version ${nextRelease.version} --no-git-tag-version
             npm run build
     - - "@semantic-release/git"
       - assets:
