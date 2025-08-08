@@ -197,6 +197,7 @@ export default {
     notice_save_background_success: "🎉 DTB: Current background saved to {folderPath}",
     notice_save_background_failed:
         "❌ DTB: Failed to save current background, please check folder path and permissions",
+    notice_save_background_overwrite_existing_file: "⚠️ DTB: File {filePath} already exists, do you want to overwrite?",
 
     // ===== API 模态窗口 =====
     api_modal_invalid_json: "Invalid JSON in extra parameters",

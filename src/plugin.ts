@@ -6,6 +6,7 @@ import { Notice, Plugin, requestUrl } from "obsidian";
 import { registerCommands } from "./commands";
 import { getDefaultSettings } from "./default-settings";
 import { t } from "./i18n";
+import { confirm } from "./modals";
 import { DTBSettingTab, DTBSettingsView, DTB_SETTINGS_VIEW_TYPE } from "./settings";
 import type { BackgroundItem, DTBSettings, TimeRule } from "./types";
 import { hexToRgba } from "./utils";
@@ -490,6 +491,17 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         const imageName = bg.name.replace(/[\\\/:\*\?"<>\|]/g, "_") + ".jpg";
         const localPath = `${folderPath}/${imageName}`;
 
+        // 判断路径是否存在，如果存在，由用户确定是否覆盖
+        const file = this.app.vault.getFileByPath(localPath);
+        if (file) {
+            const overwrite = await confirm(
+                this.app,
+                t("notice_save_background_overwrite_existing_file", { filePath: localPath })
+            );
+            console.log("111", overwrite);
+            if (!overwrite) return true; // 用户取消覆盖
+        }
+
         // 这里添加保存远程图片的逻辑
         const response = await requestUrl({ url: bg.value });
         if (response.status < 200 || response.status >= 300) {
@@ -497,6 +509,11 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             return false;
         }
         const arrayBuffer = response.arrayBuffer;
+
+        // 如果需要覆盖，则先删除旧文件
+        if (file) {
+            await this.app.vault.delete(file);
+        }
         await this.app.vault.createBinary(localPath, arrayBuffer);
 
         // 默认将bg中的url替换为本地路径，并将remoteUrl设置为原始url以作备份
@@ -550,14 +567,16 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         const imagePath = bg.value;
         // 判断是否是远程图片
         if (this.isRemoteImage(imagePath)) {
-            return `url(${imagePath})`;
+            return `url("${imagePath}")`;
         }
         // 本地图片路径（只接受 Vault 内的图片）
         const file = this.app.vault.getFileByPath(imagePath);
         if (file) {
             const p = this.app.vault.getResourcePath(file);
             if (p) {
-                return `url(${p})`;
+                return `url("${p}")`;
+            } else {
+                console.warn(`DTB: Resource path for ${imagePath} is empty`);
             }
         } else {
             console.warn(`DTB: Image ${imagePath} not found or inaccessible`);
@@ -568,7 +587,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             // 这里恢复备份, 按理在这做不太合适
             bg.value = bg.remoteUrl;
             this.saveSettings(); // 保存设置
-            return `url(${bg.remoteUrl})`;
+            return `url("${bg.remoteUrl}")`;
         }
 
         // 否则

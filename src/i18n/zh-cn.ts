@@ -184,6 +184,7 @@ export default {
     notice_save_background_only_image_supported: "⚠️ DTB: 仅支持保存图片作为壁纸",
     notice_save_background_success: "🎉 DTB: 当前背景已保存至 {folderPath}",
     notice_save_background_failed: "❌ DTB: 当前背景保存失败，请检查文件夹路径和权限",
+    notice_save_background_overwrite_existing_file: "⚠️ DTB: 文件 {filePath} 已存在，是否覆盖？",
 
     // ===== API 模态窗口 =====
     api_modal_invalid_json: "额外参数中的 JSON 格式无效",

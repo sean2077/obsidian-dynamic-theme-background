@@ -1,6 +1,14 @@
 import { App, Modal, Setting } from "obsidian";
 import { t } from "../i18n";
 
+interface ConfirmModalOptions {
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+}
+
 export class ConfirmModal extends Modal {
     message: string;
     confirmText: string;
@@ -8,16 +16,7 @@ export class ConfirmModal extends Modal {
     onConfirm: () => void;
     onCancel?: () => void;
 
-    constructor(
-        app: App,
-        options: {
-            message: string;
-            confirmText?: string;
-            cancelText?: string;
-            onConfirm: () => void;
-            onCancel?: () => void;
-        }
-    ) {
+    constructor(app: App, options: ConfirmModalOptions) {
         super(app);
         this.message = options.message;
         this.confirmText = options.confirmText ?? t("button_confirm");
@@ -29,8 +28,8 @@ export class ConfirmModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        contentEl.createDiv({ text: this.message, cls: "dtb-confirm-modal-message" });
-        const buttonContainer = contentEl.createDiv({ cls: "dtb-confirm-modal-buttons" });
+        contentEl.createDiv({ text: this.message });
+        const buttonContainer = contentEl.createDiv({ cls: "dtb-flex-container-end" });
 
         new Setting(buttonContainer)
             .addButton((btn) => {
@@ -52,4 +51,14 @@ export class ConfirmModal extends Modal {
     onClose() {
         this.contentEl.empty();
     }
+}
+
+export function confirm(app: App, message: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        new ConfirmModal(app, {
+            message,
+            onConfirm: async () => resolve(true),
+            onCancel: async () => resolve(false),
+        }).open();
+    });
 }

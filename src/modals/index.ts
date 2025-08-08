@@ -4,7 +4,7 @@
  */
 
 export { BackgroundModal } from "./background-modal";
-export { ConfirmModal } from "./confirm-modal";
+export { confirm, ConfirmModal } from "./confirm-modal";
 export { ImageFolderSuggestModal } from "./image-folder-suggest-modal";
 export { ImagePathSuggestModal } from "./image-path-suggest-modal";
 export { TimeRuleModal } from "./time-rule-modal";
