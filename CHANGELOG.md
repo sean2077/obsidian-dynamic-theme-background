@@ -1,3 +1,11 @@
+## [2.5.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.5.0...2.5.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* Fix support for images with parentheses & add prompts to overwrite existing images ([90de87a](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/90de87aad5b932d56a7e90c8abbb87e7ee30f14f))
+* Refactor random wallpaper fetching and improve API management ([a1f3245](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/a1f324531ea42a78ee1a3eb4a70e546b7fb824bb))
+
 # [2.5.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.4.1...2.5.0) (2025-08-08)
 
 
