@@ -2,12 +2,13 @@
  * 命令管理器 - 统一管理所有插件命令
  */
 import { Command } from "obsidian";
-import DynamicThemeBackgroundPlugin from "../plugin";
+import type DynamicThemeBackgroundPlugin from "../plugin";
 
 // 导入所有命令创建函数
 import { createFetchWallpaperCommand } from "./fetch-wallpaper-command";
 import { createNextBackgroundCommand } from "./next-background-command";
 import { createOpenSettingsCommand } from "./open-settings-command";
+import { createSaveBackgroundCommand } from "./save-background-command";
 import { createTestBackgroundCommand } from "./test-background-command";
 import { createToggleCommand } from "./toggle-command";
 
@@ -21,6 +22,7 @@ export function registerCommands(plugin: DynamicThemeBackgroundPlugin): void {
         createTestBackgroundCommand(plugin),
         createFetchWallpaperCommand(plugin),
         createOpenSettingsCommand(plugin),
+        createSaveBackgroundCommand(plugin),
     ];
 
     commands.forEach((command) => {

@@ -97,7 +97,7 @@ export class DTBSettingTab extends PluginSettingTab {
         containerEl.empty();
         containerEl.createEl("h3", { text: t("basic_settings_title") });
 
-        // 基础设置
+        // 是否启用插件
         new Setting(containerEl)
             .setName(t("enable_plugin_name"))
             .setDesc(t("enable_plugin_desc"))
@@ -124,6 +124,22 @@ export class DTBSettingTab extends PluginSettingTab {
                         // 强制更新当前背景
                         this.plugin.updateBackground(true);
                     })
+            );
+
+        // 是否开启状态栏
+        new Setting(containerEl)
+            .setName(t("enable_status_bar_name"))
+            .setDesc(t("enable_status_bar_desc") + t("status_bar_title").replace(/\n/g, "  "))
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.statusBarEnabled).onChange(async (value) => {
+                    this.plugin.settings.statusBarEnabled = value;
+                    await this.plugin.saveSettings();
+                    if (value) {
+                        this.plugin.activateStatusBar();
+                    } else {
+                        this.plugin.deactivateStatusBar();
+                    }
+                })
             );
 
         // 外观设置
@@ -539,9 +555,33 @@ export class DTBSettingTab extends PluginSettingTab {
         // 背景管理
         containerEl.createEl("h3", { text: t("bg_management_title") });
 
-        // 添加拖拽提示
-        const dragHint = containerEl.createDiv("dtb-hint");
-        dragHint.textContent = t("drag_hint_text");
+        // 保存远程图片的本地路径
+        const imageFolderInputContainer = containerEl.createDiv("setting-item dtb-flex-container-spaced");
+        imageFolderInputContainer.createEl("label", { text: t("save_image_path_title") });
+        const valueInput = imageFolderInputContainer.createEl("input", {
+            type: "text",
+            title: t("save_image_path_title"),
+            placeholder: t("save_image_path_placeholder"),
+            value: this.plugin.settings.localBackgroundFolder ?? "",
+            cls: "dtb-flex-1",
+        });
+        valueInput.oninput = () => {
+            this.plugin.settings.localBackgroundFolder = valueInput.value;
+            this.plugin.saveSettings();
+        };
+        const browseButton = imageFolderInputContainer.createEl("button", {
+            type: "button",
+            text: t("button_browse"),
+            cls: "dtb-button",
+        });
+        browseButton.onclick = () => {
+            const modal = new ImageFolderSuggestModal(this.app, (imagePath: string) => {
+                valueInput.value = imagePath;
+                this.plugin.settings.localBackgroundFolder = imagePath;
+                this.plugin.saveSettings();
+            });
+            modal.open();
+        };
 
         // 添加背景的一组按钮
         const buttonContainer = containerEl.createDiv("dtb-large-button-container");
@@ -566,6 +606,10 @@ export class DTBSettingTab extends PluginSettingTab {
                     .setTooltip(t("restore_default_bg_tooltip"))
                     .onClick(() => this.restoreDefaultBackgrounds())
             );
+
+        // 添加拖拽提示
+        const dragHint = containerEl.createDiv("dtb-hint");
+        dragHint.textContent = t("background_management_hint");
 
         const backgroundContainer = containerEl.createDiv("dtb-section-container");
         this.displayBackgrounds(backgroundContainer);
@@ -739,13 +783,14 @@ export class DTBSettingTab extends PluginSettingTab {
             contentDiv.createSpan({ text: bg.name, cls: "dtb-bg-name" });
             contentDiv.createSpan({ text: bg.type, cls: "dtb-badge" });
 
-            // 预览
+            // 预览图
             const preview = contentDiv.createDiv("dtb-bg-preview");
             this.setPreviewBackground(preview, bg);
 
             // 操作按钮
             const actions = contentDiv.createDiv("dtb-button-container");
 
+            // 预览按钮
             actions.createEl("button", { text: t("button_preview") }).onclick = () => {
                 this.plugin.background = bg;
                 this.plugin.settings.currentIndex = index; // 更新当前索引
@@ -753,10 +798,19 @@ export class DTBSettingTab extends PluginSettingTab {
                 this.plugin.updateStyleCss();
             };
 
+            // 保存按钮
+            actions.createEl("button", { text: t("button_save") }).onclick = async () => {
+                await this.plugin.saveBackground(bg);
+                // 由于保存远程图片时会将本地图片路径替换为远程路径，因此需要更新设置
+                await this.plugin.saveSettings();
+            };
+
+            // 编辑按钮
             actions.createEl("button", { text: t("button_edit") }).onclick = () => {
                 this.showEditBackgroundModal(bg, index);
             };
 
+            // 删除按钮
             actions.createEl("button", { text: t("button_delete") }).onclick = async () => {
                 // 使用 filter 方法删除
                 this.plugin.settings.backgrounds = this.plugin.settings.backgrounds.filter(
@@ -786,7 +840,7 @@ export class DTBSettingTab extends PluginSettingTab {
         switch (bg.type) {
             case "image": {
                 preview.addClass("dtb-preview-image");
-                const sanitizedImagePath = this.plugin.sanitizeImagePath(bg.value);
+                const sanitizedImagePath = this.plugin.getBgURL(bg);
                 // 只有当图片路径有效时才设置 CSS 变量
                 if (sanitizedImagePath && sanitizedImagePath !== "none") {
                     preview.setCssProps({

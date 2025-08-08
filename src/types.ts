@@ -7,6 +7,7 @@ import type { WallpaperApiConfig } from "./wallpaper-apis";
 
 export interface DTBSettings {
     enabled: boolean;
+    statusBarEnabled: boolean; // 是否激活状态栏
 
     // 全局背景模糊度、亮度和饱和度变量、背景颜色
     blurDepth: number; // 背景模糊度
@@ -22,6 +23,7 @@ export interface DTBSettings {
     intervalMinutes: number;
 
     // 背景管理
+    localBackgroundFolder: string; // 保存远程背景图片的文件夹路径
     backgrounds: BackgroundItem[];
     currentIndex: number; // 当前背景索引
 
@@ -44,7 +46,7 @@ export interface BackgroundItem {
     name: string;
     type: "image" | "color" | "gradient";
     value: string; // image URL, color code, or gradient CSS
-    preview?: string;
+    remoteUrl?: string; // 作为备份，防止一些远端保存到本地的图片删除后找不回来，读取图片优先从value读取，如果读取不到再从远端读取，此种情况会将 remoteUrl 变更为 value
 
     // 每个背景单独的模糊度、亮度和饱和度变量、遮罩颜色和透明度、填充方式，可覆盖全局设置
     blurDepth?: number;

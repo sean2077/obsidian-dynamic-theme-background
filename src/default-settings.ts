@@ -12,6 +12,7 @@ let DEFAULT_SETTINGS: DTBSettings;
 function genDefaultSettings(): DTBSettings {
     DEFAULT_SETTINGS = {
         enabled: true,
+        statusBarEnabled: true, // 是否激活状态栏
 
         // 全局背景模糊度、亮度和饱和度变量、背景颜色等
         blurDepth: 0,
@@ -84,6 +85,7 @@ function genDefaultSettings(): DTBSettings {
         intervalMinutes: 60,
 
         // 背景管理
+        localBackgroundFolder: "",
         backgrounds: [
             {
                 id: "blue-purple-gradient",

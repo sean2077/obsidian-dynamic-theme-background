@@ -1,10 +1,11 @@
 /**
  * 动态主题背景插件 - 主插件类
  */
-import { Plugin } from "obsidian";
+import { Notice, Plugin, requestUrl } from "obsidian";
 
 import { registerCommands } from "./commands";
 import { getDefaultSettings } from "./default-settings";
+import { t } from "./i18n";
 import { DTBSettingTab, DTBSettingsView, DTB_SETTINGS_VIEW_TYPE } from "./settings";
 import type { BackgroundItem, DTBSettings, TimeRule } from "./types";
 import { hexToRgba } from "./utils";
@@ -18,12 +19,24 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     intervalId: number | null = null; // 用于间隔模式的定时器 ID
     timeoutId: number | null = null; // 用于时段规则的定时器 ID
 
+    statusBar: HTMLElement | null = null;
+
     // ============================================================================
     // 主要接口方法
     // ============================================================================
 
     async onload() {
         await this.loadSettings();
+
+        // 左侧栏图标
+        this.addRibbonIcon("rainbow", "🌈 Obsidian DTB", async (evt: MouseEvent) => {
+            await this.applyRandomWallpaper();
+        });
+
+        // 状态栏
+        if (this.settings.statusBarEnabled) {
+            this.activateStatusBar();
+        }
 
         // 注册自定义视图类型
         this.registerView(DTB_SETTINGS_VIEW_TYPE, (leaf) => new DTBSettingsView(leaf, this));
@@ -90,6 +103,38 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
         // 确保标签页获得焦点
         this.app.workspace.revealLeaf(leaf);
+    }
+
+    /**
+     * 停止状态栏
+     */
+    deactivateStatusBar() {
+        this.statusBar?.empty();
+    }
+
+    /**
+     * 激活状态栏，左键点击切换随机壁纸，右键点击保存当前背景，中键打开设置标签页
+     */
+    activateStatusBar() {
+        this.deactivateStatusBar();
+        this.statusBar = this.addStatusBarItem();
+        this.statusBar.setText("🌈 DTB");
+        this.statusBar.addClass("dtb-status-bar");
+        this.statusBar.setAttribute("title", t("status_bar_title"));
+        this.statusBar.addEventListener("click", async (evt) => {
+            if (evt.button === 0) {
+                await this.applyRandomWallpaper();
+            }
+        });
+        this.statusBar.addEventListener("auxclick", async (evt) => {
+            if (evt.button === 1) {
+                await this.activateView();
+            }
+        });
+        this.statusBar.addEventListener("contextmenu", async (evt) => {
+            evt.preventDefault();
+            await this.saveBackground();
+        });
     }
 
     /**
@@ -211,43 +256,22 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             }
             // 基于时间间隔切换
             case "interval": {
-                // 检查是否启用随机壁纸
-                if (this.settings.enableRandomWallpaper) {
-                    const randomWallpaperUrl = await this.fetchRandomWallpaper();
-
-                    if (randomWallpaperUrl) {
-                        // 创建一个临时的背景项用于随机壁纸
-                        this.background = {
-                            id: `random-wallpaper-${Date.now()}`,
-                            name: `Random Wallpaper`,
-                            type: "image",
-                            value: randomWallpaperUrl,
-                        };
-                        needsUpdate = true;
-
-                        console.debug("DTB: Interval mode - using random wallpaper", randomWallpaperUrl);
-                    } else if (this.settings.backgrounds.length > 0) {
-                        // API失败时回退到本地背景
-                        this.settings.currentIndex =
-                            (this.settings.currentIndex + 1) % this.settings.backgrounds.length;
-                        this.background = this.settings.backgrounds[this.settings.currentIndex];
-                        this.saveSettings();
-                        needsUpdate = true;
-
-                        console.debug("DTB: Interval mode - fallback to local background", this.background);
-                    }
+                const randomWallpaperUrl = await this.fetchRandomWallpaper();
+                if (randomWallpaperUrl) {
+                    // 创建一个临时的背景项用于随机壁纸
+                    this.background = {
+                        id: `random-wallpaper-${Date.now()}`,
+                        name: `Random Wallpaper`,
+                        type: "image",
+                        value: randomWallpaperUrl,
+                    };
+                    needsUpdate = true;
                 } else if (this.settings.backgrounds.length > 0) {
-                    // 使用本地背景
-                    this.background = this.settings.backgrounds[this.settings.currentIndex];
+                    // API失败时回退到本地背景
                     this.settings.currentIndex = (this.settings.currentIndex + 1) % this.settings.backgrounds.length;
+                    this.background = this.settings.backgrounds[this.settings.currentIndex];
                     this.saveSettings();
-                    needsUpdate = true; // 每次间隔切换都需要更新背景
-
-                    console.debug(
-                        "DTB: Interval mode - current index and background",
-                        this.settings.currentIndex,
-                        this.background
-                    );
+                    needsUpdate = true;
                 }
                 break;
             }
@@ -277,9 +301,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             });
         } else {
             const bgCssValue =
-                this.background.type === "image"
-                    ? this.sanitizeImagePath(this.background.value)
-                    : this.background.value;
+                this.background.type === "image" ? this.getBgURL(this.background) : this.background.value;
             // 模糊度、亮度、饱和度、遮罩颜色和透明度、填充方式的优先级统一为:
             // 传入的自定义值 > 背景单独的设置 > 全局默认设置
             const blurDepth = this.background.blurDepth ?? this.settings.blurDepth;
@@ -311,6 +333,10 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         // 通知 css-change
         this.app.workspace.trigger("css-change", { source: "dtb" });
     }
+
+    // ============================================================================
+    // 辅助方法
+    // ============================================================================
 
     /**
      * 根据图片和屏幕比例动态选择最佳的background-size
@@ -404,6 +430,82 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         }
     }
 
+    async applyRandomWallpaper() {
+        const randomWallpaperUrl = await this.fetchRandomWallpaper();
+
+        if (randomWallpaperUrl) {
+            // 创建一个临时的背景项用于随机壁纸
+            this.background = {
+                id: `random-wallpaper-${Date.now()}`,
+                name: `Random Wallpaper`,
+                type: "image",
+                value: randomWallpaperUrl,
+            };
+        } else if (this.settings.backgrounds.length > 0) {
+            // API失败时回退到本地背景
+            this.settings.currentIndex = (this.settings.currentIndex + 1) % this.settings.backgrounds.length;
+            this.background = this.settings.backgrounds[this.settings.currentIndex];
+            await this.saveSettings();
+        }
+
+        this.updateStyleCss();
+    }
+
+    /**
+     * 保存当前背景设置, 如果已经是本地图片则不操作
+     */
+    async saveBackground(bg: BackgroundItem | null = this.background) {
+        if (!bg) return;
+        // 判断是否设置了 localBackgroundFolder
+        if (!this.settings.localBackgroundFolder) {
+            new Notice(t("notice_save_background_valid_folder_path_required"));
+            return;
+        }
+        // 判断是否是图片，非图片则不保存
+        if (bg.type !== "image") {
+            new Notice(t("notice_save_background_only_image_supported"));
+            return;
+        }
+        // 如果是本地图片，则不保存
+        if (!this.isRemoteImage(bg.value)) {
+            new Notice(t("notice_save_background_no_need_save_local"));
+            return;
+        }
+
+        const success = await this.saveRemoteImage(bg, this.settings.localBackgroundFolder);
+        if (!success) {
+            new Notice(t("notice_save_background_failed"));
+            return;
+        }
+        new Notice(t("notice_save_background_success", { folderPath: this.settings.localBackgroundFolder }));
+    }
+
+    async saveRemoteImage(bg: BackgroundItem, folderPath: string): Promise<boolean> {
+        if (!folderPath) {
+            new Notice(t("notice_save_background_valid_folder_path_required"));
+            return false;
+        }
+
+        // 默认图片名为 bg.name + .jpg , 并规范化路径 移除禁止的字符： \ / : * ? " < > |
+        const imageName = bg.name.replace(/[\\\/:\*\?"<>\|]/g, "_") + ".jpg";
+        const localPath = `${folderPath}/${imageName}`;
+
+        // 这里添加保存远程图片的逻辑
+        const response = await requestUrl({ url: bg.value });
+        if (response.status < 200 || response.status >= 300) {
+            new Notice(t("notice_save_background_failed"), response.status);
+            return false;
+        }
+        const arrayBuffer = response.arrayBuffer;
+        await this.app.vault.createBinary(localPath, arrayBuffer);
+
+        // 默认将bg中的url替换为本地路径，并将remoteUrl设置为原始url以作备份
+        bg.remoteUrl = bg.value;
+        bg.value = localPath;
+
+        return true;
+    }
+
     // 从壁纸API获取随机图片URL
     async fetchRandomWallpaper(): Promise<string | null> {
         if (!this.settings.enableRandomWallpaper) {
@@ -443,28 +545,38 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         }
     }
 
-    // ============================================================================
-    // 辅助方法
-    // ============================================================================
-
     // 将图片路径转换为可用的 CSS URL
-    sanitizeImagePath(imagePath: string): string {
+    getBgURL(bg: BackgroundItem): string {
+        const imagePath = bg.value;
         // 判断是否是远程图片
-        if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+        if (this.isRemoteImage(imagePath)) {
             return `url(${imagePath})`;
         }
         // 本地图片路径（只接受 Vault 内的图片）
         const file = this.app.vault.getFileByPath(imagePath);
-        if (!file) {
-            console.warn(`DTB: Image ${imagePath} not found`);
-            return "none";
+        if (file) {
+            const p = this.app.vault.getResourcePath(file);
+            if (p) {
+                return `url(${p})`;
+            }
+        } else {
+            console.warn(`DTB: Image ${imagePath} not found or inaccessible`);
         }
-        const p = this.app.vault.getResourcePath(file);
-        if (!p) {
-            console.warn(`DTB: Cannot get resource path for image ${imagePath}`);
-            return "none";
+
+        // 如果 value 表示的本地路径无效，则查看 bg 有没有 remoteUrl 备份链接
+        if (bg.remoteUrl) {
+            // 这里恢复备份, 按理在这做不太合适
+            bg.value = bg.remoteUrl;
+            this.saveSettings(); // 保存设置
+            return `url(${bg.remoteUrl})`;
         }
-        return `url(${p})`; // 形如 app://local/path/to/image.jpg
+
+        // 否则
+        return "none";
+    }
+
+    isRemoteImage(imagePath: string): boolean {
+        return imagePath.startsWith("http://") || imagePath.startsWith("https://");
     }
 
     /**

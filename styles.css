@@ -1041,3 +1041,65 @@
     justify-content: space-between;
     margin-bottom: 12px;
 }
+
+/* ===== 炫酷状态栏图标样式 ===== */
+.dtb-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.2em 1em 0.2em 0.8em;
+    border-radius: 1.2em;
+    font-weight: bold;
+    font-size: 1em;
+    background: var(--status-bar-background, rgba(40, 44, 52, 0.85));
+    color: var(--status-bar-text-color, var(--text-normal));
+    box-shadow: 0 1px 6px 0 rgba(80, 180, 255, 0.1);
+    border: 1px solid var(--background-modifier-border);
+    position: relative;
+    overflow: hidden;
+    transition:
+        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        background 0.3s;
+}
+.dtb-status-bar:hover {
+    box-shadow:
+        0 2px 12px 0 rgba(80, 180, 255, 0.18),
+        0 0 8px 2px #91eac9;
+    background: linear-gradient(90deg, var(--status-bar-background, rgba(40, 44, 52, 0.92)) 60%, #91eac9 100%);
+}
+.dtb-status-bar .dtb-status-icon {
+    width: 1.4em;
+    height: 1.4em;
+    margin-right: 0.3em;
+    filter: drop-shadow(0 0 2px #91eac9);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dtb-status-bar:hover .dtb-status-icon {
+    transform: rotate(-12deg) scale(1.18);
+}
+.dtb-status-bar .dtb-status-text {
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 2px #0002;
+    font-size: 1em;
+}
+.dtb-status-bar .dtb-status-dot {
+    width: 0.7em;
+    height: 0.7em;
+    border-radius: 50%;
+    margin-left: 0.5em;
+    background: radial-gradient(circle, #91eac9 60%, var(--status-bar-background, #7f7fd5) 100%);
+    box-shadow: 0 0 4px 1px #91eac9;
+    animation: dtb-dot-pulse 1.2s infinite alternate;
+}
+@keyframes dtb-dot-pulse {
+    0% {
+        box-shadow:
+            0 0 8px 2px #91eac9,
+            0 0 2px 1px #fff8;
+    }
+    100% {
+        box-shadow:
+            0 0 16px 4px #91eac9,
+            0 0 4px 2px #fff8;
+    }
+}
