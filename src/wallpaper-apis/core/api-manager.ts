@@ -104,6 +104,13 @@ class WallpaperApiManager {
     }
 
     /**
+     * 获取所有启用的API
+     */
+    getEnabledApis(): BaseWallpaperApi[] {
+        return Array.from(this.apis.values()).filter((api) => api.getEnabled());
+    }
+
+    /**
      * 获取所有API名称
      */
     getApiNames(): string[] {

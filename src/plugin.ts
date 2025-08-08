@@ -20,7 +20,9 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     intervalId: number | null = null; // 用于间隔模式的定时器 ID
     timeoutId: number | null = null; // 用于时段规则的定时器 ID
 
-    statusBar: HTMLElement | null = null;
+    // 界面元素
+    statusBar: HTMLElement | null = null; // 状态栏
+    settingTabs: Map<string, DTBSettingTab> = new Map(); // 存储所有设置标签页的引用
 
     // ============================================================================
     // 主要接口方法
@@ -257,15 +259,9 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             }
             // 基于时间间隔切换
             case "interval": {
-                const randomWallpaperUrl = await this.fetchRandomWallpaper();
-                if (randomWallpaperUrl) {
-                    // 创建一个临时的背景项用于随机壁纸
-                    this.background = {
-                        id: `random-wallpaper-${Date.now()}`,
-                        name: `Random Wallpaper`,
-                        type: "image",
-                        value: randomWallpaperUrl,
-                    };
+                const randomBg = await this.fetchRandomWallpaperFromAPI();
+                if (randomBg) {
+                    this.background = randomBg;
                     needsUpdate = true;
                 } else if (this.settings.backgrounds.length > 0) {
                     // API失败时回退到本地背景
@@ -431,17 +427,19 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         }
     }
 
-    async applyRandomWallpaper() {
-        const randomWallpaperUrl = await this.fetchRandomWallpaper();
+    /**
+     * 异步应用随机壁纸作为背景。
+     *
+     * 此方法会尝试从 API 获取一个随机壁纸 URL，并将其设置为当前背景。
+     * 如果 API 获取失败，则会回退到本地背景列表，按顺序切换到下一个背景，并保存设置。
+     * 最后会更新样式的 CSS 以应用新的背景。
+     *
+     */
+    async applyRandomWallpaper(): Promise<void> {
+        const bg = await this.fetchRandomWallpaperFromAPI();
 
-        if (randomWallpaperUrl) {
-            // 创建一个临时的背景项用于随机壁纸
-            this.background = {
-                id: `random-wallpaper-${Date.now()}`,
-                name: `Random Wallpaper`,
-                type: "image",
-                value: randomWallpaperUrl,
-            };
+        if (bg) {
+            this.background = bg;
         } else if (this.settings.backgrounds.length > 0) {
             // API失败时回退到本地背景
             this.settings.currentIndex = (this.settings.currentIndex + 1) % this.settings.backgrounds.length;
@@ -473,11 +471,27 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             return;
         }
 
+        // 保存远程图片
         const success = await this.saveRemoteImage(bg, this.settings.localBackgroundFolder);
         if (!success) {
             new Notice(t("notice_save_background_failed"));
             return;
         }
+
+        // 如果本 bg 还未在列表中，则添加
+        if (!this.settings.backgrounds.find((item) => item.id === bg.id)) {
+            this.settings.backgrounds.push(bg);
+            // 这里需要刷新设置页面
+            this.settingTabs.forEach((tab) => {
+                if (tab.isActive()) {
+                    tab.display();
+                }
+            });
+        }
+
+        // 由于保存远程图片时会将本地图片路径替换为远程路径，因此需要更新设置
+        await this.saveSettings();
+
         new Notice(t("notice_save_background_success", { folderPath: this.settings.localBackgroundFolder }));
     }
 
@@ -498,7 +512,6 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                 this.app,
                 t("notice_save_background_overwrite_existing_file", { filePath: localPath })
             );
-            console.log("111", overwrite);
             if (!overwrite) return true; // 用户取消覆盖
         }
 
@@ -519,44 +532,59 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         // 默认将bg中的url替换为本地路径，并将remoteUrl设置为原始url以作备份
         bg.remoteUrl = bg.value;
         bg.value = localPath;
+        // 这里提示用户转换了 value, 时间长点
+        new Notice(t("notice_save_background_converted", { oldPath: bg.remoteUrl, newPath: bg.value }), 5000);
 
         return true;
     }
 
     // 从壁纸API获取随机图片URL
-    async fetchRandomWallpaper(): Promise<string | null> {
+    async fetchRandomWallpaperFromAPI(): Promise<BackgroundItem | null> {
         if (!this.settings.enableRandomWallpaper) {
             return null;
         }
 
+        // 获取所有启用的API实例
+        const enabledApis = apiManager.getEnabledApis();
+        // 如果没有启用的API，返回null
+        if (enabledApis.length === 0) {
+            console.warn("DTB: No enabled APIs found");
+            return null;
+        }
+        // 从启用的API中随机选择一个
+        const randomIndex = Math.floor(Math.random() * enabledApis.length);
+        const selectedApi = enabledApis[randomIndex];
+
         try {
-            // 获取所有启用的API配置
-            const enabledApis = this.settings.wallpaperApis.filter((api) => api.enabled);
-
-            // 如果没有启用的API，返回null
-            if (enabledApis.length === 0) {
-                console.warn("DTB: No enabled APIs found");
-                return null;
-            }
-
-            // 从启用的API中随机选择一个
-            const randomIndex = Math.floor(Math.random() * enabledApis.length);
-            const selectedApi = enabledApis[randomIndex];
+            // 显示加载提示
+            const loadingNotice = new Notice(t("notice_api_fetching", { apiName: selectedApi.getName() }), 0);
 
             // 使用选中的API获取壁纸
             const wallpaperImages = await apiManager.getRandomWallpapers();
+
+            // 关闭加载提示
+            loadingNotice.hide();
+
             if (!wallpaperImages || wallpaperImages.length === 0) {
-                console.warn(`DTB: No images returned from API: ${selectedApi.name}`);
+                console.warn(`DTB: No images returned from API: ${selectedApi.getName}`);
                 return null;
             }
             const randomImage = wallpaperImages[Math.floor(Math.random() * wallpaperImages.length)];
             if (randomImage && randomImage.url) {
-                return randomImage.url;
+                new Notice(t("notice_api_success_applied", { apiName: selectedApi.getName() }));
+                return {
+                    id: selectedApi.generateBackgroundId(),
+                    name: selectedApi.generateBackgroundName(),
+                    type: "image",
+                    value: randomImage.url,
+                };
             } else {
-                console.warn(`DTB: No wallpaper image returned from API: ${selectedApi.name}`);
+                new Notice(t("notice_api_failed_fetch", { apiName: selectedApi.getName() }));
+                console.warn(`DTB: No wallpaper image returned from API: ${selectedApi.getName()}`);
                 return null;
             }
         } catch (error) {
+            new Notice(t("notice_api_error_fetch", { apiName: selectedApi.getName(), error: error.message }));
             console.error("DTB: Error fetching random wallpaper:", error);
             return null;
         }

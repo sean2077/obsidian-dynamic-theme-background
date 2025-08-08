@@ -27,8 +27,11 @@ import {
 export class DTBSettingTab extends PluginSettingTab {
     plugin: DynamicThemeBackgroundPlugin;
     defaultSettings: DTBSettings;
-    private componentId: string;
 
+    private componentId: string; // 组件唯一标识符
+    private active: boolean; // 是否出于激活状态
+
+    // 用于拖拽排序
     private backgroundDragSort?: DragSort<BackgroundItem>;
     private timeRuleDragSort?: DragSort<TimeRule>;
     private apiDragSort?: DragSort<WallpaperApiConfig>;
@@ -39,9 +42,31 @@ export class DTBSettingTab extends PluginSettingTab {
         this.defaultSettings = getDefaultSettings();
         // 生成唯一的组件ID
         this.componentId = this.genComponentId();
+
+        // 注册到 plugin
+        this.plugin.settingTabs.set(this.componentId, this);
+    }
+
+    isActive(): boolean {
+        return this.active;
+    }
+
+    // ============================================================================
+    // 主要接口方法: hide 和 display
+    // ============================================================================
+
+    hide(): void {
+        // 设置面板关闭时应清理所有订阅
+        this.cleanup();
+
+        this.active = false;
+        // 取消 plugin 注册
+        this.plugin.settingTabs.delete(this.componentId);
     }
 
     display(): void {
+        this.active = true;
+
         // 清理之前的订阅
         this.cleanup();
 
@@ -801,8 +826,6 @@ export class DTBSettingTab extends PluginSettingTab {
             // 保存按钮
             actions.createEl("button", { text: t("button_save") }).onclick = async () => {
                 await this.plugin.saveBackground(bg);
-                // 由于保存远程图片时会将本地图片路径替换为远程路径，因此需要更新设置
-                await this.plugin.saveSettings();
             };
 
             // 编辑按钮
@@ -1233,8 +1256,8 @@ export class DTBSettingTab extends PluginSettingTab {
             if (wallpaperImages) {
                 // 创建新的图片背景项
                 const newBg: BackgroundItem = {
-                    id: `${api.getId()}-${Date.now()}`,
-                    name: `${api.getName()} - ${new Date().toLocaleString()}`,
+                    id: api.generateBackgroundId(),
+                    name: api.generateBackgroundName(),
                     type: "image",
                     value: wallpaperImages[0].url,
                 };
@@ -1261,7 +1284,7 @@ export class DTBSettingTab extends PluginSettingTab {
     }
 
     /**
-     * 清理所有订阅
+     * 清理工作
      */
     cleanup(): void {
         // 使用组件ID清理该组件的所有订阅
@@ -1271,11 +1294,6 @@ export class DTBSettingTab extends PluginSettingTab {
         this.backgroundDragSort?.disableAllDrag();
         this.timeRuleDragSort?.disableAllDrag();
         this.apiDragSort?.disableAllDrag();
-    }
-
-    hide(): void {
-        // 设置面板关闭时应清理所有订阅
-        this.cleanup();
     }
 
     // ============================================================================

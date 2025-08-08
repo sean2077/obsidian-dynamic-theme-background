@@ -137,7 +137,6 @@ export default {
     command_test_bg_no_rule_notice: "⚠️ DTB: No matching rule for the current time",
     command_test_bg_not_supported_notice: "⚠️ DTB: Current mode does not support background testing",
     command_fetch_random_wallpaper_name: "Fetch Random Wallpaper",
-    command_fetch_random_wallpaper_notice_disabled: "⚠️ DTB: Please enable random wallpaper feature in settings first",
     command_fetch_random_wallpaper_notice_success: "🎉 DTB: Applied random wallpaper",
     command_fetch_random_wallpaper_notice_failed:
         "❌ DTB: Failed to fetch random wallpaper, please check API settings and network connection",
@@ -186,10 +185,6 @@ export default {
     notice_api_success_applied: "🎉 DTB: Successfully applied wallpaper from {apiName}",
     notice_api_failed_fetch: "❌ DTB: Failed to fetch wallpaper from {apiName}",
     notice_api_error_fetch: "❌ DTB: Error fetching wallpaper from {apiName}: {error}",
-    notice_api_fetching_generic: "🔄 DTB: Fetching wallpaper from API...",
-    notice_api_success_applied_generic: "🎉 DTB: Successfully applied random wallpaper!",
-    notice_api_no_available: "❌ DTB: No wallpaper APIs available or all APIs failed",
-    notice_api_error_generic: "❌ DTB: Error fetching wallpaper from API",
     notice_save_background_no_need_save_local: "🎉 DTB: Current background is a local image, no need to save",
     notice_save_background_valid_folder_path_required:
         "⚠️ DTB: Please provide a valid folder path to save the wallpaper",
@@ -198,6 +193,8 @@ export default {
     notice_save_background_failed:
         "❌ DTB: Failed to save current background, please check folder path and permissions",
     notice_save_background_overwrite_existing_file: "⚠️ DTB: File {filePath} already exists, do you want to overwrite?",
+    notice_save_background_converted:
+        '🎉 DTB: Current background has been converted to value from "{oldPath}" to "{newPath}", the original link has been saved to the remoteUrl property as a backup, if the local file does not exist later, it will fall back to using the remote link',
 
     // ===== API 模态窗口 =====
     api_modal_invalid_json: "Invalid JSON in extra parameters",

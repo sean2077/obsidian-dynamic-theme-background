@@ -127,7 +127,6 @@ export default {
     command_test_bg_no_rule_notice: "⚠️ DTB: 当前时间没有匹配的规则",
     command_test_bg_not_supported_notice: "🚫 DTB: 非时段模式不支持该测试命令",
     command_fetch_random_wallpaper_name: "获取随机壁纸",
-    command_fetch_random_wallpaper_notice_disabled: "⚠️ DTB: 请先在设置中启用随机壁纸功能",
     command_fetch_random_wallpaper_notice_success: "✅ DTB: 已应用随机壁纸",
     command_fetch_random_wallpaper_notice_failed: "❌ DTB: 获取随机壁纸失败，请检查 API 设置和网络连接",
     command_save_current_background_name: "保存当前背景",
@@ -175,16 +174,14 @@ export default {
     notice_api_success_applied: "🎉 DTB: 成功应用来自 {apiName} 的壁纸",
     notice_api_failed_fetch: "❌ DTB: 从 {apiName} 获取壁纸失败",
     notice_api_error_fetch: "❌ DTB: 从 {apiName} 获取壁纸时出错：{error}",
-    notice_api_fetching_generic: "🔄 DTB: 正在从 API 获取壁纸...",
-    notice_api_success_applied_generic: "🎉 DTB: 成功应用随机壁纸！",
-    notice_api_no_available: "❌ DTB: 没有可用的壁纸 API 或所有 API 都失败了",
-    notice_api_error_generic: "❌ DTB: 从 API 获取壁纸时出错",
     notice_save_background_no_need_save_local: "🎉 DTB: 当前背景是本地图片，无需保存",
     notice_save_background_valid_folder_path_required: "⚠️ 请提供有效的保存壁纸的文件夹路径",
     notice_save_background_only_image_supported: "⚠️ DTB: 仅支持保存图片作为壁纸",
     notice_save_background_success: "🎉 DTB: 当前背景已保存至 {folderPath}",
     notice_save_background_failed: "❌ DTB: 当前背景保存失败，请检查文件夹路径和权限",
     notice_save_background_overwrite_existing_file: "⚠️ DTB: 文件 {filePath} 已存在，是否覆盖？",
+    notice_save_background_converted:
+        '🎉 DTB: 当前背景 value 已由 "{oldPath}" 转换为 "{newPath}"，原链接已存至 remoteUrl 属性作为备份，如果后续本地文件不存在则会回退至使用远程链接',
 
     // ===== API 模态窗口 =====
     api_modal_invalid_json: "额外参数中的 JSON 格式无效",

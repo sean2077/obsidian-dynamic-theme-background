@@ -195,6 +195,14 @@ export abstract class BaseWallpaperApi {
     // 工具方法
     // ============================================================================
 
+    generateBackgroundId(): string {
+        return `${this.getId()}-${Date.now()}`;
+    }
+
+    generateBackgroundName(): string {
+        return `${this.getName()} - ${new Date().toLocaleString()}`;
+    }
+
     protected saveConfig(): void {
         // 将 api 的配置同步过到 config 中
         this.config.baseUrl = this.baseUrl;
