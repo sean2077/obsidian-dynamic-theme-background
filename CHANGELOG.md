@@ -1,3 +1,12 @@
+# [2.5.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.4.1...2.5.0) (2025-08-08)
+
+
+### Features
+
+* Add confirmation modal for clearing time rules ([dd4d3ef](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/dd4d3ef951eefc0cfdf2b8edd991485a3465417d))
+* Add status bar button, support one-button random, one-button save, one-button open settings ([6ae8d2c](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/6ae8d2c72b2918662c69561204fc48f4d62040c8))
+* Refactor styles for improved layout and responsiveness; enhance component definitions and hover effects; optimize animations and accessibility features. ([de6354f](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/de6354f10282d02f837e65b14ef9da2662322143))
+
 ## [2.4.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.4.0...2.4.1) (2025-08-07)
 
 
