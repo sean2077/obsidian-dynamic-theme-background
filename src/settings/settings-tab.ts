@@ -1273,6 +1273,11 @@ export class DTBSettingTab extends PluginSettingTab {
         this.apiDragSort?.disableAllDrag();
     }
 
+    hide(): void {
+        // 设置面板关闭时应清理所有订阅
+        this.cleanup();
+    }
+
     // ============================================================================
     // Utils
     // ============================================================================
