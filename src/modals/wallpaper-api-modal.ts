@@ -147,7 +147,7 @@ export class WallpaperApiEditorModal extends Modal {
         const addHeaderBtn = container.createEl("button", {
             text: t("api_modal_add_header"),
             type: "button",
-            cls: "dtb-action-button",
+            cls: "dtb-button",
         });
         addHeaderBtn.onclick = () => this.addHeaderInput();
     }
@@ -224,7 +224,7 @@ export class WallpaperApiEditorModal extends Modal {
         headerContainer.createEl("h3", { text: t("api_modal_api_parameters") });
 
         // 创建链接容器，放在右侧
-        const linksContainer = headerContainer.createDiv("dtb-doc-links");
+        const linksContainer = headerContainer.createDiv("dtb-links");
 
         const selectedType = (this.typeSelect?.value as WallpaperApiType) || this.apiConfig.type;
 
@@ -234,7 +234,7 @@ export class WallpaperApiEditorModal extends Modal {
             const docLink = linksContainer.createEl("a", {
                 text: t("api_modal_api_documentation"),
                 href: docUrl,
-                cls: "dtb-doc-link",
+                cls: "dtb-link",
             });
             docLink.setAttribute("target", "_blank");
             docLink.setAttribute("rel", "noopener noreferrer");
@@ -246,7 +246,7 @@ export class WallpaperApiEditorModal extends Modal {
             const tokenLink = linksContainer.createEl("a", {
                 text: t("api_modal_token_url"),
                 href: tokenUrl,
-                cls: "dtb-doc-link",
+                cls: "dtb-link",
             });
             tokenLink.setAttribute("target", "_blank");
             tokenLink.setAttribute("rel", "noopener noreferrer");
@@ -318,7 +318,7 @@ export class WallpaperApiEditorModal extends Modal {
         this.extraParamsTextarea = container.createEl("textarea", {
             value: Object.keys(extraParams).length > 0 ? JSON.stringify(extraParams, null, 2) : "",
             placeholder: t("api_modal_extra_params_placeholder"),
-            cls: "dtb-modal-textarea",
+            cls: "dtb-textarea",
         });
     }
 
@@ -382,7 +382,7 @@ export class WallpaperApiEditorModal extends Modal {
         setInput: (key: string, input: HTMLElement) => void
     ) {
         descriptors.forEach((descriptor) => {
-            const paramContainer = container.createDiv("dtb-field-container");
+            const paramContainer = container.createDiv("dtb-field");
 
             const labelText = descriptor.required ? `${descriptor.label} *` : descriptor.label;
             const label = paramContainer.createEl("label", { text: labelText });
@@ -527,7 +527,7 @@ export class WallpaperApiEditorModal extends Modal {
         descriptor: WallpaperApiParamDescriptor,
         currentValue: OptionalUiValueType
     ): HTMLElement {
-        const multiContainer = container.createDiv("dtb-multiselect-container");
+        const multiContainer = container.createDiv("dtb-multiselect");
         const selectedValues: string[] = Array.isArray(currentValue)
             ? currentValue.map((val) => val.toString())
             : typeof currentValue === "string"
@@ -535,7 +535,7 @@ export class WallpaperApiEditorModal extends Modal {
               : [];
 
         descriptor.options?.forEach((option) => {
-            const checkboxContainer = multiContainer.createDiv("dtb-checkbox-container");
+            const checkboxContainer = multiContainer.createDiv("dtb-checkbox");
 
             const checkbox = checkboxContainer.createEl("input", {
                 type: "checkbox",
@@ -556,7 +556,7 @@ export class WallpaperApiEditorModal extends Modal {
 
         const testButton = buttonContainer.createEl("button", {
             text: t("api_modal_test_api"),
-            cls: "dtb-action-button",
+            cls: "dtb-button",
         });
         testButton.onclick = async () => {
             await this.testApiConfig();
@@ -564,13 +564,13 @@ export class WallpaperApiEditorModal extends Modal {
 
         const cancelButton = buttonContainer.createEl("button", {
             text: t("button_cancel"),
-            cls: "dtb-action-button",
+            cls: "dtb-button",
         });
         cancelButton.onclick = () => this.close();
 
         const submitButton = buttonContainer.createEl("button", {
             text: t("api_modal_save"),
-            cls: ["dtb-action-button", "mod-cta"],
+            cls: ["dtb-button", "mod-cta"],
         });
         submitButton.onclick = () => {
             this.saveApiConfig();
@@ -655,7 +655,7 @@ export class WallpaperApiEditorModal extends Modal {
             } else if (input.tagName === "SELECT") {
                 const selectEl = input as HTMLSelectElement;
                 value = selectEl.value || undefined;
-            } else if (input.classList.contains("dtb-multiselect-container")) {
+            } else if (input.classList.contains("dtb-multiselect")) {
                 // 多选
                 const checkboxes = input.querySelectorAll(
                     'input[type="checkbox"]:checked'

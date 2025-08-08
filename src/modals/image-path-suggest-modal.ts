@@ -27,7 +27,7 @@ export class ImagePathSuggestModal extends SuggestModal<string> {
     }
 
     renderSuggestion(imagePath: string, el: HTMLElement) {
-        const container = el.createDiv({ cls: "dtb-suggestion-item" });
+        const container = el.createDiv({ cls: "dtb-suggestion" });
         const icon = container.createSpan();
         icon.textContent = "🖼️";
         const text = container.createSpan();

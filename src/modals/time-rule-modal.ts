@@ -53,13 +53,13 @@ export class TimeRuleModal extends Modal {
 
         const cancelButton = buttonContainer.createEl("button", {
             text: t("button_cancel"),
-            cls: "dtb-action-button",
+            cls: "dtb-button",
         });
         cancelButton.onclick = () => this.close();
 
         const submitButton = buttonContainer.createEl("button", {
             text: t("button_confirm"),
-            cls: ["dtb-action-button", "mod-cta"],
+            cls: ["dtb-button", "mod-cta"],
         });
         submitButton.onclick = () => {
             this.onSubmit({

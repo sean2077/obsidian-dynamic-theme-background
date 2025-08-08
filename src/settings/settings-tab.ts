@@ -64,22 +64,22 @@ export class DTBSettingTab extends PluginSettingTab {
         titleContainer.createEl("h2", { text: t("settings_title"), cls: "" });
 
         // 创建右侧信息容器
-        const infoContainer = headerContainer.createDiv("dtb-doc-links");
+        const infoContainer = headerContainer.createDiv("dtb-links");
 
         infoContainer.createEl("a", {
             text: t("version") + VERSION,
             href: `https://github.com/sean2077/obsidian-dynamic-theme-background/releases/tag/${VERSION}`,
-            cls: "dtb-doc-link",
+            cls: "dtb-link",
         });
         infoContainer.createEl("a", {
             text: t("author") + "Sean2077 ✨",
             href: "https://github.com/sean2077",
-            cls: "dtb-doc-link",
+            cls: "dtb-link",
         });
         infoContainer.createEl("a", {
             text: t("tutorial") + "github",
             href: "https://github.com/sean2077/obsidian-dynamic-theme-background",
-            cls: "dtb-doc-link",
+            cls: "dtb-link",
         });
     }
 
@@ -320,19 +320,18 @@ export class DTBSettingTab extends PluginSettingTab {
         // 时间规则（仅在时间模式下显示）
         if (this.plugin.settings.mode === "time-based") {
             containerEl.createEl("h4", { text: t("time_rules_title") });
-            new Setting(containerEl)
+            const buttonContainer = containerEl.createDiv("dtb-large-button-container");
+            new Setting(buttonContainer)
                 .setName(t("manage_time_rules_name"))
                 .setDesc(t("manage_time_rules_desc"))
                 .addButton((button) => {
                     button.setButtonText(t("add_time_rule_button"));
                     button.setTooltip(t("add_time_rule_tooltip"));
-                    button.buttonEl.addClass("dtb-action-button");
                     button.onClick(() => this.showTimeRuleModal());
                 })
                 .addButton((button) => {
                     button.setButtonText(t("clear_time_rules_button"));
                     button.setTooltip(t("clear_time_rules_tooltip"));
-                    button.buttonEl.addClass("dtb-action-button");
                     button.onClick(async () => {
                         this.plugin.settings.timeRules = [];
                         this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
@@ -343,7 +342,6 @@ export class DTBSettingTab extends PluginSettingTab {
                 .addButton((button) => {
                     button.setButtonText(t("reset_time_rules_button"));
                     button.setTooltip(t("reset_time_rules_tooltip"));
-                    button.buttonEl.addClass("dtb-action-button");
                     button.onClick(async () => {
                         this.plugin.settings.timeRules = this.defaultSettings.timeRules;
                         this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
@@ -357,7 +355,7 @@ export class DTBSettingTab extends PluginSettingTab {
             hint.textContent = t("time_rule_hint");
 
             // 显示时间规则列表
-            const timeRulesContainer = containerEl.createDiv("dtb-item-list-container dtb-section-container");
+            const timeRulesContainer = containerEl.createDiv("dtb-section-container");
             this.displayTimeRules(timeRulesContainer);
         }
 
@@ -463,7 +461,7 @@ export class DTBSettingTab extends PluginSettingTab {
             setting.settingEl.dataset.ruleId = rule.id;
 
             // 添加通用条目样式类
-            setting.settingEl.addClass("dtb-item");
+            setting.settingEl.addClass("dtb-button-container"); // 按钮样式
 
             // 启用拖拽功能
             this.timeRuleDragSort?.enableDragForElement(setting.settingEl, rule);
@@ -530,13 +528,13 @@ export class DTBSettingTab extends PluginSettingTab {
         // 背景管理
         containerEl.createEl("h3", { text: t("bg_management_title") });
 
-        const addBgContainer = containerEl.createDiv("dtb-add-bg-container");
-
         // 添加拖拽提示
         const dragHint = containerEl.createDiv("dtb-hint");
         dragHint.textContent = t("drag_hint_text");
 
-        new Setting(addBgContainer)
+        // 添加背景的一组按钮
+        const buttonContainer = containerEl.createDiv("dtb-large-button-container");
+        new Setting(buttonContainer)
             .setName(t("add_new_bg_name"))
             .setDesc(t("add_new_bg_desc"))
             .addButton((button) =>
@@ -558,7 +556,7 @@ export class DTBSettingTab extends PluginSettingTab {
                     .onClick(() => this.restoreDefaultBackgrounds())
             );
 
-        const backgroundContainer = containerEl.createDiv("dtb-item-list-container dtb-section-container");
+        const backgroundContainer = containerEl.createDiv("dtb-section-container");
         this.displayBackgrounds(backgroundContainer);
     }
 
@@ -728,14 +726,14 @@ export class DTBSettingTab extends PluginSettingTab {
             // 背景名称和类型
             const contentDiv = bgEl.createDiv("dtb-bg-content");
             contentDiv.createSpan({ text: bg.name, cls: "dtb-bg-name" });
-            contentDiv.createSpan({ text: bg.type, cls: "dtb-type-badge" });
+            contentDiv.createSpan({ text: bg.type, cls: "dtb-badge" });
 
             // 预览
             const preview = contentDiv.createDiv("dtb-bg-preview");
             this.setPreviewBackground(preview, bg);
 
             // 操作按钮
-            const actions = contentDiv.createDiv("dtb-actions");
+            const actions = contentDiv.createDiv("dtb-button-container");
 
             actions.createEl("button", { text: t("button_preview") }).onclick = () => {
                 this.plugin.background = bg;
@@ -754,7 +752,8 @@ export class DTBSettingTab extends PluginSettingTab {
                     (b: BackgroundItem) => b.id !== bg.id
                 );
                 await this.plugin.saveSettings();
-                this.displayBackgrounds(container);
+                // 直接全刷新
+                this.display(); // TODO 理论上可以只刷新图片列表和时间规则列表
             };
 
             // 启用拖拽功能
@@ -896,12 +895,12 @@ export class DTBSettingTab extends PluginSettingTab {
         containerEl.createEl("h3", { text: t("wallpaper_api_management_title") });
 
         // 添加 API 按钮
-        new Setting(containerEl)
+        const buttonContainer = containerEl.createDiv("dtb-large-button-container");
+        new Setting(buttonContainer)
             .setName(t("add_api_name"))
             .setDesc(t("add_api_desc"))
             .addButton((button) => {
                 button.setButtonText(t("add_api_button"));
-                button.buttonEl.addClass("dtb-action-button");
                 button.onClick(() => this.showAddWallpaperApiModal());
             })
             // 添加新增所有默认 API 设置的恢复按钮，如果 API 已经存在则不添加
@@ -932,7 +931,7 @@ export class DTBSettingTab extends PluginSettingTab {
         hint.textContent = t("wallpaper_api_hint");
 
         // 显示现有API列表
-        const apiContainer = containerEl.createDiv("dtb-item-list-container dtb-section-container");
+        const apiContainer = containerEl.createDiv("dtb-section-container");
         this.displayWallpaperApis(apiContainer);
     }
 
@@ -967,7 +966,7 @@ export class DTBSettingTab extends PluginSettingTab {
             const setting = new Setting(container).setName(apiConfig.name).setDesc(apiInstance.getDescription());
 
             // 在设置项的控件区域直接添加类型标签
-            setting.controlEl.createSpan({ text: apiConfig.type ?? "Unknown", cls: "dtb-type-badge" });
+            setting.controlEl.createSpan({ text: apiConfig.type ?? "Unknown", cls: "dtb-badge" });
 
             // 注意：状态指示器和启用按钮的状态都以 API 实例的状态为准，配置项的 enabled 字段仅用于初始状态和保存设置时的同步。
 
@@ -1105,7 +1104,7 @@ export class DTBSettingTab extends PluginSettingTab {
             setting.settingEl.dataset.apiId = apiConfig.id;
 
             // 添加通用条目样式类
-            setting.settingEl.addClass("dtb-item");
+            setting.settingEl.addClass("dtb-button-container"); // 按钮样式
 
             // 启用拖拽功能
             this.apiDragSort?.enableDragForElement(setting.settingEl, apiConfig);
