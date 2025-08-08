@@ -63,6 +63,7 @@ export default {
     end_time_label: "End Time (HH:MM):",
     interval_name: "Switch Interval",
     interval_desc: "How often to switch the background (in minutes).",
+    confirm_clear_time_rules: "Are you sure you want to clear all time slot rules?",
 
     // ===== 背景管理 =====
     bg_management_title: "Background Management",

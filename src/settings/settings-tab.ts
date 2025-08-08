@@ -5,7 +5,13 @@
 import { App, Notice, PluginSettingTab, Setting, TFile } from "obsidian";
 import { getDefaultSettings } from "../default-settings";
 import { t } from "../i18n";
-import { BackgroundModal, ImageFolderSuggestModal, TimeRuleModal, WallpaperApiEditorModal } from "../modals";
+import {
+    BackgroundModal,
+    ConfirmModal,
+    ImageFolderSuggestModal,
+    TimeRuleModal,
+    WallpaperApiEditorModal,
+} from "../modals";
 import type DynamicThemeBackgroundPlugin from "../plugin";
 import type { BackgroundItem, DTBSettings, TimeRule } from "../types";
 import { DragSort, addDropdownOptionHoverTooltip, addDropdownTooltip, addEnhancedDropdownTooltip } from "../utils";
@@ -333,10 +339,15 @@ export class DTBSettingTab extends PluginSettingTab {
                     button.setButtonText(t("clear_time_rules_button"));
                     button.setTooltip(t("clear_time_rules_tooltip"));
                     button.onClick(async () => {
-                        this.plugin.settings.timeRules = [];
-                        this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
-                        await this.plugin.saveSettings();
-                        this.displayBasicSettings(containerEl);
+                        new ConfirmModal(this.app, {
+                            message: t("confirm_clear_time_rules"),
+                            onConfirm: async () => {
+                                this.plugin.settings.timeRules = [];
+                                this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
+                                await this.plugin.saveSettings();
+                                this.displayBasicSettings(containerEl);
+                            },
+                        }).open();
                     });
                 })
                 .addButton((button) => {

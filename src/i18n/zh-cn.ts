@@ -58,6 +58,7 @@ export default {
     end_time_label: "结束时间（HH:MM）：",
     interval_name: "切换间隔",
     interval_desc: "背景切换的间隔时间（分钟）",
+    confirm_clear_time_rules: "您确定要清除所有时段规则吗？",
 
     // ===== 背景管理 =====
     bg_management_title: "背景管理",
