@@ -20,7 +20,7 @@ jobs:
               with:
                   fetch-depth: 0 # semantic-release 需要完整的 git 历史
 
-            - name: Build plugin
+            - name: Run npm install
               run: |
                   npm install
 
