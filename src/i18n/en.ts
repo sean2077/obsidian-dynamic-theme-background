@@ -1,6 +1,6 @@
 export default {
     // ===== 设置标题 =====
-    settings_title: "Dynamic Theme Background Settings",
+    settings_title: "🌈 Dynamic Theme Background Settings",
     version: "🛠️ Version: ",
     author: "🎨 Author: ",
     tutorial: "📖 Tutorial: ",
