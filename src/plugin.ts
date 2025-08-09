@@ -205,6 +205,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
                 this.timeoutId = window.setTimeout(async () => {
                     await this.updateBackground(false);
+                    // 此处应该刷新激活的设置页
+                    this.refreshActiveSettings();
                     scheduleNext(); // 递归调度下一个时段
                 }, actualDelay);
 
@@ -482,11 +484,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         if (!this.settings.backgrounds.find((item) => item.id === bg.id)) {
             this.settings.backgrounds.push(bg);
             // 这里需要刷新设置页面
-            this.settingTabs.forEach((tab) => {
-                if (tab.isActive()) {
-                    tab.display();
-                }
-            });
+            this.refreshActiveSettings();
         }
 
         // 由于保存远程图片时会将本地图片路径替换为远程路径，因此需要更新设置
@@ -733,5 +731,14 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         const endTime = endHour * 60 + endMin;
 
         return { startTime, endTime };
+    }
+
+    refreshActiveSettings() {
+        // 刷新当前激活的设置页
+        this.settingTabs.forEach((tab) => {
+            if (tab.isActive()) {
+                tab.display();
+            }
+        });
     }
 }
