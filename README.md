@@ -7,7 +7,31 @@
 **🇺🇸 English ｜ [🇨🇳 中文版](README.zh.md)**
 
 <p align="center">
-  <a href="https://obsidian.md/"><img src="https://img.shields.io/badge/Obsidian%20Plugin-1e1e1e?logo=obsidian&logoColor=white&style=for-the-badge" alt="Obsidian Plugin" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases/latest"><img src="https://img.shields.io/github/v/release/sean2077/obsidian-dynamic-theme-background?style=for-the-badge" alt="Latest Release" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"><img src="https://img.shields.io/github/downloads/sean2077/obsidian-dynamic-theme-background/total?style=for-the-badge" alt="GitHub Downloads" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/stargazers"><img src="https://img.shields.io/github/stars/sean2077/obsidian-dynamic-theme-background?style=for-the-badge" alt="GitHub Stars" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/actions"><img src="https://img.shields.io/github/actions/workflow/status/sean2077/obsidian-dynamic-theme-background/release.yml?branch=master&style=for-the-badge" alt="Build Status" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/blob/master/LICENSE"><img src="https://img.shields.io/github/license/sean2077/obsidian-dynamic-theme-background?style=for-the-badge" alt="License" /></a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues"><img src="https://img.shields.io/github/issues/sean2077/obsidian-dynamic-theme-background?style=for-the-badge" alt="Issues" /></a>
+    <a href="https://obsidian.md/"><img
+            src="https://img.shields.io/badge/Obsidian%20Plugin-1e1e1e?logo=obsidian&logoColor=white"
+            alt="Obsidian Plugin" /></a>
+    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases/latest"><img
+            src="https://img.shields.io/github/v/release/sean2077/obsidian-dynamic-theme-background"
+            alt="Latest Release" /></a>
+    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"><img
+            src="https://img.shields.io/github/downloads/sean2077/obsidian-dynamic-theme-background/total?logo=github"
+            alt="GitHub Downloads" /></a>
+    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"><img
+            src="https://img.shields.io/github/downloads/sean2077/obsidian-dynamic-theme-background/latest/total?logo=github&color=green"
+            alt="GitHub Downloads (latest by date)" /></a>
+    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/stargazers"><img
+            src="https://img.shields.io/github/stars/sean2077/obsidian-dynamic-theme-background"
+            alt="GitHub Stars" /></a>
+    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/actions"><img
+            src="https://img.shields.io/github/actions/workflow/status/sean2077/obsidian-dynamic-theme-background/release.yml?branch=master"
+            alt="Build Status" /></a>
+    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues"><img
+            src="https://img.shields.io/github/issues/sean2077/obsidian-dynamic-theme-background" alt="Issues" /></a>
+    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/blob/master/LICENSE"><img
+            src="https://img.shields.io/github/license/sean2077/obsidian-dynamic-theme-background" alt="License" /></a>
+    <a href="https://www.conventionalcommits.org/"><img
+            src="https://img.shields.io/badge/semantic--release-conventional-e10079?logo=semantic-release"
+            alt="semantic-release" /></a>
 </p>
 
 </div>
@@ -158,3 +182,38 @@ If this plugin helps you, you can:
 ## 📄 License
 
 See [LICENSE](LICENSE) file.
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=sean2077/obsidian-dynamic-theme-background&type=Date)](https://star-history.com/#sean2077/obsidian-dynamic-theme-background&Date)
+
+## Contributors ✨
+
+Thanks goes to these wonderful people:
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sean2077"><img src="https://avatars.githubusercontent.com/u/37324769?v=4?s=100" width="100px;" alt="sean2077"/><br /><sub><b>sean2077</b></sub></a><br /><a href="https://github.com/sean2077/obsidian-dynamic-theme-background/commits?author=sean2077" title="Code">💻</a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/commits?author=sean2077" title="Documentation">📖</a> <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/commits?author=sean2077" title="Tests">⚠️</a> <a href="#maintenance-sean2077" title="Maintenance">🚧</a></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td align="center" size="13px" colspan="7">
+        <img src="https://raw.githubusercontent.com/all-contributors/all-contributors-cli/1b8533af435da9854653492b1327a23a4dbd0a10/assets/logo-small.svg">
+          <a href="https://all-contributors.js.org/docs/en/bot/usage">Add your contributions</a>
+        </img>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
