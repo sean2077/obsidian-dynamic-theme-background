@@ -1,3 +1,10 @@
+## [2.6.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.0...2.6.1) (2025-08-09)
+
+
+### Bug Fixes
+
+* Refresh active settings page when updating backgrounds ([bafd07f](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/bafd07f909054525534814c2746100efe6772e42))
+
 # [2.6.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.5.3...2.6.0) (2025-08-09)
 
 
