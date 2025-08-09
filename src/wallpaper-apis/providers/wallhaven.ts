@@ -370,6 +370,7 @@ export class WallhavenApi extends BaseWallpaperApi {
         // 合并参数并使用基类方法构建查询字符串
         const allParams = { ...this.params, page };
         const url = `${this.buildEndpointUrl("search")}?${this.buildUrlParams(allParams)}`;
+        console.debug(`Fetching Wallhaven search results from: ${url}`);
         const response = await requestUrl({ url });
         return response.json;
     } // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

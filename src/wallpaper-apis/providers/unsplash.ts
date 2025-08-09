@@ -347,6 +347,7 @@ export class UnsplashApi extends BaseWallpaperApi {
         }
 
         const url = `${this.buildEndpointUrl("search")}?${queryParams.toString()}`;
+        console.debug(`Fetching Unsplash search results from: ${url}`);
         const response = await requestUrl({ url });
         return response.json;
     }
@@ -374,6 +375,7 @@ export class UnsplashApi extends BaseWallpaperApi {
         }
 
         const url = `${this.buildEndpointUrl("random")}?${queryParams.toString()}`;
+        console.debug(`Fetching Unsplash random photos from: ${url}`);
         const response = await requestUrl({ url });
         return response.json;
     }

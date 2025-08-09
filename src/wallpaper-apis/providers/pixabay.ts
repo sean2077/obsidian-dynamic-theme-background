@@ -425,6 +425,7 @@ export class PixabayApi extends BaseWallpaperApi {
         }
 
         const url = `${this.buildEndpointUrl("search")}?${queryParams.toString()}`;
+        console.debug(`Fetching Pixabay search results from: ${url}`);
         const response = await requestUrl({ url });
         return response.json;
     }

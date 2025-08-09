@@ -368,6 +368,7 @@ export class PexelsApi extends BaseWallpaperApi {
         queryParams.append("per_page", String(this.params.per_page || this.perPage));
 
         const url = `${this.buildEndpointUrl("curated")}?${queryParams.toString()}`;
+        console.debug(`Fetching Pixabay curated photos from: ${url}`);
         const response = await requestUrl({
             url,
             headers: {
