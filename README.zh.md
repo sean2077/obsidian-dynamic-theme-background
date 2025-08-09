@@ -16,22 +16,14 @@
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"><img
             src="https://img.shields.io/github/downloads/sean2077/obsidian-dynamic-theme-background/total?logo=github"
             alt="GitHub Downloads" /></a>
-    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"><img
-            src="https://img.shields.io/github/downloads/sean2077/obsidian-dynamic-theme-background/latest/total?logo=github&color=green"
-            alt="GitHub Downloads (latest by date)" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/stargazers"><img
             src="https://img.shields.io/github/stars/sean2077/obsidian-dynamic-theme-background"
             alt="GitHub Stars" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/actions"><img
             src="https://img.shields.io/github/actions/workflow/status/sean2077/obsidian-dynamic-theme-background/release.yml?branch=master"
             alt="Build Status" /></a>
-    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues"><img
-            src="https://img.shields.io/github/issues/sean2077/obsidian-dynamic-theme-background" alt="Issues" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/blob/master/LICENSE"><img
             src="https://img.shields.io/github/license/sean2077/obsidian-dynamic-theme-background" alt="License" /></a>
-    <a href="https://www.conventionalcommits.org/"><img
-            src="https://img.shields.io/badge/semantic--release-conventional-e10079?logo=semantic-release"
-            alt="semantic-release" /></a>
 </p>
 
 </div>
@@ -173,7 +165,7 @@ pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
 - 🐛 [报告 Bug](https://github.com/sean2077/obsidian-dynamic-theme-background/issues)
 - 💡 [功能建议](https://github.com/sean2077/obsidian-dynamic-theme-background/issues)
 
-### ⭐ 支持项目
+### ✨ 支持项目
 如果这个插件对你有帮助，你可以：
 - 在 GitHub 上给项目加星 ⭐
 - 分享给其他 Obsidian 用户 📢
@@ -184,11 +176,7 @@ pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
 参阅 [LICENSE](LICENSE) 文件。
 
 
-## ⭐ Star 历史
-
-[![Star History Chart](https://api.star-history.com/svg?repos=sean2077/obsidian-dynamic-theme-background&type=Date)](https://star-history.com/#sean2077/obsidian-dynamic-theme-background&Date)
-
-## 贡献者 ✨
+## 👥 贡献者
 
 感谢这些优秀的贡献者：
 

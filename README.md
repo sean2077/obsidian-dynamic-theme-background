@@ -16,22 +16,14 @@
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"><img
             src="https://img.shields.io/github/downloads/sean2077/obsidian-dynamic-theme-background/total?logo=github"
             alt="GitHub Downloads" /></a>
-    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"><img
-            src="https://img.shields.io/github/downloads/sean2077/obsidian-dynamic-theme-background/latest/total?logo=github&color=green"
-            alt="GitHub Downloads (latest by date)" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/stargazers"><img
             src="https://img.shields.io/github/stars/sean2077/obsidian-dynamic-theme-background"
             alt="GitHub Stars" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/actions"><img
             src="https://img.shields.io/github/actions/workflow/status/sean2077/obsidian-dynamic-theme-background/release.yml?branch=master"
             alt="Build Status" /></a>
-    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues"><img
-            src="https://img.shields.io/github/issues/sean2077/obsidian-dynamic-theme-background" alt="Issues" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/blob/master/LICENSE"><img
             src="https://img.shields.io/github/license/sean2077/obsidian-dynamic-theme-background" alt="License" /></a>
-    <a href="https://www.conventionalcommits.org/"><img
-            src="https://img.shields.io/badge/semantic--release-conventional-e10079?logo=semantic-release"
-            alt="semantic-release" /></a>
 </p>
 
 </div>
@@ -173,7 +165,7 @@ We welcome all forms of contribution!
 - 🐛 [Report Bug](https://github.com/sean2077/obsidian-dynamic-theme-background/issues)
 - 💡 [Feature Request](https://github.com/sean2077/obsidian-dynamic-theme-background/issues)
 
-### ⭐ Support the Project
+### ✨ Support the Project
 If this plugin helps you, you can:
 - Star the project on GitHub ⭐
 - Share with other Obsidian users 📢
@@ -183,11 +175,7 @@ If this plugin helps you, you can:
 
 See [LICENSE](LICENSE) file.
 
-## ⭐ Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=sean2077/obsidian-dynamic-theme-background&type=Date)](https://star-history.com/#sean2077/obsidian-dynamic-theme-background&Date)
-
-## Contributors ✨
+## 👥 Contributors
 
 Thanks goes to these wonderful people:
 
