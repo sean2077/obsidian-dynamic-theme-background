@@ -231,6 +231,7 @@ export default {
     api_modal_image_url_json_path: "Image URL JSON Path",
     api_modal_no_description: "No description provided.",
     api_modal_unnamed_api: "Unnamed API",
+    api_initialized_notice: "{apiName} initialized: {count} wallpapers found across {pages} pages.",
 
     // ===== 状态文本 =====
     status_loading: "Loading...",

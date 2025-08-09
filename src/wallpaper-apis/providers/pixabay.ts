@@ -2,7 +2,8 @@
  * 文档: https://pixabay.com/api/docs/
  */
 
-import { requestUrl } from "obsidian";
+import { Notice, requestUrl } from "obsidian";
+import { t } from "../../i18n";
 import {
     apiRegistry,
     BaseWallpaperApi,
@@ -310,6 +311,14 @@ export class PixabayApi extends BaseWallpaperApi {
             this.totalPages = response.totalHits ? Math.ceil(response.totalHits / this.perPage) : -1;
             this.totalCount = response.total ?? -1;
             this.perPage = Number(this.params.per_page) ?? 20;
+
+            new Notice(
+                t("api_initialized_notice", {
+                    apiName: this.name,
+                    count: String(this.totalCount),
+                    pages: String(this.totalPages),
+                })
+            );
 
             // 初始化数据缓存
             this.wallpaperImageCache = [];

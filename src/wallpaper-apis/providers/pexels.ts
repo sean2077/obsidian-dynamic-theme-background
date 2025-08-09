@@ -2,7 +2,8 @@
  * 文档: https://www.pexels.com/api/documentation/
  */
 
-import { requestUrl } from "obsidian";
+import { Notice, requestUrl } from "obsidian";
+import { t } from "../../i18n";
 import {
     apiRegistry,
     BaseWallpaperApi,
@@ -228,6 +229,14 @@ export class PexelsApi extends BaseWallpaperApi {
             this.totalPages = response.total_results ? Math.ceil(response.total_results / this.perPage) : -1;
             this.totalCount = response.total_results ?? -1;
             this.perPage = Number(this.params.per_page) ?? 15;
+
+            new Notice(
+                t("api_initialized_notice", {
+                    apiName: this.name,
+                    count: String(this.totalCount),
+                    pages: String(this.totalPages),
+                })
+            );
 
             // 初始化数据缓存
             this.wallpaperImageCache = [];

@@ -217,6 +217,7 @@ export default {
     api_modal_image_url_json_path: "图片 URL JSON 路径",
     api_modal_no_description: "未提供描述。",
     api_modal_unnamed_api: "未命名的 API",
+    api_initialized_notice: "{apiName} 初始化完成：在 {pages} 页中找到 {count} 张壁纸。",
 
     // ===== 状态文本 =====
     status_loading: "加载中...",

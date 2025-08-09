@@ -2,7 +2,8 @@
  * 文档: https://wallhaven.cc/help/api
  */
 
-import { requestUrl } from "obsidian";
+import { Notice, requestUrl } from "obsidian";
+import { t } from "../../i18n";
 import {
     apiRegistry,
     BaseWallpaperApi,
@@ -163,7 +164,7 @@ export class WallhavenApi extends BaseWallpaperApi {
                 label: "Top Range",
                 type: "select",
                 defaultValue: defaultParams.topRange,
-                description: "Time range for top wallpapers",
+                description: "Time range for top wallpapers. (Sorting MUST be set to 'toplist')",
                 options: [
                     { value: "1W", label: "Last Week" },
                     { value: "1M", label: "Last Month" },
@@ -307,6 +308,13 @@ export class WallhavenApi extends BaseWallpaperApi {
             console.warn("Wallhaven API response has invalid pagination data.");
             return false;
         }
+        new Notice(
+            t("api_initialized_notice", {
+                apiName: this.name,
+                count: String(this.totalCount),
+                pages: String(this.totalPages),
+            })
+        );
 
         // 初始化数据缓存
         this.wallpaperImageCache = [];

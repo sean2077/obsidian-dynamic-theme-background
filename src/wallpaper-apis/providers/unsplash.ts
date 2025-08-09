@@ -2,7 +2,8 @@
  * 文档: https://unsplash.com/documentation
  */
 
-import { requestUrl } from "obsidian";
+import { Notice, requestUrl } from "obsidian";
+import { t } from "../../i18n";
 import {
     apiRegistry,
     BaseWallpaperApi,
@@ -221,6 +222,14 @@ export class UnsplashApi extends BaseWallpaperApi {
                 this.totalPages = -1;
                 this.totalCount = -1;
             }
+
+            new Notice(
+                t("api_initialized_notice", {
+                    apiName: this.name,
+                    count: String(this.totalCount),
+                    pages: String(this.totalPages),
+                })
+            );
 
             this.perPage = Number(this.params.per_page) ?? 10;
 
