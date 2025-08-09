@@ -150,6 +150,10 @@ Type `dtb` in the command palette (Ctrl/Cmd + P) to find all related commands.
 }
 ```
 
+## 📄 License
+
+See [LICENSE](LICENSE) file.
+
 ## 🤝 Contributing & Support
 
 We welcome all forms of contribution!
@@ -171,11 +175,7 @@ If this plugin helps you, you can:
 - Share with other Obsidian users 📢
 - Join discussions and suggest improvements 💬
 
-## 📄 License
-
-See [LICENSE](LICENSE) file.
-
-## 👥 Contributors
+### 👥 Contributors
 
 Thanks goes to these wonderful people:
 

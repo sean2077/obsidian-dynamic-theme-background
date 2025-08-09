@@ -150,6 +150,10 @@ pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
 }
 ```
 
+## 📄 许可证
+
+参阅 [LICENSE](LICENSE) 文件。
+
 ## 🤝 贡献与支持
 
 我们欢迎各种形式的贡献！
@@ -171,12 +175,7 @@ pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
 - 分享给其他 Obsidian 用户 📢
 - 参与讨论和改进建议 💬
 
-## 📄 许可证
-
-参阅 [LICENSE](LICENSE) 文件。
-
-
-## 👥 贡献者
+### 👥 贡献者
 
 感谢这些优秀的贡献者：
 
