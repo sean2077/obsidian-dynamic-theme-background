@@ -1,3 +1,10 @@
+## [2.5.3](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.5.2...2.5.3) (2025-08-09)
+
+
+### Bug Fixes
+
+* Add emoji to setting header for better recognition ([c26f91b](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/c26f91b691e58900f0fcf3bb25d535aafc2f48d5))
+
 ## [2.5.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.5.1...2.5.2) (2025-08-08)
 
 
