@@ -1,6 +1,6 @@
 {
     "name": "obsidian-dynamic-theme-background-plugin",
-    "version": "2.6.1",
+    "version": "2.6.2",
     "description": "A plugin for Obsidian that dynamically changes the background based on time of day and user settings.",
     "main": "main.js",
     "scripts": {

@@ -1,3 +1,10 @@
+## [2.6.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.1...2.6.2) (2025-08-09)
+
+
+### Bug Fixes
+
+* Add initialization notice for APIs with count and pages ([2673c2d](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/2673c2dfb0eddcbf7bb291cf72c88be9539a2607))
+
 ## [2.6.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.0...2.6.1) (2025-08-09)
 
 
