@@ -61,13 +61,15 @@ export default {
     clear_time_rules_tooltip: "Clear all time slot rules",
     reset_time_rules_button: "Restore Defaults",
     reset_time_rules_tooltip: "Reset the time slot rules to their default settings.",
-    time_rule_hint: "💡 When time slot rules overlap, the first matching rule takes precedence.",
+    time_rule_hint:
+        "💡 When time slot rules overlap, the first matching rule takes precedence. The indicator 🔥 means the current active rule.",
     rule_name_label: "Rule Name:",
     start_time_label: "Start Time (HH:MM):",
     end_time_label: "End Time (HH:MM):",
     interval_name: "Switch Interval",
     interval_desc: "How often to switch the background (in minutes).",
     confirm_clear_time_rules: "Are you sure you want to clear all time slot rules?",
+    active_time_rule: "Currently Active Time Slot Rule",
 
     // ===== 背景管理 =====
     bg_management_title: "Background Management",

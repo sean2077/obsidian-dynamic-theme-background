@@ -460,15 +460,26 @@ export class DTBSettingTab extends PluginSettingTab {
             },
         });
 
+        // 获取当前激活的时间规则
+        const activeRule = this.plugin.getCurrentTimeRule();
+
         this.plugin.settings.timeRules.forEach((rule: TimeRule) => {
-            const setting = new Setting(container)
-                .setName(rule.name)
-                .setDesc(`${rule.startTime} - ${rule.endTime}`)
+            const setting = new Setting(container).setName(rule.name).setDesc(`${rule.startTime} - ${rule.endTime}`);
+
+            // 如果是激活的时间规则，则添加一个提示图标
+            if (rule.id === activeRule?.id) {
+                const indicator = setting.controlEl.createDiv();
+                indicator.setText("🔥");
+                indicator.title = t("active_time_rule");
+            }
+
+            setting
                 .addToggle((toggle) =>
                     toggle.setValue(rule.enabled).onChange(async (value) => {
                         rule.enabled = value;
                         this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                         await this.plugin.saveSettings();
+                        this.displayTimeRules(container);
                     })
                 )
                 .addDropdown((dropdown) => {
