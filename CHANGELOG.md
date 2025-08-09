@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.5.3...2.6.0) (2025-08-09)
+
+
+### Features
+
+* Add active time rule indicator in settings and update hints ([451f265](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/451f265e24731007aec08856c35615f725f5cc0d))
+
 ## [2.5.3](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.5.2...2.5.3) (2025-08-09)
 
 
