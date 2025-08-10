@@ -1,3 +1,9 @@
+## [2.6.5](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.4...2.6.5) (2025-08-10)
+
+### Bug Fixes
+
+* Update status bar style ([26b13a2](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/26b13a2866e0e21aedf39a6646f12156f9c052b9))
+
 ## [2.6.4](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.3...2.6.4) (2025-08-10)
 
 ### Bug Fixes
