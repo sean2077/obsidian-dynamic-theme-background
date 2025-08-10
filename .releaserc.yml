@@ -5,7 +5,15 @@ tagFormat: ${version}
 preset: conventionalcommits
 plugins:
     - "@semantic-release/commit-analyzer"
-    - "@semantic-release/release-notes-generator"
+    - - "@semantic-release/release-notes-generator"
+      - presetConfig:
+            types:
+                - type: "fix"
+                  section: "Fixes"
+                - type: "feat"
+                  section: "Features"
+                - type: "perf"
+                  section: "Performance Improvements"
     - - "@semantic-release/changelog"
       - changelogFile: CHANGELOG.md
     - - "@semantic-release/exec"
