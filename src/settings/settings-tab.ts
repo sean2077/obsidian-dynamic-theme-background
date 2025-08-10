@@ -120,8 +120,8 @@ export class DTBSettingTab extends PluginSettingTab {
             cls: "dtb-link",
         });
         infoContainer.createEl("a", {
-            text: t("tutorial") + "github",
-            href: "https://github.com/sean2077/obsidian-dynamic-theme-background",
+            text: t("tutorial") + "homepage",
+            href: "https://obsidian-dynamic-theme-background.pages.dev",
             cls: "dtb-link",
         });
     }
