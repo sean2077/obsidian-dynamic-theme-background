@@ -1,3 +1,9 @@
+## [2.6.4](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.3...2.6.4) (2025-08-10)
+
+### Bug Fixes
+
+* Update CSS for workspace elements ([3352d5d](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/3352d5d491ade461eaaf6e702cad737fb5451abb))
+
 ## [2.6.3](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.2...2.6.3) (2025-08-10)
 
 ### Bug Fixes
