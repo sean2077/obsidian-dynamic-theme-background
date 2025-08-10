@@ -124,10 +124,12 @@ pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
 
 ## 📝 注意事项
 
-1. **主题兼容性**：插件主要针对暗色主题优化，浅色主题使用时可能需要调整参数。
-2. **样式覆盖说明**：插件会修改以下 CSS 变量来实现背景效果，请了解可能对现有主题的影响：
+1. **明暗主题**：插件主要针对暗色主题优化，浅色主题使用时可能需要调整参数。
+2. **主题兼容性**：插件使用 Obsidian 标准 CSS 变量，应该与大多数主题兼容。如遇问题请在 GitHub 提交 issue；如果主题支持定义背景，请在启用主题自定义背景和 DTB 背景之间二选一，因为这可能会导致样式冲突。
+3. **样式覆盖说明**：插件使用以下 CSS 变量来实现背景效果，请知晓可能对现有主题的影响：
 
 ```css
+/* 工作区背景 */
 .dtb-enabled :not(.modal):not(.modal *) {
     --background-primary: var(--dtb-bg-color) !important;
     --background-primary-alt: var(--dtb-bg-color) !important;
@@ -148,6 +150,21 @@ pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
     bottom: 0;
     z-index: -1;
 }
+
+/* 针对工作区其他部分的修改 */
+.dtb-enabled .workspace-tab-header-container,
+.dtb-enabled .workspace-tab-header-container .workspace-tab-header.tappable.is-active,
+.dtb-enabled .workspace-tab-header.tappable.is-active,
+.dtb-enabled .workspace-split.mod-vertical.mod-root,
+.dtb-enabled .workspace-split.mod-horizontal.mod-sidedock.mod-left-split,
+.dtb-enabled .workspace-split.mod-horizontal.mod-sidedock.mod-right-split,
+.dtb-enabled .titlebar-button-container.mod-right,
+.dtb-enabled .status-bar,
+.dtb-enabled .workspace-ribbon::before,
+.dtb-enabled .workspace-ribbon {
+    background-color: var(--dtb-bg-color) !important;
+}
+
 ```
 
 ## 📄 许可证

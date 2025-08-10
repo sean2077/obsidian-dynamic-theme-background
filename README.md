@@ -124,10 +124,12 @@ Type `dtb` in the command palette (Ctrl/Cmd + P) to find all related commands.
 
 ## 📝 Notes
 
-1. **Theme Compatibility**: The plugin is optimized for dark themes. You may need to adjust parameters for light themes.
-2. **Style Override Notice**: The plugin modifies the following CSS variables to achieve background effects. Be aware this may affect your existing theme:
+1. **Dark and Light Theme**: The plugin is optimized for dark themes. You may need to adjust parameters for light themes.
+2. **Theme Compatibility**: The plugin uses standard Obsidian CSS variables and should be compatible with most themes. If you encounter issues, please submit an issue on GitHub. If your theme supports defining backgrounds, please choose between enabling theme custom backgrounds and DTB backgrounds, as this may cause style conflicts.
+3. **Style Override Notice**: The plugin uses the following CSS variables to achieve background effects. Be aware of possible impacts on existing topics:
 
 ```css
+/* Workspace Background */
 .dtb-enabled :not(.modal):not(.modal *) {
     --background-primary: var(--dtb-bg-color) !important;
     --background-primary-alt: var(--dtb-bg-color) !important;
@@ -148,6 +150,21 @@ Type `dtb` in the command palette (Ctrl/Cmd + P) to find all related commands.
     bottom: 0;
     z-index: -1;
 }
+
+/* Changes to other parts of the workspace */
+.dtb-enabled .workspace-tab-header-container,
+.dtb-enabled .workspace-tab-header-container .workspace-tab-header.tappable.is-active,
+.dtb-enabled .workspace-tab-header.tappable.is-active,
+.dtb-enabled .workspace-split.mod-vertical.mod-root,
+.dtb-enabled .workspace-split.mod-horizontal.mod-sidedock.mod-left-split,
+.dtb-enabled .workspace-split.mod-horizontal.mod-sidedock.mod-right-split,
+.dtb-enabled .titlebar-button-container.mod-right,
+.dtb-enabled .status-bar,
+.dtb-enabled .workspace-ribbon::before,
+.dtb-enabled .workspace-ribbon {
+    background-color: var(--dtb-bg-color) !important;
+}
+
 ```
 
 ## 📄 License

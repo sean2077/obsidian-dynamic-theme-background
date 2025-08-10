@@ -90,6 +90,20 @@
     z-index: -1;
 }
 
+/* 针对工作区其他部分的修改 */
+.dtb-enabled .workspace-tab-header-container,
+.dtb-enabled .workspace-tab-header-container .workspace-tab-header.tappable.is-active,
+.dtb-enabled .workspace-tab-header.tappable.is-active,
+.dtb-enabled .workspace-split.mod-vertical.mod-root,
+.dtb-enabled .workspace-split.mod-horizontal.mod-sidedock.mod-left-split,
+.dtb-enabled .workspace-split.mod-horizontal.mod-sidedock.mod-right-split,
+.dtb-enabled .titlebar-button-container.mod-right,
+.dtb-enabled .status-bar,
+.dtb-enabled .workspace-ribbon::before,
+.dtb-enabled .workspace-ribbon {
+    background-color: var(--dtb-bg-color) !important;
+}
+
 /* =============================================================================
    🧩 布局组件
    ============================================================================= */
@@ -222,6 +236,7 @@
     gap: 0.5rem;
     flex-wrap: nowrap;
     white-space: nowrap;
+    margin: auto 0; /* 控件垂直居中 */
 }
 
 /* ===== 炫酷动画效果 ===== */
