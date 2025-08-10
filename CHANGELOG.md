@@ -1,3 +1,9 @@
+## [2.6.3](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.2...2.6.3) (2025-08-10)
+
+### Bug Fixes
+
+* Optimize the refresh logic of the settings interface to avoid unnecessary refreshes ([92a20c5](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/92a20c5864eb87252446021e4098278ccfb8bc7b))
+
 ## [2.6.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.1...2.6.2) (2025-08-09)
 
 
