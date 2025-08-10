@@ -92,13 +92,14 @@ export default {
     color_value_label: "颜色值（如 #ff0000）：",
     gradient_css_label: "CSS 渐变（如 linear-gradient(45deg, #ff0000, #0000ff)）：",
     select_background_option: "选择背景",
-    background_management_hint: "💡 提示：您可以拖拽背景项目来重新排序",
+    background_management_hint: "💡 提示：您可以拖拽背景项目来重新排序；带有 🔥 标识的背景为当前应用的背景",
     drag_handle_tooltip: "拖拽以重新排序",
     random_wallpaper_settings_title: "随机壁纸设置",
     enable_random_wallpaper_name: "启用随机壁纸",
     enable_random_wallpaper_desc: "启用后，将从壁纸网站 API 和背景列表中获取随机壁纸，否则将从背景列表按顺序获取",
     save_image_path_title: "保存图片路径",
     save_image_path_placeholder: "请输入保存图片的路径",
+    current_background: "当前背景",
 
     // ===== 壁纸API管理 =====
     wallpaper_api_management_title: "壁纸 API 管理",
@@ -106,6 +107,7 @@ export default {
     add_api_desc: "添加新的壁纸 API 配置",
     add_api_button: "添加 API",
     restore_default_apis_tooltip: "恢复插件提供的默认壁纸 API（不会覆盖现有的 API）",
+    restore_default_apis_success: "🎉 成功恢复默认壁纸 API",
     wallpaper_api_hint: "💡 您可以创建同一种类型的 API 但参数不同的多个 API 实例，以获取不同类型的壁纸",
     add_api_bg_tooltip: "点击从 API 添加新的壁纸",
     wallpaper_api_url_name: "壁纸 API 地址",

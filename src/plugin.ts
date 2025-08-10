@@ -205,8 +205,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
                 this.timeoutId = window.setTimeout(async () => {
                     await this.updateBackground(false);
-                    // 此处应该刷新激活的设置页
-                    this.refreshActiveSettings();
+                    // 此处应该刷新设置页中的时间规则列表
+                    this.refreshActiveTimeRules();
                     scheduleNext(); // 递归调度下一个时段
                 }, actualDelay);
 
@@ -282,6 +282,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
         if (forceUpdate || needsUpdate) {
             this.updateStyleCss();
+            // 这里需要刷新设置页面，以正确显示激活图标
+            this.refreshActiveBackgrounds();
         }
     }
 
@@ -450,6 +452,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         }
 
         this.updateStyleCss();
+        // 这里需要刷新设置页面
+        this.refreshActiveBackgrounds();
     }
 
     /**
@@ -483,8 +487,9 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         // 如果本 bg 还未在列表中，则添加
         if (!this.settings.backgrounds.find((item) => item.id === bg.id)) {
             this.settings.backgrounds.push(bg);
-            // 这里需要刷新设置页面
-            this.refreshActiveSettings();
+            // 这里需要刷新设置页面中的背景列表和时间规则
+            this.refreshActiveBackgrounds();
+            this.refreshActiveTimeRules();
         }
 
         // 由于保存远程图片时会将本地图片路径替换为远程路径，因此需要更新设置
@@ -733,11 +738,46 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         return { startTime, endTime };
     }
 
+    /**
+     * 刷新当前激活的设置页
+     */
     refreshActiveSettings() {
-        // 刷新当前激活的设置页
         this.settingTabs.forEach((tab) => {
             if (tab.isActive()) {
                 tab.display();
+            }
+        });
+    }
+
+    /**
+     * 刷新当前激活的设置页中的时间规则列表
+     */
+    refreshActiveTimeRules() {
+        this.settingTabs.forEach((tab) => {
+            if (tab.isActive()) {
+                tab.displayTimeRules();
+            }
+        });
+    }
+
+    /**
+     * 刷新当前激活的设置页中的背景列表
+     */
+    refreshActiveBackgrounds() {
+        this.settingTabs.forEach((tab) => {
+            if (tab.isActive()) {
+                tab.displayBackgrounds();
+            }
+        });
+    }
+
+    /**
+     * 刷新当前激活的设置页中的api列表
+     */
+    refreshActiveApiList() {
+        this.settingTabs.forEach((tab) => {
+            if (tab.isActive()) {
+                tab.displayWallpaperApis();
             }
         });
     }

@@ -99,7 +99,8 @@ export default {
     color_value_label: "Color value (e.g. #ff0000):",
     gradient_css_label: "CSS gradient (e.g. linear-gradient(45deg, #ff0000, #0000ff)):",
     select_background_option: "Select Background",
-    background_management_hint: "💡 Tip: You can drag background items to reorder them",
+    background_management_hint:
+        "💡 Tip: You can drag background items to reorder them; The background with 🔥 indicator is the currently applied background.",
     drag_handle_tooltip: "Drag to reorder",
     random_wallpaper_settings_title: "Random Wallpaper Settings",
     enable_random_wallpaper_name: "Enable Random Wallpaper",
@@ -107,6 +108,7 @@ export default {
         "When enabled, random wallpapers will be fetched from wallpaper APIs and the background list, otherwise it will use the background list in order.",
     save_image_path_title: "Save Image Path",
     save_image_path_placeholder: "Enter the path to save the image",
+    current_background: "当前背景",
 
     // ===== 壁纸API管理 =====
     wallpaper_api_management_title: "Wallpaper API Management",
@@ -115,6 +117,7 @@ export default {
     add_api_button: "Add API",
     restore_default_apis_tooltip:
         "Restore the default wallpaper APIs provided by the plugin (will not overwrite existing APIs)",
+    restore_default_apis_success: "🎉 Successfully restored default wallpaper APIs",
     wallpaper_api_hint:
         "💡 You can add multiple API instances of the same type with different parameters to get different types of wallpapers.",
     add_api_bg_tooltip: "Click to add a new wallpaper from API",

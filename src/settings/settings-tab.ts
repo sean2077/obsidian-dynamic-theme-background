@@ -31,6 +31,16 @@ export class DTBSettingTab extends PluginSettingTab {
     private componentId: string; // 组件唯一标识符
     private active: boolean; // 是否出于激活状态
 
+    // 记录一些 HTML 元素， 便于分块刷新
+    // 注意这些值不应被在事件监听器、闭包、全局变量等持有
+    private basicSettingEl: HTMLElement;
+    private modeSettingsEl: HTMLElement;
+    private timeRulesContainer: HTMLElement | null; // 某些情况下可能不存在
+    private bgManagementEl: HTMLElement;
+    private bgListContainer: HTMLElement;
+    private wallpaperApiSettingsEl: HTMLElement;
+    private apiListContainer: HTMLElement;
+
     // 用于拖拽排序
     private backgroundDragSort?: DragSort<BackgroundItem>;
     private timeRuleDragSort?: DragSort<TimeRule>;
@@ -75,15 +85,17 @@ export class DTBSettingTab extends PluginSettingTab {
 
         this.displayHeader(containerEl);
 
-        // 创建基本设置容器，便于分组更新
-        const basicSettingEl = containerEl.createDiv(); // 这里适合使用默认的 div 容器，因为 displayXXX 内部会清理该容器
-        this.displayBasicSettings(basicSettingEl);
+        this.basicSettingEl = containerEl.createDiv(); // 这里适合使用默认的 div 容器，因为 displayXXX 内部会清理该容器
+        this.displayBasicSettings();
 
-        const bgManagementEl = containerEl.createDiv(); // 这里适合使用默认的 div 容器，因为 displayXXX 内部会清理该容器
-        this.displayBackgroundManagement(bgManagementEl);
+        this.modeSettingsEl = containerEl.createDiv(); // 这里适合使用默认的 div 容器，因为 displayXXX 内部会清理该容器
+        this.displayModeSettings();
 
-        const wallpaperApiSettingsEl = containerEl.createDiv(); // 这里适合使用默认的 div 容器，因为 displayXXX 内部会清理该容器
-        this.displayWallpaperApiSettings(wallpaperApiSettingsEl);
+        this.bgManagementEl = containerEl.createDiv(); // 这里适合使用默认的 div 容器，因为 displayXXX 内部会清理该容器
+        this.displayBackgroundManagement();
+
+        this.wallpaperApiSettingsEl = containerEl.createDiv(); // 这里适合使用默认的 div 容器，因为 displayXXX 内部会清理该容器
+        this.displayWallpaperApiSettings();
     }
 
     // 显示设置页头
@@ -118,7 +130,8 @@ export class DTBSettingTab extends PluginSettingTab {
     // 基础设置
     // ============================================================================
 
-    private displayBasicSettings(containerEl: HTMLElement) {
+    displayBasicSettings() {
+        const containerEl = this.basicSettingEl;
         containerEl.empty();
         containerEl.createEl("h3", { text: t("basic_settings_title") });
 
@@ -192,7 +205,7 @@ export class DTBSettingTab extends PluginSettingTab {
                         this.plugin.settings.blurDepth = this.defaultSettings.blurDepth;
                         await this.plugin.saveSettings();
                         this.plugin.updateStyleCss();
-                        this.displayBasicSettings(containerEl);
+                        this.displayBasicSettings();
                     })
             );
 
@@ -219,7 +232,7 @@ export class DTBSettingTab extends PluginSettingTab {
                         this.plugin.settings.brightness4Bg = this.defaultSettings.brightness4Bg;
                         await this.plugin.saveSettings();
                         this.plugin.updateStyleCss();
-                        this.displayBasicSettings(containerEl);
+                        this.displayBasicSettings();
                     })
             );
 
@@ -246,7 +259,7 @@ export class DTBSettingTab extends PluginSettingTab {
                         this.plugin.settings.saturate4Bg = this.defaultSettings.saturate4Bg;
                         await this.plugin.saveSettings();
                         this.plugin.updateStyleCss();
-                        this.displayBasicSettings(containerEl);
+                        this.displayBasicSettings();
                     })
             );
 
@@ -281,7 +294,7 @@ export class DTBSettingTab extends PluginSettingTab {
                         this.plugin.settings.bgColorOpacity = this.defaultSettings.bgColorOpacity;
                         await this.plugin.saveSettings();
                         this.plugin.updateStyleCss();
-                        this.displayBasicSettings(containerEl);
+                        this.displayBasicSettings();
                     })
             );
 
@@ -328,12 +341,16 @@ export class DTBSettingTab extends PluginSettingTab {
                         this.plugin.settings.bgSize = this.defaultSettings.bgSize;
                         await this.plugin.saveSettings();
                         this.plugin.updateStyleCss();
-                        this.displayBasicSettings(containerEl);
+                        this.displayBasicSettings();
                     })
             );
+    }
 
-        // 模式设置
-        containerEl.createEl("h4", { text: t("mode_settings_title") });
+    displayModeSettings() {
+        const containerEl = this.modeSettingsEl;
+        containerEl.empty();
+        containerEl.createEl("h3", { text: t("mode_settings_title") });
+
         new Setting(containerEl)
             .setName(t("switch_mode_name"))
             .setDesc(t("switch_mode_desc"))
@@ -347,9 +364,8 @@ export class DTBSettingTab extends PluginSettingTab {
                         this.plugin.settings.mode = value;
                         await this.plugin.saveSettings();
                         this.plugin.startBackgroundManager();
-                        this.displayBasicSettings(containerEl);
+                        this.displayModeSettings();
                     });
-
                 // 添加模式切换的 tooltip
                 addDropdownTooltip(
                     dropdown,
@@ -386,7 +402,7 @@ export class DTBSettingTab extends PluginSettingTab {
                                 this.plugin.settings.timeRules = [];
                                 this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                                 await this.plugin.saveSettings();
-                                this.displayBasicSettings(containerEl);
+                                this.displayModeSettings();
                             },
                         }).open();
                     });
@@ -398,7 +414,7 @@ export class DTBSettingTab extends PluginSettingTab {
                         this.plugin.settings.timeRules = this.defaultSettings.timeRules;
                         this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                         await this.plugin.saveSettings();
-                        this.displayBasicSettings(containerEl);
+                        this.displayModeSettings();
                     });
                 });
 
@@ -407,8 +423,10 @@ export class DTBSettingTab extends PluginSettingTab {
             hint.textContent = t("time_rule_hint");
 
             // 显示时间规则列表
-            const timeRulesContainer = containerEl.createDiv("dtb-section-container");
-            this.displayTimeRules(timeRulesContainer);
+            this.timeRulesContainer = containerEl.createDiv("dtb-section-container");
+            this.displayTimeRules();
+        } else {
+            this.timeRulesContainer = null;
         }
 
         // 时间间隔设置（仅在间隔模式下显示）
@@ -436,14 +454,16 @@ export class DTBSettingTab extends PluginSettingTab {
                     toggle.setValue(this.plugin.settings.enableRandomWallpaper).onChange(async (value) => {
                         this.plugin.settings.enableRandomWallpaper = value;
                         await this.plugin.saveSettings();
-                        this.displayBasicSettings(containerEl);
+                        this.displayModeSettings();
                     })
                 );
         }
     }
 
     // 显示时间规则列表，支持编辑、删除和添加新规则
-    private displayTimeRules(container: HTMLElement): void {
+    displayTimeRules(): void {
+        const container = this.timeRulesContainer;
+        if (!container) return;
         container.empty();
 
         // 初始化时间规则拖拽排序
@@ -456,7 +476,7 @@ export class DTBSettingTab extends PluginSettingTab {
             onReorder: async (reorderedRules) => {
                 this.plugin.settings.timeRules = reorderedRules;
                 await this.plugin.saveSettings();
-                this.displayTimeRules(container);
+                this.displayTimeRules();
             },
         });
 
@@ -464,7 +484,9 @@ export class DTBSettingTab extends PluginSettingTab {
         const activeRule = this.plugin.getCurrentTimeRule();
 
         this.plugin.settings.timeRules.forEach((rule: TimeRule) => {
-            const setting = new Setting(container).setName(rule.name).setDesc(`${rule.startTime} - ${rule.endTime}`);
+            const setting = new Setting(container);
+
+            setting.setName(rule.name).setDesc(`${rule.startTime} - ${rule.endTime}`);
 
             // 如果是激活的时间规则，则添加一个提示图标
             if (rule.id === activeRule?.id) {
@@ -479,7 +501,7 @@ export class DTBSettingTab extends PluginSettingTab {
                         rule.enabled = value;
                         this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                         await this.plugin.saveSettings();
-                        this.displayTimeRules(container);
+                        this.displayTimeRules();
                     })
                 )
                 .addDropdown((dropdown) => {
@@ -515,7 +537,7 @@ export class DTBSettingTab extends PluginSettingTab {
                         this.plugin.settings.timeRules = this.plugin.settings.timeRules.filter((r) => r.id !== rule.id);
                         this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                         await this.plugin.saveSettings();
-                        this.displayTimeRules(container);
+                        this.displayTimeRules();
                     })
                 );
 
@@ -575,7 +597,8 @@ export class DTBSettingTab extends PluginSettingTab {
 
             this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
             await this.plugin.saveSettings();
-            this.display();
+            // 这里仅需刷新时间规则列表
+            this.plugin.refreshActiveTimeRules();
         });
 
         modal.open();
@@ -585,7 +608,8 @@ export class DTBSettingTab extends PluginSettingTab {
     // 背景管理
     // ============================================================================
 
-    private displayBackgroundManagement(containerEl: HTMLElement) {
+    displayBackgroundManagement() {
+        const containerEl = this.bgManagementEl;
         containerEl.empty();
 
         // 背景管理
@@ -647,8 +671,8 @@ export class DTBSettingTab extends PluginSettingTab {
         const dragHint = containerEl.createDiv("dtb-hint");
         dragHint.textContent = t("background_management_hint");
 
-        const backgroundContainer = containerEl.createDiv("dtb-section-container");
-        this.displayBackgrounds(backgroundContainer);
+        this.bgListContainer = containerEl.createDiv("dtb-section-container");
+        this.displayBackgrounds();
     }
 
     // 显示添加或编辑背景的模态窗口
@@ -675,8 +699,9 @@ export class DTBSettingTab extends PluginSettingTab {
             this.plugin.settings.backgrounds.push(newBg);
             await this.plugin.saveSettings();
 
-            // 直接全刷新
-            this.display();
+            // 这里仅需刷新背景列表和时间规则列表
+            this.displayBackgrounds();
+            this.displayTimeRules();
         });
 
         modal.open();
@@ -703,8 +728,9 @@ export class DTBSettingTab extends PluginSettingTab {
                 this.plugin.updateStyleCss();
             }
 
-            // 刷新显示
-            this.display();
+            // 这里仅需刷新背景列表和时间规则列表
+            this.displayBackgrounds();
+            this.displayTimeRules();
         });
 
         // 先打开模态窗口，然后预填充现有值
@@ -772,7 +798,9 @@ export class DTBSettingTab extends PluginSettingTab {
 
         if (addedCount > 0) {
             await this.plugin.saveSettings();
-            this.display();
+            // 这里仅需刷新背景列表和时间规则列表
+            this.displayBackgrounds();
+            this.displayTimeRules();
             new Notice(
                 t("restore_default_bg_success", {
                     count: addedCount.toString(),
@@ -784,7 +812,8 @@ export class DTBSettingTab extends PluginSettingTab {
     }
 
     // 在指定的容器元素中渲染所有背景项
-    private displayBackgrounds(container: HTMLElement): void {
+    displayBackgrounds(): void {
+        const container = this.bgListContainer;
         container.empty();
 
         // 初始化背景拖拽排序
@@ -797,10 +826,11 @@ export class DTBSettingTab extends PluginSettingTab {
             onReorder: async (reorderedBackgrounds) => {
                 this.plugin.settings.backgrounds = reorderedBackgrounds;
                 await this.plugin.saveSettings();
-                this.display();
+                // 这里仅需刷新背景列表和时间规则列表
+                this.displayBackgrounds();
+                this.displayTimeRules();
             },
         });
-
         this.plugin.settings.backgrounds.forEach((bg: BackgroundItem, index: number) => {
             const bgEl = container.createDiv("dtb-item dtb-draggable");
 
@@ -814,9 +844,18 @@ export class DTBSettingTab extends PluginSettingTab {
             dragHandle.textContent = "⋮⋮"; // 使用双点符号作为拖拽手柄
             dragHandle.title = t("drag_handle_tooltip");
 
-            // 背景名称和类型
+            // 背景名称
             const contentDiv = bgEl.createDiv("dtb-bg-content");
             contentDiv.createSpan({ text: bg.name, cls: "dtb-bg-name" });
+
+            // 如果是启用背景，添加图标
+            if (bg.id === this.plugin.background?.id) {
+                const icon = contentDiv.createSpan();
+                icon.setText("🔥");
+                icon.title = t("current_background");
+            }
+
+            // 背景类型
             contentDiv.createSpan({ text: bg.type, cls: "dtb-badge" });
 
             // 预览图
@@ -832,6 +871,7 @@ export class DTBSettingTab extends PluginSettingTab {
                 this.plugin.settings.currentIndex = index; // 更新当前索引
                 this.plugin.saveSettings();
                 this.plugin.updateStyleCss();
+                this.displayBackgrounds(); // 刷新激活图标
             };
 
             // 保存按钮
@@ -851,8 +891,9 @@ export class DTBSettingTab extends PluginSettingTab {
                     (b: BackgroundItem) => b.id !== bg.id
                 );
                 await this.plugin.saveSettings();
-                // 直接全刷新
-                this.display(); // TODO 理论上可以只刷新图片列表和时间规则列表
+                // 这里仅需刷新背景列表和时间规则列表
+                this.displayBackgrounds();
+                this.displayTimeRules();
             };
 
             // 启用拖拽功能
@@ -974,7 +1015,9 @@ export class DTBSettingTab extends PluginSettingTab {
 
         if (addedCount > 0) {
             await this.plugin.saveSettings();
-            this.display();
+            // 这里仅需刷新背景列表和时间规则列表
+            this.displayBackgrounds();
+            this.displayTimeRules();
             new Notice(t("folder_scan_success", { count: addedCount.toString() }));
         } else {
             new Notice(t("folder_no_new_images"));
@@ -988,7 +1031,8 @@ export class DTBSettingTab extends PluginSettingTab {
     /*
      * 显示壁纸 API 管理设置
      */
-    private displayWallpaperApiSettings(containerEl: HTMLElement): void {
+    displayWallpaperApiSettings(): void {
+        const containerEl = this.wallpaperApiSettingsEl;
         containerEl.empty();
 
         containerEl.createEl("h3", { text: t("wallpaper_api_management_title") });
@@ -1019,9 +1063,10 @@ export class DTBSettingTab extends PluginSettingTab {
                             apiManager.createApi(apiConfig);
                         }
                     }
+                    new Notice(t("restore_default_apis_success"));
 
                     await this.plugin.saveSettings();
-                    this.displayWallpaperApiSettings(containerEl);
+                    this.displayWallpaperApiSettings();
                 });
             });
 
@@ -1030,14 +1075,15 @@ export class DTBSettingTab extends PluginSettingTab {
         hint.textContent = t("wallpaper_api_hint");
 
         // 显示现有API列表
-        const apiContainer = containerEl.createDiv("dtb-section-container");
-        this.displayWallpaperApis(apiContainer);
+        this.apiListContainer = containerEl.createDiv("dtb-section-container");
+        this.displayWallpaperApis();
     }
 
     /*
      * 显示所有已配置的壁纸 API
      */
-    private displayWallpaperApis(container: HTMLElement) {
+    displayWallpaperApis() {
+        const container = this.apiListContainer;
         container.empty();
 
         // 初始化 API 拖拽排序
@@ -1050,7 +1096,7 @@ export class DTBSettingTab extends PluginSettingTab {
             onReorder: async (reorderedApis) => {
                 this.plugin.settings.wallpaperApis = reorderedApis;
                 await this.plugin.saveSettings();
-                this.displayWallpaperApis(container);
+                this.displayWallpaperApis();
             },
         });
 
@@ -1194,7 +1240,7 @@ export class DTBSettingTab extends PluginSettingTab {
                             (api) => api.id !== apiConfig.id
                         );
                         await this.plugin.saveSettings();
-                        this.displayWallpaperApis(container);
+                        this.displayWallpaperApis();
                     })
                 );
 
@@ -1227,7 +1273,8 @@ export class DTBSettingTab extends PluginSettingTab {
             // 添加到插件设置中
             this.plugin.settings.wallpaperApis.push(apiConfig);
             await this.plugin.saveSettings();
-            this.display();
+            // 这里仅需刷新 api 列表
+            this.displayWallpaperApis();
         });
 
         modal.open();
@@ -1241,7 +1288,8 @@ export class DTBSettingTab extends PluginSettingTab {
 
             this.plugin.settings.wallpaperApis[index] = updatedConfig;
             await this.plugin.saveSettings();
-            this.display();
+            // 这里仅需刷新 api 列表
+            this.displayWallpaperApis();
         });
 
         modal.open();
@@ -1281,8 +1329,9 @@ export class DTBSettingTab extends PluginSettingTab {
                 this.plugin.background = newBg;
                 this.plugin.updateStyleCss();
 
-                // 刷新显示
-                this.display();
+                // 这里仅需刷新背景列表和时间规则
+                this.displayBackgrounds();
+                this.displayTimeRules();
 
                 new Notice(t("notice_api_success_applied", { apiName: api.getName() }));
             } else {
