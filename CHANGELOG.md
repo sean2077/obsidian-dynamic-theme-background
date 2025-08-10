@@ -1,3 +1,9 @@
+## [2.6.6](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.5...2.6.6) (2025-08-10)
+
+### Fixes
+
+* Update release notes generator configuration ([8086616](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/80866160f33a96028a77732630aa16e53fb5aaa8))
+
 ## [2.6.5](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.4...2.6.5) (2025-08-10)
 
 ### Fixes
