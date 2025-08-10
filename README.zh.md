@@ -69,9 +69,9 @@ Obsidian Dynamic Theme Background 插件旨在为用户提供一个高度可定�
 
 ## 🖼️ 效果预览
 
-![](assets/dtb-demo2.gif)
+![](docs/assets/dtb-demo2.gif)
 
-![](assets/dtb-demo.gif)
+![](docs/assets/dtb-demo.gif)
 
 ## ⬇️ 安装
 

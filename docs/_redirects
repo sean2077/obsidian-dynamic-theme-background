@@ -1,0 +1,10 @@
+# Redirect root to index.html
+/ /index.html 200
+
+# Redirect zh to Chinese version
+/zh /index.zh.html 200
+/cn /index.zh.html 200
+/chinese /index.zh.html 200
+
+# Handle 404s with main page
+/* /index.html 404

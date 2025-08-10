@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obsidian DTB - Dynamic Theme Background</title>
+    <meta name="description"
+        content="Dynamic Theme Background (DTB) - Multi-source dynamic wallpaper plugin for Obsidian: Unsplash, Pexels, Pixabay, Wallhaven, custom & local images.">
+    <meta name="keywords"
+        content="Obsidian, wallpaper, background, plugin, Unsplash, Pexels, Pixabay, Wallhaven, dynamic, theme background">
+    <meta name="author" content="sean2077">
+    <meta name="robots" content="index,follow">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="canonical" href="https://YOUR-DOMAIN-HERE">
+    <link rel="alternate" hreflang="x-default" href="https://YOUR-DOMAIN-HERE">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Dynamic Theme Background - Obsidian Plugin">
+    <meta property="og:description"
+        content="Multi-source wallpapers, smart scheduling & visual tuning for an inspired Obsidian workspace.">
+    <meta property="og:url" content="https://YOUR-DOMAIN-HERE">
+    <meta property="og:image"
+        content="https://raw.githubusercontent.com/sean2077/obsidian-dynamic-theme-background/master/docs/assets/dtb-status-bar.jpg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Dynamic Theme Background">
+    <meta property="og:locale" content="en_US">
+    <link rel="alternate" hreflang="en" href="index.html">
+    <link rel="alternate" hreflang="zh-CN" href="index.zh.html">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <!-- Preconnect for faster image fetch (OG / demo) -->
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+    <link rel="preconnect" href="https://api.github.com" crossorigin>
+    <link rel="dns-prefetch" href="https://github.com">
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>">
+    <link rel="mask-icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>"
+        color="#667eea">
+    <!-- Structured Data (initial, version will be injected dynamically) -->
+    <script type="application/ld+json" id="schema-dtb">{
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Dynamic Theme Background",
+            "applicationCategory": "ProductivityApplication",
+            "operatingSystem": "Windows, macOS, Linux, iOS, Android",
+            "abstract": "Dynamic multi-source wallpaper management for Obsidian.",
+            "description": "Obsidian plugin providing dynamic multi-source wallpapers with smart scheduling, visual tuning, caching, time-based rotation and custom sources.",
+            "author": {"@type": "Person", "name": "sean2077"},
+            "publisher": {"@type": "Organization", "name": "Obsidian Community"},
+            "license": "https://opensource.org/licenses/MIT",
+            "keywords": ["Obsidian","wallpaper","background","unsplash","pexels","pixabay","wallhaven","dynamic","plugin"],
+            "url": "https://github.com/sean2077/obsidian-dynamic-theme-background",
+            "sourceCode": "https://github.com/sean2077/obsidian-dynamic-theme-background",
+            "downloadUrl": "https://github.com/sean2077/obsidian-dynamic-theme-background/releases",
+            "image": "https://raw.githubusercontent.com/sean2077/obsidian-dynamic-theme-background/master/docs/assets/dtb-status-bar.jpg",
+            "featureList": [
+                "Multiple providers (Unsplash, Pexels, Pixabay, Wallhaven, custom)",
+                "Local + remote mixing",
+                "Time-based rotation & interval scheduling",
+                "Visual adjustments (blur, brightness, saturation, hue)",
+                "Caching & performance optimization",
+                "Command palette quick actions",
+                "Custom API support"
+            ],
+            "sameAs": ["https://obsidian.md/plugins","https://github.com/sean2077"],
+            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
+        }</script>
+    <style>
+        /* Utility / Base additions */
+        :root {
+            scroll-behavior: smooth;
+            --dtb-gradient: linear-gradient(135deg, #667eea, #764ba2);
+            --dtb-bg-dark: #0a0a0a;
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: var(--dtb-bg-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .skip-link {
+            position: absolute;
+            left: -999px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
+        .skip-link:focus {
+            left: 8px;
+            top: 8px;
+            width: auto;
+            height: auto;
+            padding: .6rem 1rem;
+            border-radius: 6px;
+            background: #111;
+            color: #fff;
+            z-index: 999;
+        }
+
+        /* 动态背景效果 */
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: var(--dtb-gradient);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            will-change: background-position;
+        }
+
+        .wallpaper-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(1px);
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .floating-particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 25s infinite linear;
+            will-change: transform, opacity;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .logo:focus-visible {
+            outline: 2px solid #667eea;
+            outline-offset: 4px;
+            border-radius: 8px;
+        }
+
+        .logo:hover {
+            opacity: .9;
+        }
+
+        /* Global link style (improve contrast vs default blue) */
+        a:not(.btn):not(.icon-btn):not(.nav-links a):not(.logo) {
+            color: rgb(230 235 255 / 86%);
+            text-decoration: underline;
+            text-decoration-color: rgba(255, 255, 255, .25);
+            text-underline-offset: 3px;
+            transition: color .3s, text-decoration-color .35s;
+        }
+
+        a:not(.btn):not(.icon-btn):not(.nav-links a):not(.logo):hover,
+        a:not(.btn):not(.icon-btn):not(.nav-links a):not(.logo):focus-visible {
+            color: #ffffff;
+            text-decoration-color: #889dff;
+        }
+
+        /* Logo brand 不需要下划线 */
+        .logo {
+            text-decoration: none !important;
+        }
+
+        .logo:hover {
+            text-decoration: none;
+        }
+
+        /* Inline code inside links keeps color */
+        a code {
+            color: inherit;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a.icon-btn {
+            width: 2.1rem;
+            height: 2.1rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .15);
+            opacity: 0.85;
+            font-size: 0;
+            position: relative;
+        }
+
+        .nav-links a.icon-btn span.ico {
+            font-size: 1.05rem;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35));
+        }
+
+        .nav-links a.icon-btn svg {
+            width: 1.1rem;
+            height: 1.1rem;
+            display: block;
+            fill: #fff;
+        }
+
+        .nav-links a.icon-btn:hover svg,
+        .nav-links a.icon-btn:focus-visible svg {
+            fill: #ffffff;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, .4));
+        }
+
+        .nav-links a.icon-btn:hover,
+        .nav-links a.icon-btn:focus-visible {
+            opacity: 1;
+            background: linear-gradient(145deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .07));
+            box-shadow: 0 4px 14px -6px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .25) inset;
+        }
+
+        .nav-links a.icon-btn:focus-visible {
+            outline: 2px solid #667eea;
+            outline-offset: 3px;
+        }
+
+        /* Language toggle explicit label */
+        .lang-toggle {
+            position: relative;
+        }
+
+        .lang-toggle .lang-text {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            font-size: .55rem;
+            line-height: 1;
+            padding: .2rem .35rem .28rem;
+            border-radius: 8px;
+            letter-spacing: .5px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px -2px rgba(0, 0, 0, .5);
+            pointer-events: none;
+        }
+
+        .lang-toggle:hover .lang-text,
+        .lang-toggle:focus-visible .lang-text {
+            filter: brightness(1.1);
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            /* 原 8rem 0 改为响应式：在大屏减小首屏空白，在小屏保持可读 */
+            padding: clamp(3.5rem, 12vh, 6rem) 0 clamp(4rem, 14vh, 7rem);
+            color: white;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 6s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0.6;
+            }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s 0.2s forwards;
+        }
+
+        .hero-title {
+            font-size: clamp(2.6rem, 6.8vw, 4.2rem);
+            margin-bottom: 1rem;
+            font-weight: 700;
+            opacity: 0;
+            animation: fadeInUp 1s 0.4s forwards;
+            line-height: 1.1;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .6rem;
+        }
+
+        .hero-title-text {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffffff, #e9e9e9, #ffffff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: textShine 3s ease infinite;
+        }
+
+        .emoji-isolate {
+            filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .35));
+            line-height: 1;
+        }
+
+        @keyframes textShine {
+
+            0%,
+            100% {
+                background-position: 200% center;
+            }
+
+            50% {
+                background-position: 0% center;
+            }
+        }
+
+        .hero .subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s 0.6s forwards;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            animation: fadeInUp 1s 0.8s forwards;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeInUp 1s 1s forwards;
+        }
+
+        .btn {
+            padding: 1.2rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--dtb-gradient);
+            color: white;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Features Section */
+        .features {
+            /* 原 8rem 0 改为更紧凑并响应式 */
+            padding: clamp(3.2rem, 10vh, 5.2rem) 0 clamp(3.2rem, 10vh, 5.2rem);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            color: white;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 3.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: .6rem;
+            align-items: center;
+        }
+
+        .features-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 4rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem 1.75rem;
+            /* 行间距 2rem，列间距 1.75rem */
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            /* 更柔和的磨砂背景 + 轻微纵向渐变 */
+            background: linear-gradient(175deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035));
+            padding: 1.75rem 1.55rem 1.55rem;
+            border-radius: 20px;
+            backdrop-filter: blur(16px) saturate(120%);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            transition: background .45s, transform .45s cubic-bezier(.4, .2, .2, 1), box-shadow .45s, border-color .45s;
+            position: relative;
+            overflow: hidden;
+            line-height: 1.55;
+            display: grid;
+            /* 改为网格用于段落垂直居中 */
+            grid-template-rows: auto 1fr;
+            min-height: 200px;
+            row-gap: .55rem;
+            --accent: #667eea;
+            --accent-fade: color-mix(in srgb, var(--accent) 25%, transparent);
+        }
+
+        /* feature accent moved inline */
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            /* 渐变描边 */
+            background: linear-gradient(140deg, var(--accent) 0%, rgba(255, 255, 255, .25) 55%, var(--accent) 110%);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            /* Safari */
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity .55s;
+            pointer-events: none;
+        }
+
+        .feature-card::after {
+            /* 内部柔和光斑 */
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -5%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 30% 25%, var(--accent-fade), transparent 60%);
+            opacity: .22;
+            mix-blend-mode: plus-lighter;
+            pointer-events: none;
+            transition: opacity .6s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover::after {
+            opacity: .35;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px) scale(1.012);
+            box-shadow: 0 16px 38px -10px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .14) inset, 0 0 0 1px var(--accent-fade);
+            border-color: rgba(255, 255, 255, .18);
+            background: linear-gradient(175deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .045));
+        }
+
+        /* 图标与标题同行（放入 h3 内部） */
+        .feature-icon {
+            font-size: 1.65rem;
+            display: inline-flex;
+            margin: 0 .55rem 0 0;
+            line-height: 1;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35));
+        }
+
+        .feature-icon:after {
+            /* 背景淡色圆形衬底 */
+            content: '';
+            position: absolute;
+            inset: -4px -4px -4px -4px;
+            background: radial-gradient(circle at 45% 35%, var(--accent-fade), transparent 70%);
+            border-radius: 14px;
+            z-index: -1;
+            opacity: .65;
+            filter: blur(2px) saturate(140%);
+            transition: opacity .5s, transform .6s;
+        }
+
+        .feature-card:hover .feature-icon:after {
+            opacity: .95;
+            transform: scale(1.08);
+        }
+
+        .feature-card h3 {
+            font-size: 1.32rem;
+            margin: 0;
+            color: #fff;
+            line-height: 1.18;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            letter-spacing: .3px;
+            background: linear-gradient(90deg, #fff, rgba(255, 255, 255, .85));
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .feature-card p {
+            opacity: 0.9;
+            line-height: 1.55;
+            font-size: .92rem;
+            /* 略微增大 */
+            margin: .15rem 0 0;
+            letter-spacing: .25px;
+            align-self: center;
+            /* 垂直居中第二行 */
+        }
+
+        /* 紧凑模式：在较矮视口或较低高度下进一步压缩 */
+        @media (max-height: 800px) {
+            .features {
+                padding: 2.6rem 0 3rem;
+            }
+
+            .features-grid {
+                gap: 1.6rem 1.4rem;
+                margin-bottom: 2.4rem;
+            }
+
+            .feature-card {
+                padding: 1.55rem 1.35rem 1.4rem;
+                min-height: 205px;
+            }
+
+            .feature-icon {
+                font-size: 1.5rem;
+            }
+
+            .feature-card h3 {
+                font-size: 1.24rem;
+            }
+
+            .feature-card p {
+                font-size: .88rem;
+            }
+        }
+
+        @media (max-width: 1100px) and (max-height: 900px) {
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            }
+        }
+
+        .feature-highlight {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Quick Start 横向步骤条 */
+        .qs-steps-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.4rem;
+            margin-bottom: 2.2rem;
+        }
+
+        /* 3 步版本专用布局（更宽更居中） */
+        .qs-steps-row.three {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .qs-step {
+            background: linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .04));
+            border: 1px solid rgba(255, 255, 255, .16);
+            border-radius: 20px;
+            padding: 1.55rem 1.35rem 1.3rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 150px;
+            overflow: hidden;
+            transition: background .35s, transform .4s, box-shadow .4s;
+        }
+
+        /* 渐变描边 */
+        .qs-step:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 1px;
+            /* border thickness */
+            border-radius: inherit;
+            background: linear-gradient(130deg, #667eea66, #764ba266, #667eea33);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .qs-step:hover {
+            background: linear-gradient(145deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .05));
+            transform: translateY(-6px) scale(1.015);
+            box-shadow: 0 12px 28px -10px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .15) inset;
+        }
+
+        .qs-step h3 {
+            margin: 0 0 .65rem;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 600;
+        }
+
+        .qs-step h3 .feature-icon {
+            font-size: 1.45rem;
+            margin: 0;
+            filter: none;
+            transform: none;
+        }
+
+        .qs-step p {
+            margin: 0;
+            font-size: .8rem;
+            line-height: 1.45;
+            opacity: .85;
+        }
+
+        .qs-step-number {
+            position: absolute;
+            top: .55rem;
+            right: .7rem;
+            font-size: .65rem;
+            letter-spacing: .5px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: .25rem .5rem;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        @media (min-width:1100px) {
+            .qs-steps-row.three {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width:640px) {
+            .qs-step {
+                min-height: auto;
+                padding: 1.15rem 1rem 1rem;
+            }
+
+            .qs-step p {
+                font-size: .75rem;
+            }
+        }
+
+        /* 状态栏说明优化 */
+        .statusbar-preview {
+            --sb-gap: 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--sb-gap);
+            align-items: flex-start;
+            max-width: 1080px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .statusbar-preview figure {
+            margin: 0;
+            max-width: 640px;
+            flex: 1 1 580px;
+        }
+
+        /* Responsive constraints to prevent overflow */
+        @media (max-width:1250px) {
+            .statusbar-preview figure {
+                max-width: 600px;
+                flex: 1 1 560px;
+            }
+
+            .statusbar-details {
+                max-width: 380px !important;
+            }
+        }
+
+        @media (max-width:1080px) {
+            .statusbar-preview {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .statusbar-preview figure {
+                max-width: 640px;
+                flex: 1 1 auto;
+            }
+
+            .statusbar-details {
+                max-width: 600px !important;
+                text-align: center;
+            }
+
+            .statusbar-actions {
+                text-align: center !important;
+            }
+        }
+
+        .statusbar-preview img {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px -8px rgba(0, 0, 0, .55);
+            border: 1px solid rgba(255, 255, 255, .14);
+        }
+
+        .statusbar-preview figcaption {
+            font-size: .74rem;
+            opacity: .62;
+            margin-top: .55rem;
+            line-height: 1.35;
+            text-align: center;
+        }
+
+        .statusbar-details {
+            flex: 1 1 300px;
+            max-width: 480px;
+            font-size: .9rem;
+            line-height: 1.55;
+            position: relative;
+        }
+
+        .statusbar-details h4 {
+            margin: .15rem 0 .75rem;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 600;
+        }
+
+        .statusbar-actions {
+            list-style: none;
+            margin: 0 0 1.15rem;
+            padding: 0;
+            display: grid;
+            gap: .55rem;
+        }
+
+        .statusbar-actions li {
+            background: rgba(255, 255, 255, .06);
+            padding: .55rem .75rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .1);
+            font-size: .78rem;
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+        }
+
+        .statusbar-actions li span.action-ico {
+            font-size: 1.05rem;
+            line-height: 1;
+        }
+
+        .statusbar-tip {
+            font-size: .66rem;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            opacity: .5;
+            margin-top: .3rem;
+        }
+
+        @media (max-width:850px) {
+            .statusbar-preview {
+                --sb-gap: 1.6rem;
+            }
+        }
+
+        /* API Sources Section */
+        .api-sources {
+            /* Reduce vertical padding slightly to tighten overall page height */
+            padding: 5.2rem 0 5rem;
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            text-align: center;
+        }
+
+        .api-sources h2 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: .6rem;
+            align-items: center;
+        }
+
+        .api-logos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1.4rem 1.6rem;
+            margin: 3rem 0 2.5rem;
+            align-items: stretch;
+        }
+
+        .api-logo {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .025));
+            padding: 1.55rem 1.3rem 1.35rem;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            transition: background .35s, transform .4s, box-shadow .4s, border-color .4s;
+            text-decoration: none !important;
+        }
+
+        .api-logo:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, .25), transparent 60%);
+            opacity: .18;
+            pointer-events: none;
+        }
+
+        .api-logo:hover,
+        .api-logo:focus-visible {
+            transform: translateY(-6px);
+            background: linear-gradient(185deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .04));
+            border-color: rgba(255, 255, 255, .22);
+            box-shadow: 0 10px 28px -10px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .15) inset;
+        }
+
+        .api-logo-name {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: .9rem 0 .35rem;
+            letter-spacing: .4px;
+            color: #f5f7fa;
+            text-decoration: none;
+        }
+
+        .api-logo p {
+            /* subtitle pill */
+            --pill-bg: rgba(255, 255, 255, .04);
+            --pill-border: rgba(255, 255, 255, .18);
+            font-size: .63rem;
+            letter-spacing: .65px;
+            text-transform: uppercase;
+            margin: .1rem 0 .55rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, .78);
+            padding: .32rem .6rem .34rem;
+            border-radius: 999px;
+            border: 1px solid var(--pill-border);
+            background: var(--pill-bg);
+            display: inline-flex;
+            align-items: center;
+            gap: .4ch;
+            position: relative;
+            line-height: 1;
+            transition: background .45s, color .4s, border-color .45s, box-shadow .45s;
+        }
+
+        /* provider accent moved inline */
+
+        .api-logo p:before {
+            /* tiny accent dot */
+            content: "";
+            width: .5rem;
+            height: .5rem;
+            border-radius: 50%;
+            background: var(--accent, #667eea);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, .06);
+        }
+
+        .api-logo:hover p,
+        .api-logo:focus-visible p {
+            --pill-bg: linear-gradient(120deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .06));
+            color: #fff;
+            border-color: var(--accent, #667eea);
+            box-shadow: 0 4px 14px -6px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .18) inset;
+        }
+
+        /* Optional subtle glow on accent when hovered */
+        .api-logo:hover p:before,
+        .api-logo:focus-visible p:before {
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, .12), 0 0 0 6px color-mix(in srgb, var(--accent) 40%, transparent);
+        }
+
+        .api-logo>div:first-child {
+            /* emoji icon */
+            font-size: 2.4rem !important;
+            line-height: 1;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .35));
+        }
+
+        .api-logo:focus-visible {
+            outline: 2px solid #667eea;
+            outline-offset: 3px;
+        }
+
+        @media (max-width:680px) {
+            .api-logos {
+                gap: 1.15rem;
+            }
+
+            .api-logo {
+                padding: 1.4rem 1.15rem 1.2rem;
+                border-radius: 17px;
+            }
+
+            .api-logo-name {
+                font-size: 1.05rem;
+            }
+
+            .api-logo>div:first-child {
+                font-size: 2.1rem !important;
+            }
+        }
+
+        /* Demo Section */
+        .demo {
+            /* Slight compression of huge blocks to avoid large cumulative bottom gap */
+            padding: 6.5rem 0 6rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+        }
+
+        .demo h2 {
+            font-size: 3rem;
+            margin-bottom: 3rem;
+            display: flex;
+            justify-content: center;
+            gap: .6rem;
+            align-items: center;
+        }
+
+        .demo-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .demo-item {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+            padding: 2rem;
+            max-width: 420px;
+            flex: 1 1 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            /* 使内部列表宽度拉伸，文本左对齐 */
+        }
+
+        .demo-item h3,
+        .demo-item .demo-img-wrap {
+            /* 保持标题与图居中 */
+            align-self: center;
+            text-align: center;
+        }
+
+        .demo-item ul {
+            /* 强制列表占满宽度并左对齐 */
+            width: 100%;
+            align-self: stretch;
+            text-align: left;
+        }
+
+        /* Preview placeholders (when no GIF/image yet) */
+        .demo-placeholder {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 1.05rem;
+            letter-spacing: .5px;
+            background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0 12px, rgba(255, 255, 255, 0.03) 12px 24px);
+            border: 1px dashed rgba(255, 255, 255, 0.18);
+            color: #b9c2ff;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .demo-placeholder small {
+            opacity: .6;
+            font-size: .75rem;
+            position: absolute;
+            right: 8px;
+            bottom: 6px;
+            letter-spacing: .5px;
+        }
+
+        .skeleton-shimmer {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.12) 45%, transparent 60%);
+            animation: shimmer 2.4s linear infinite;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            from {
+                transform: translateX(-60%);
+            }
+
+            to {
+                transform: translateX(60%);
+            }
+        }
+
+        .demo-img-wrap {
+            width: 100%;
+            position: relative;
+        }
+
+        .demo-img {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 12px rgba(102, 126, 234, 0.12);
+        }
+
+        .demo-img-label {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            background: rgba(102, 126, 234, 0.8);
+            color: #fff;
+            font-size: 0.95rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .demo-item h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            color: #667eea;
+        }
+
+        .demo-item ul {
+            padding-left: 1.2rem;
+            color: #eee;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        .demo-summary {
+            text-align: center;
+            margin-top: 2rem;
+            opacity: 0.85;
+            font-size: .95rem;
+        }
+
+        .summary-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: .6rem;
+            margin-top: .65rem;
+            max-width: 820px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .summary-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .4rem .9rem .42rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 40px;
+            font-size: .72rem;
+            letter-spacing: .4px;
+            font-weight: 500;
+            backdrop-filter: blur(6px);
+            position: relative;
+        }
+
+        .summary-pill .ico {
+            font-size: .95rem;
+            line-height: 1;
+        }
+
+        /* Installation Section */
+        .installation {
+            padding: 6.5rem 0 6rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+        }
+
+        .installation h2 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 4rem;
+            display: flex;
+            justify-content: center;
+            gap: .6rem;
+            align-items: center;
+        }
+
+        .install-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        /* Installation Tabs */
+        .install-tabs {
+            margin-bottom: 3rem;
+        }
+
+        .install-tabs .tab-list {
+            display: flex;
+            gap: .75rem;
+            flex-wrap: wrap;
+            margin: 0 0 1.5rem;
+            list-style: none;
+            padding: 0;
+        }
+
+        .install-tabs .tab-btn {
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .18);
+            color: #fff;
+            padding: .65rem 1.1rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: .85rem;
+            letter-spacing: .4px;
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            position: relative;
+            transition: background .25s, border-color .25s;
+        }
+
+        .install-tabs .tab-btn[aria-selected="true"],
+        .install-tabs .tab-btn.is-active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: #889dff;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, .35);
+        }
+
+        .install-tabs .tab-btn:focus-visible {
+            outline: 2px solid #889dff;
+            outline-offset: 2px;
+        }
+
+        .install-tabs .tab-panels {
+            position: relative;
+        }
+
+        .install-tabs .tab-panel {
+            display: none;
+            animation: fadeInUp .5s;
+        }
+
+        .install-tabs .tab-panel.is-active {
+            display: block;
+        }
+
+        .install-panels-grid {
+            display: grid;
+            gap: 2.5rem;
+        }
+
+        .install-panels-grid .install-method {
+            margin: 0;
+        }
+
+        .install-note-small {
+            font-size: .75rem;
+            opacity: .6;
+            margin-top: .75rem;
+            line-height: 1.4;
+        }
+
+        .install-method h3 code {
+            font-size: .7rem;
+            opacity: .75;
+        }
+
+        .repo-inline-code {
+            background: rgba(255, 255, 255, .08);
+            padding: .25rem .5rem;
+            border-radius: 6px;
+            font-size: .75rem;
+        }
+
+        .install-method {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            border-radius: 25px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .install-method:hover {
+            transform: translateY(-5px);
+        }
+
+        .install-method h3 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .install-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .status-available {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .status-beta {
+            background: rgba(102, 126, 234, 0.18);
+            color: #889dff;
+            border: 1px solid rgba(102, 126, 234, 0.35);
+        }
+
+        .install-steps {
+            list-style: none;
+        }
+
+        .install-steps li {
+            padding: .9rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: flex-start;
+            gap: .85rem;
+            line-height: 1.5;
+        }
+
+        .install-steps li:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+            line-height: 1;
+            margin-top: .15rem;
+            box-shadow: 0 4px 10px -4px rgba(0, 0, 0, .5);
+        }
+
+        /* Install step inline code / paths baseline fix */
+        .install-steps code {
+            position: relative;
+            top: 1px;
+            /* optical baseline correction */
+            font-size: .78rem;
+            padding: .15rem .45rem .18rem;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .15);
+            border-radius: 6px;
+            font-family: var(--code-font, ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace);
+            letter-spacing: .3px;
+        }
+
+        .install-steps li br+code {
+            top: 0;
+        }
+
+        /* FAQ Section */
+        .faq {
+            /* Bottom reduced to lessen end-of-page whitespace */
+            padding: 5rem 0 3.4rem;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+
+        .faq h2 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 4rem;
+            display: flex;
+            justify-content: center;
+            gap: .6rem;
+            align-items: center;
+        }
+
+        .section-heading .heading-text,
+        .features h2 .heading-text,
+        .api-sources h2 .heading-text,
+        .demo h2 .heading-text,
+        .installation h2 .heading-text,
+        .faq h2 .heading-text,
+        #roadmap h2 .heading-text,
+        #commands h2 .heading-text,
+        #quickstart h2 .heading-text {
+            background: var(--dtb-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .emoji-isolate {
+            font-size: 1em;
+            line-height: 1;
+        }
+
+        /* Code blocks */
+        pre.code-block {
+            position: relative;
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, .1);
+            padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+            border-radius: 14px;
+            overflow: auto;
+            font-size: .9rem;
+            line-height: 1.5;
+            color: #eee;
+            font-family: SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
+        }
+
+        pre.code-block code {
+            white-space: pre;
+            display: block;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--dtb-gradient);
+            border: none;
+            color: #fff;
+            font-size: .75rem;
+            padding: .45rem .8rem;
+            border-radius: 40px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .4);
+        }
+
+        .copy-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .12);
+            border: 1px solid rgba(255, 255, 255, .25);
+            padding: .35rem .75rem;
+            font-size: .75rem;
+            border-radius: 30px;
+            margin-left: .75rem;
+            backdrop-filter: blur(6px);
+        }
+
+        .roadmap-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .roadmap-item {
+            background: rgba(255, 255, 255, .05);
+            padding: 1rem 1.25rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .08);
+            display: flex;
+            gap: .65rem;
+            align-items: flex-start;
+        }
+
+        .roadmap-item span.ri-ico {
+            font-size: 1.2rem;
+        }
+
+        .section-note {
+            font-size: .85rem;
+            opacity: .65;
+            margin-top: 1rem;
+        }
+
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .command-card {
+            background: rgba(255, 255, 255, .05);
+            padding: 1rem 1.25rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .08);
+            font-size: .9rem;
+        }
+
+        .command-card h4 {
+            margin: 0 0 .4rem;
+            font-size: 1rem;
+            color: #667eea;
+        }
+
+        /* --------------------------------------------- */
+        /* Unified Accent Card Effect (reused styling)   */
+        /* Applies feature-card gradient border + glow  */
+        /* --------------------------------------------- */
+        .qs-step,
+        .command-card,
+        .roadmap-item,
+        .api-logo {
+            --accent: var(--accent, #667eea);
+            --accent-fade: color-mix(in srgb, var(--accent) 25%, transparent);
+            position: relative;
+            backdrop-filter: blur(14px) saturate(120%);
+        }
+
+        /* Base surface adjustments (override previous simple backgrounds) */
+        .qs-step,
+        .command-card,
+        .roadmap-item {
+            background: linear-gradient(175deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035));
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            transition: background .45s, transform .45s cubic-bezier(.4, .2, .2, 1), box-shadow .45s, border-color .45s;
+        }
+
+        /* api-logo keeps its existing radial ::before highlight; we add border via ::after */
+        .api-logo {
+            --api-original-border: rgba(255, 255, 255, .10);
+            border: 1px solid var(--api-original-border);
+        }
+
+        /* Gradient outline using mask technique */
+        .qs-step::before,
+        .command-card::before,
+        .roadmap-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(140deg, var(--accent) 0%, rgba(255, 255, 255, .25) 55%, var(--accent) 110%);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity .55s;
+            pointer-events: none;
+        }
+
+        /* api-logo border layer (uses ::after because ::before already used) */
+        .api-logo::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(140deg, var(--accent) 0%, rgba(255, 255, 255, .25) 55%, var(--accent) 110%);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity .55s;
+            pointer-events: none;
+        }
+
+        /* Internal soft glow */
+        .qs-step::after,
+        .command-card::after,
+        .roadmap-item::after {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -5%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 30% 25%, var(--accent-fade), transparent 60%);
+            opacity: .18;
+            mix-blend-mode: plus-lighter;
+            pointer-events: none;
+            transition: opacity .6s;
+        }
+
+        /* Hover / focus states */
+        .qs-step:hover,
+        .command-card:hover,
+        .roadmap-item:hover {
+            transform: translateY(-6px) scale(1.012);
+            box-shadow: 0 16px 34px -10px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .14) inset, 0 0 0 1px var(--accent-fade);
+            border-color: rgba(255, 255, 255, .18);
+            background: linear-gradient(175deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .045));
+        }
+
+        .command-card:hover h4,
+        .roadmap-item:hover .ri-ico {
+            filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--accent) 55%, transparent));
+        }
+
+        .qs-step:hover::before,
+        .command-card:hover::before,
+        .roadmap-item:hover::before,
+        .api-logo:hover::after,
+        .api-logo:focus-visible::after {
+            opacity: 1;
+        }
+
+        .qs-step:hover::after,
+        .command-card:hover::after,
+        .roadmap-item:hover::after {
+            opacity: .32;
+        }
+
+        /* Enhance api-logo existing hover to include slight scale & consistent glow */
+        .api-logo:hover,
+        .api-logo:focus-visible {
+            transform: translateY(-6px) scale(1.012);
+            box-shadow: 0 14px 30px -10px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .16) inset, 0 0 0 1px var(--accent-fade);
+            border-color: rgba(255, 255, 255, .18);
+        }
+
+        /* Roadmap icon emphasis */
+        .roadmap-item .ri-ico {
+            transition: filter .5s, transform .5s;
+        }
+
+        .roadmap-item:hover .ri-ico {
+            transform: scale(1.12) rotate(-3deg);
+        }
+
+        .tag-pill {
+            display: inline-block;
+            padding: .2rem .55rem;
+            font-size: .65rem;
+            border-radius: 12px;
+            background: rgba(102, 126, 234, .2);
+            color: #cdd5ff;
+            margin-left: .4rem;
+            vertical-align: middle;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+
+            .dynamic-bg,
+            .particle,
+            .hero::before,
+            .hero h1 {
+                animation: none !important;
+            }
+
+            .floating-particles {
+                display: none;
+            }
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+        }
+
+        .faq-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .faq-question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .faq-answer {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            background: #000;
+            color: white;
+            text-align: center;
+            /* Reduce vertical padding; smaller bottom to finish page tighter */
+            padding: 3.2rem 0 2.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2.4rem;
+            margin-bottom: 2rem;
+            /* was 3rem */
+            text-align: left;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #ffffff, #cfd8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: #eef2ff;
+            letter-spacing: .5px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-links a {
+            position: relative;
+            color: rgba(255, 255, 255, .78);
+            text-decoration: none;
+            font-size: .88rem;
+            letter-spacing: .3px;
+            padding: .35rem .75rem .4rem;
+            border-radius: 10px;
+            line-height: 1.2;
+            transition: background .35s, color .35s;
+        }
+
+        .footer-links a:before {
+            content: "";
+            position: absolute;
+            left: .75rem;
+            right: .75rem;
+            bottom: .3rem;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #6d79ff, transparent);
+            opacity: 0;
+            transform: scaleX(.4);
+            transition: opacity .4s, transform .45s;
+            pointer-events: none;
+        }
+
+        .footer-links a:hover,
+        .footer-links a:focus-visible {
+            background: rgba(255, 255, 255, .06);
+            color: #f7f9ff;
+        }
+
+        .footer-links a:hover:before,
+        .footer-links a:focus-visible:before {
+            opacity: .9;
+            transform: scaleX(1);
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.1rem;
+            /* tighter */
+        }
+
+        .badge {
+            display: inline-block;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        #back-to-top {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--dtb-gradient);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all .3s;
+            z-index: 300
+        }
+
+        #back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        #back-to-top:hover {
+            transform: translateY(-4px)
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid,
+            .install-methods,
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features h2 {
+                font-size: 2.4rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .api-logos {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 纵向较矮视口进一步压缩 hero 留白 */
+        @media (max-height: 750px) {
+            .hero {
+                padding: 3.2rem 0 4.2rem;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .hero {
+                padding: 2.6rem 0 3.2rem;
+            }
+
+            .hero-title {
+                font-size: clamp(2.2rem, 6.5vw, 3.2rem);
+            }
+
+            .hero .subtitle {
+                font-size: 1.4rem;
+            }
+
+            .hero p {
+                font-size: 1.05rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <div class="dynamic-bg" aria-hidden="true"></div>
+    <div class="wallpaper-overlay"></div>
+    <div class="floating-particles" aria-hidden="true"></div>
+    <header class="header">
+        <nav class="nav container">
+            <a href="#top" class="logo" aria-label="Back to top / Home" title="Back to top">🌈 Obsidian DTB <span
+                    class="version-badge" id="dtb-version-header" title="Current version"
+                    data-fallback="v?">loading…</span></a>
+            <div class="nav-links">
+                <a href="#demo">Preview</a>
+                <a href="#features">Features</a>
+                <a href="#installation">Install</a>
+                <a href="#quickstart">Quick&nbsp;Start</a>
+                <a href="#commands">Commands</a>
+                <a href="#sources">Sources</a>
+                <a href="#roadmap">Roadmap</a>
+                <a href="#faq">FAQ</a>
+                <a class="icon-btn" href="https://github.com/sean2077/obsidian-dynamic-theme-background" target="_blank"
+                    aria-label="GitHub Repository" title="GitHub Repository">
+                    <svg viewBox="0 0 16 16" aria-hidden="true" role="img" focusable="false">
+                        <path
+                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8Z" />
+                    </svg>
+                </a>
+                <a class="icon-btn lang-toggle" href="index.zh.html" aria-label="EN ⇄ 中文 (切换到中文)"
+                    title="EN ⇄ 中文 | 切换到中文">
+                    <span class="ico" aria-hidden="true">🌐</span>
+                    <span class="lang-text" aria-hidden="true">中</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+    <section class="hero" id="top">
+        <div class="container">
+            <div class="hero-badge"><span>✨</span><span>Build Your Own Wallpaper Library in Obsidian</span></div>
+            <h1 class="hero-title"><span class="emoji-isolate" aria-hidden="true">🌈</span><span
+                    class="hero-title-text">Dynamic Theme Background</span></h1>
+            <div class="subtitle">Make every note-taking experience visually inspiring</div>
+            <p>A highly customizable and intelligent wallpaper management solution. Integrates multiple popular sources
+                (Unsplash, Pixabay, Pexels, Wallhaven & custom). Supports local + remote image mixing so your knowledge
+                space stays fresh and motivating.</p>
+            <div class="cta-buttons">
+                <a href="#installation" class="btn btn-primary"><span>⚡</span><span>Install Now</span></a>
+                <a href="https://github.com/sean2077/obsidian-dynamic-theme-background" class="btn btn-secondary"
+                    target="_blank"><span>📱</span><span>Source Code</span></a>
+                <a href="#quickstart" class="btn btn-secondary"
+                    style="border:none;background:rgba(255,255,255,.15);"><span>🚀</span><span>Quick Start</span></a>
+            </div>
+        </div>
+    </section>
+    <section class="demo" id="demo">
+        <div class="container">
+            <h2 class="fade-in">🎬 <span class="heading-text">Preview</span></h2>
+            <div class="demo-gallery fade-in">
+                <div class="demo-item">
+                    <div class="demo-img-wrap" style="position:relative;">
+                        <img src="assets/dtb-demo2.gif" alt="Wallpaper switching preview" class="demo-img"
+                            loading="lazy" decoding="async">
+                        <span class="demo-img-label">Switching</span>
+                    </div>
+                    <h3>Multi‑source Library</h3>
+                    <ul>
+                        <li>Unsplash / Pixabay / Pexels / Wallhaven</li>
+                        <li>Local & remote images combined</li>
+                        <li>Custom API extensibility</li>
+                    </ul>
+                </div>
+                <div class="demo-item">
+                    <div class="demo-img-wrap" style="position:relative;">
+                        <img src="assets/dtb-demo.gif" alt="Live visual parameter tuning" class="demo-img"
+                            loading="lazy" decoding="async">
+                        <span class="demo-img-label">Tuning</span>
+                    </div>
+                    <h3>Visual Adjustments</h3>
+                    <ul>
+                        <li>Blur / brightness / saturation control</li>
+                        <li>Theme variable driven styling</li>
+                        <li>Dark & light mode compatible</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="demo-summary fade-in">
+                <div style="font-size:.78rem;letter-spacing:.5px;opacity:.55;">Key capabilities at a glance</div>
+                <div class="summary-pills">
+                    <div class="summary-pill"><span class="ico">⏰</span><span>Time Rotation</span></div>
+                    <div class="summary-pill"><span class="ico">🎨</span><span>Theme Adaptive</span></div>
+                    <div class="summary-pill"><span class="ico">🚀</span><span>Optimized Loading</span></div>
+                    <div class="summary-pill"><span class="ico">�️</span><span>Multi-Source Mix</span></div>
+                    <div class="summary-pill"><span class="ico">🎚️</span><span>Live Tuning</span></div>
+                    <div class="summary-pill"><span class="ico">🧠</span><span>Caching & Prefetch</span></div>
+                    <div class="summary-pill"><span class="ico">⌨️</span><span>Command Palette</span></div>
+                    <div class="summary-pill"><span class="ico">🔧</span><span>Custom API</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="fade-in section-title">✨ <span class="heading-text">Key Features</span></h2>
+            <p class="features-subtitle fade-in">An elevated wallpaper experience crafted for Obsidian</p>
+            <div class="features-grid">
+                <div class="feature-card fade-in" style="--accent:#667eea;">
+                    <h3><span class="feature-icon">🖼️</span>Multi-source Library</h3>
+                    <p>Unsplash, Pixabay, Pexels, Wallhaven + custom API & local folders—flexibly combine and curate.
+                    </p>
+                </div>
+                <div class="feature-card fade-in" style="--accent:#14b8a6;">
+                    <h3><span class="feature-icon">🎨</span>Visual Tuning</h3>
+                    <p>Adjust blur, brightness, saturation, hue & more—theme-friendly and dark/light aware.</p>
+                </div>
+                <div class="feature-card fade-in" style="--accent:#f59e0b;">
+                    <h3><span class="feature-icon">⚡</span>Smart Rotation</h3>
+                    <p>Time windows, interval auto-change, command palette quick switch, minute-level scheduling.</p>
+                </div>
+                <div class="feature-card fade-in" style="--accent:#8b5cf6;">
+                    <h3><span class="feature-icon">🤝</span>Great UX</h3>
+                    <p>Async loading, caching, default presets, batch ops & shortcut commands for fast workflows.</p>
+                </div>
+                <div class="feature-card fade-in" style="--accent:#f43f5e;">
+                    <h3><span class="feature-icon">🚀</span>Performance Minded</h3>
+                    <p>Optimized rendering & caching for minimal impact on editor responsiveness.</p>
+                </div>
+                <div class="feature-card fade-in" style="--accent:#06b6d4;">
+                    <h3><span class="feature-icon">📦</span>Roadmap</h3>
+                    <p>Weather integration, theme packs, video / audio / AI backgrounds, mobile refinements.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="installation" id="installation">
+        <div class="container">
+            <h2 class="fade-in section-title">⬇️ <span class="heading-text">Installation</span></h2>
+            <p class="features-subtitle fade-in" style="margin-bottom:2.5rem;">Pick a method below. Once enabled, jump
+                to <a href="#quickstart">Quick Start</a> to configure rotation & sources.</p>
+            <div class="install-tabs fade-in" id="install-tabs" data-default="market">
+                <div class="tab-list" role="tablist" aria-label="Installation methods">
+                    <button class="tab-btn" role="tab" aria-selected="true" data-tab="market" id="tab-market">🛒
+                        Marketplace</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" data-tab="brat" id="tab-brat">🧪
+                        BRAT</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" data-tab="manual" id="tab-manual">📦
+                        Manual</button>
+                </div>
+                <div class="tab-panels">
+                    <div class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-market" id="panel-market">
+                        <div class="install-method" style="margin:0;">
+                            <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🛒</span>
+                                Community Marketplace <span class="install-status status-pending">Pending Review</span>
+                            </h3>
+                            <ul class="install-steps">
+                                <li><span class="step-number">1</span> Settings → Community plugins →
+                                    <strong>Browse</strong>
+                                </li>
+                                <li><span class="step-number">2</span> (After approval) Search <strong>Dynamic Theme
+                                        Background</strong> / <strong>DTB</strong></li>
+                                <li><span class="step-number">3</span> Install & enable</li>
+                            </ul>
+                            <div class="install-note-small">Currently in Obsidian review queue. Until approved, use BRAT
+                                or Manual. Track PR in <code class="repo-inline-code">obsidian-releases</code>.</div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" role="tabpanel" aria-labelledby="tab-brat" id="panel-brat" hidden>
+                        <div class="install-method" style="margin:0;">
+                            <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🧪</span> BRAT
+                                (Beta) <span class="install-status status-beta">Beta</span></h3>
+                            <ul class="install-steps">
+                                <li><span class="step-number">1</span> Install <a
+                                        href="https://github.com/TfTHacker/obsidian42-brat" target="_blank">BRAT</a>
+                                </li>
+                                <li><span class="step-number">2</span> BRAT → Add beta plugin → Paste repo
+                                    URL:<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>
+                                </li>
+                                <li><span class="step-number">3</span> Enable plugin in settings</li>
+                            </ul>
+                            <div class="install-note-small">Fastest way to try latest code before Marketplace approval.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" role="tabpanel" aria-labelledby="tab-manual" id="panel-manual" hidden>
+                        <div class="install-method" style="margin:0;">
+                            <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>📦</span> Manual
+                                Install <span class="install-status status-available">Advanced</span></h3>
+                            <ul class="install-steps">
+                                <li><span class="step-number">1</span> Download latest <code>main.js</code>,
+                                    <code>manifest.json</code>, <code>styles.css</code> from <a
+                                        href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"
+                                        target="_blank">Releases</a>
+                                </li>
+                                <li><span class="step-number">2</span> Create
+                                    folder:<br><code>.obsidian/plugins/obsidian-dynamic-theme-background/</code></li>
+                                <li><span class="step-number">3</span> Place files inside</li>
+                                <li><span class="step-number">4</span> Restart Obsidian & enable</li>
+                            </ul>
+                            <div class="install-note-small">Use for pinned versions, air‑gapped envs, or manual audits.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:center;margin-bottom:2rem;opacity:.7;">Need help? See the <a
+                    href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme"
+                    target="_blank">README</a>
+                or open an issue.</div>
+            <div style="text-align:center;margin-top:1.5rem;">
+                <a href="#quickstart" class="btn btn-primary" style="padding:.75rem 1.4rem;font-size:.9rem;">
+                    <span>🚀</span><span>Go to Quick Start</span>
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- Quick Start Section (now follows Installation) -->
+    <section class="features" id="quickstart" style="padding:6rem 0;background:rgba(0,0,0,.55);">
+        <div class="container">
+            <h2 class="fade-in section-title">🚀 <span class="heading-text">Quick Start</span></h2>
+            <p class="features-subtitle fade-in" style="margin-bottom:3rem;">Already installed? In three short steps
+                you'll have smart rotation running.</p>
+            <div class="qs-steps-row three fade-in">
+                <div class="qs-step">
+                    <span class="qs-step-number">STEP 1</span>
+                    <h3><span class="feature-icon">🖼️</span>Add Sources</h3>
+                    <p>Add local images or enable API providers (Unsplash / Pixabay / Pexels / Wallhaven / Custom).</p>
+                </div>
+                <div class="qs-step">
+                    <span class="qs-step-number">STEP 2</span>
+                    <h3><span class="feature-icon">⏱️</span>Set Rotation</h3>
+                    <p>Choose interval + optional time windows (morning / day / night) for contextual change.</p>
+                </div>
+                <div class="qs-step">
+                    <span class="qs-step-number">STEP 3</span>
+                    <h3><span class="feature-icon">⚡</span>Control & Enjoy</h3>
+                    <p>Use status bar clicks or Command Palette (<code>dtb</code>) to switch, save & fetch.</p>
+                </div>
+            </div>
+            <div class="statusbar-preview fade-in"
+                style="margin:1.8rem auto 2.8rem; justify-content:center; text-align:center;">
+                <figure style="flex:0 1 640px;">
+                    <img src="assets/dtb-status-bar.jpg" alt="Status bar controls screenshot" loading="lazy"
+                        decoding="async" />
+                    <figcaption>Status Bar Snapshot</figcaption>
+                </figure>
+                <div class="statusbar-details" style="max-width:340px;">
+                    <h4 style="justify-content:center;">⚡ Status Bar Quick Control</h4>
+                    <ul class="statusbar-actions" style="text-align:left;">
+                        <li><span class="action-ico">🖱️</span><strong>Left Click</strong> Random wallpaper</li>
+                        <li><span class="action-ico">🖱️</span><strong>Middle Click</strong> Open settings tab</li>
+                        <li><span class="action-ico">🖱️</span><strong>Right Click</strong> Save current background</li>
+                    </ul>
+                    <div style="font-size:.75rem;opacity:.75;line-height:1.45;">Daily interaction happens here or via
+                        the command palette.</div>
+                    <div class="statusbar-tip">Tip: assign hotkeys for even faster switching</div>
+                </div>
+            </div>
+            <div class="section-note fade-in">You're set: sources + rotation + controls active.</div>
+        </div>
+    </section>
+    <!-- Commands Section -->
+    <section class="demo" id="commands" style="background:rgba(0,0,0,.65);">
+        <div class="container">
+            <h2 class="fade-in section-title">⌨️ <span class="heading-text">Commands</span></h2>
+            <p class="fade-in" style="max-width:700px;margin:0 auto 3rem;opacity:.8;">Access via Command Palette. Assign
+                hotkeys for instant control.</p>
+            <div class="commands-grid">
+                <div class="command-card fade-in">
+                    <h4>Toggle Background<span class="tag-pill">core</span></h4>Enable/disable the current wallpaper
+                    layer without losing state.
+                </div>
+                <div class="command-card fade-in">
+                    <h4>Next Background<span class="tag-pill">rotation</span></h4>Immediately fetch or advance to the
+                    next image.
+                </div>
+                <div class="command-card fade-in">
+                    <h4>Fetch Wallpaper<span class="tag-pill">network</span></h4>Force-refresh from active provider
+                    pool.
+                </div>
+                <div class="command-card fade-in">
+                    <h4>Save Current Background<span class="tag-pill">utility</span></h4>Persist the displayed image to
+                    your vault for reuse.
+                </div>
+                <div class="command-card fade-in">
+                    <h4>Open Settings<span class="tag-pill">ui</span></h4>Jump directly to DTB settings pane.
+                </div>
+                <div class="command-card fade-in">
+                    <h4>Test Background<span class="tag-pill">debug</span></h4>Diagnostic fetch & render for
+                    troubleshooting.
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Sources Section (moved down) -->
+    <section class="api-sources" id="sources">
+        <div class="container">
+            <h2 class="fade-in section-title">🌐 <span class="heading-text">Supported Sources</span></h2>
+            <p class="fade-in" style="margin-bottom:2rem;opacity:.8;">High quality wallpaper platforms + custom
+                endpoints</p>
+            <div class="api-logos">
+                <a class="api-logo fade-in" style="--accent:#9aa0ae;" href="https://unsplash.com/" target="_blank">
+                    <div style="font-size:3rem;">📸</div>
+                    <div class="api-logo-name">Unsplash</div>
+                    <p style="margin-top:.5rem;opacity:.8;">Photography</p>
+                </a>
+                <a class="api-logo fade-in" style="--accent:#28c76f;" href="https://pixabay.com/" target="_blank">
+                    <div style="font-size:3rem;">🖼️</div>
+                    <div class="api-logo-name">Pixabay</div>
+                    <p style="margin-top:.5rem;opacity:.8;">Free images</p>
+                </a>
+                <a class="api-logo fade-in" style="--accent:#14b8a6;" href="https://www.pexels.com/" target="_blank">
+                    <div style="font-size:3rem;">🎨</div>
+                    <div class="api-logo-name">Pexels</div>
+                    <p style="margin-top:.5rem;opacity:.8;">Curated shots</p>
+                </a>
+                <a class="api-logo fade-in" style="--accent:#8b5cf6;" href="https://wallhaven.cc/" target="_blank">
+                    <div style="font-size:3rem;">🏞️</div>
+                    <div class="api-logo-name">Wallhaven</div>
+                    <p style="margin-top:.5rem;opacity:.8;">Wallpaper hub</p>
+                </a>
+                <a class="api-logo fade-in" style="--accent:#ff9800;" href="#"
+                    onclick="alert('Configure your custom API in the plugin settings.')">
+                    <div style="font-size:3rem;">🔧</div>
+                    <div class="api-logo-name">Custom API</div>
+                    <p style="margin-top:.5rem;opacity:.8;">Bring your own</p>
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- Roadmap Section -->
+    <section class="api-sources" id="roadmap" style="background:rgba(0,0,0,.5);">
+        <div class="container" style="max-width:1150px;">
+            <h2 class="fade-in section-title">🧭 <span class="heading-text">Roadmap</span></h2>
+            <p class="fade-in" style="max-width:760px;margin:0 0 2.2rem;opacity:.8;text-align:left;">Planned &
+                exploratory ideas (subject to change). Track progress on GitHub Issues / Milestones.</p>
+            <ul class="roadmap-list" style="text-align:left;">
+                <li class="roadmap-item fade-in"><span class="ri-ico">🌤️</span>
+                    <div><strong>Context Aware</strong><br><span style="opacity:.75;">Weather / system theme / focus
+                            mode driven wallpaper sets.</span></div>
+                </li>
+                <li class="roadmap-item fade-in"><span class="ri-ico">🎞️</span>
+                    <div><strong>Animated Media</strong><br><span style="opacity:.75;">Video / subtle cinemagraph &
+                            possible GIF optimization.</span></div>
+                </li>
+                <li class="roadmap-item fade-in"><span class="ri-ico">🧠</span>
+                    <div><strong>AI Backgrounds</strong><br><span style="opacity:.75;">On-demand generation (local or
+                            API) with style presets.</span></div>
+                </li>
+                <li class="roadmap-item fade-in"><span class="ri-ico">📱</span>
+                    <div><strong>Mobile Refinements</strong><br><span style="opacity:.75;">Adaptive performance & touch
+                            gestures.</span></div>
+                </li>
+                <li class="roadmap-item fade-in"><span class="ri-ico">🎚️</span>
+                    <div><strong>Preset Packs</strong><br><span style="opacity:.75;">Shareable theme + adjustment
+                            bundles.</span></div>
+                </li>
+                <li class="roadmap-item fade-in"><span class="ri-ico">🗂️</span>
+                    <div><strong>Collections</strong><br><span style="opacity:.75;">User-defined named image sets &
+                            pinning.</span></div>
+                </li>
+            </ul>
+            <div class="section-note fade-in">Have an idea? Open a feature request on GitHub.</div>
+        </div>
+    </section>
+    <section class="faq" id="faq">
+        <div class="container">
+            <h2 class="fade-in section-title">❓ <span class="heading-text">FAQ</span></h2>
+            <div class="faq-grid">
+                <div class="faq-item fade-in">
+                    <div class="faq-question">Which wallpaper sources are supported?</div>
+                    <div class="faq-answer">Unsplash, Pixabay, Pexels, Wallhaven plus custom APIs; more incoming.</div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question">How do I set rotation rules?</div>
+                    <div class="faq-answer">Configure time slots, interval auto-rotate or trigger manually via the
+                        command palette.</div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question">Theme & mobile support?</div>
+                    <div class="faq-answer">Yes—responsive layout and theme variable integration for dark & light modes.
+                    </div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question">Performance impact?</div>
+                    <div class="faq-answer">Async loading + smart caching keeps the workspace responsive.</div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question">Feedback & issues?</div>
+                    <div class="faq-answer">Open a <a
+                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues"
+                            target="_blank">GitHub Issue</a>.</div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question">Can I disable animations?</div>
+                    <div class="faq-answer">Yes—enable your OS reduced motion preference or toggle plugin animation
+                        settings (coming soon).</div>
+                </div>
+                <div class="faq-item fade-in">
+                    <div class="faq-question">Where is configuration stored?</div>
+                    <div class="faq-answer">Inside your vault
+                        <code>.obsidian/plugins/obsidian-dynamic-theme-background/</code> folder (standard Obsidian
+                        plugin pattern).
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:3rem;opacity:.6;font-size:.85rem;" class="fade-in">API usage must comply with each
+                provider's Terms of Service. Respect rate limits & attribution policies where required.</div>
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About DTB</h3>
+                    <div>Dynamic Theme Background enhances Obsidian with dynamic, smart wallpapers for inspiration.
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Links</h3>
+                    <div class="footer-links"><a href="https://github.com/sean2077/obsidian-dynamic-theme-background"
+                            target="_blank">GitHub Repo</a><a
+                            href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme"
+                            target="_blank">Documentation</a><a href="#faq">FAQ</a></div>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <div>Need help or custom work? Reach out via GitHub Issues.</div>
+                </div>
+            </div>
+            <div class="badges"><span class="badge">MIT License</span><span class="badge">Made with ❤️ by
+                    sean2077</span><span class="badge">Obsidian Community</span><span class="badge"
+                    id="dtb-version-footer" data-fallback="v?">version…</span></div>
+            <div style="opacity:.5;font-size:.85rem;">© 2025 Dynamic Theme Background. All rights reserved.</div>
+        </div>
+    </footer>
+    <button id="back-to-top" aria-label="Back to top" title="Back to top">↑</button>
+    <script>
+        // 错误处理和性能优化
+        window.addEventListener('error', function (e) {
+            console.warn('DTB Page Error:', e.message);
+        });
+
+        // 预加载关键字体
+        if ('FontFace' in window) {
+            const font = new FontFace('system', 'local(-apple-system), local(BlinkMacSystemFont)');
+            font.load().catch(() => { }); // 静默失败
+        }
+
+        (function () {
+            // Lazy particles
+            const particles = document.querySelector('.floating-particles');
+            let particlesSpawned = false; function spawnParticles() { if (particlesSpawned || !particles) return; particlesSpawned = true; for (let i = 0; i < 26; i++) { const p = document.createElement('div'); p.className = 'particle'; const s = Math.random() * 34 + 12; p.style.width = p.style.height = s + 'px'; p.style.left = Math.random() * 100 + '%'; p.style.top = Math.random() * 100 + '%'; p.style.animationDuration = (Math.random() * 14 + 11) + 's'; p.style.background = `rgba(255,255,255,${Math.random() * 0.13 + 0.04})`; particles.appendChild(p); } }
+            window.addEventListener('scroll', spawnParticles, { once: true, passive: true }); setTimeout(spawnParticles, 1200);
+            // IntersectionObserver fade-in
+            const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -80px 0px', threshold: 0.1 }) : null;
+            document.querySelectorAll('.fade-in').forEach(el => { if (io) io.observe(el); else el.classList.add('visible'); });
+            // Smooth anchors
+            document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => { if (a.classList.contains('logo')) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } const id = a.getAttribute('href').slice(1); const t = document.getElementById(id); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }));
+            // Back to top dynamic
+            const back = document.getElementById('back-to-top'); const threshold = () => window.innerHeight * 0.65; function toggleBack() { if (window.scrollY > threshold()) back.classList.add('visible'); else back.classList.remove('visible'); } window.addEventListener('scroll', toggleBack, { passive: true }); toggleBack(); back.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            // Copy buttons
+            document.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => { const id = btn.getAttribute('data-copy-target'); const code = document.getElementById(id); if (!code) return; navigator.clipboard.writeText(code.innerText).then(() => { const o = btn.innerHTML; btn.textContent = '✓ Copied'; setTimeout(() => btn.innerHTML = o, 1800); }); }); });
+            // dynamic version fetch
+            (async () => {
+                const headerEl = document.getElementById('dtb-version-header');
+                const footerEl = document.getElementById('dtb-version-footer');
+                function setVersion(v, url) {
+                    if (headerEl) { headerEl.textContent = v; headerEl.dataset.releaseUrl = url || ''; headerEl.style.cursor = 'pointer'; headerEl.title = 'Open release ' + v; }
+                    if (footerEl) { footerEl.textContent = v; footerEl.dataset.releaseUrl = url || ''; footerEl.style.cursor = 'pointer'; footerEl.title = 'Open release ' + v; }
+                }
+                try {
+                    const res = await fetch('https://api.github.com/repos/sean2077/obsidian-dynamic-theme-background/releases/latest', {
+                        headers: { 'Accept': 'application/vnd.github+json' }
+                    });
+                    if (!res.ok) throw new Error('status ' + res.status);
+                    const json = await res.json();
+                    let tag = json.tag_name || json.name || '';
+                    if (tag && !/^v/i.test(tag)) tag = 'v' + tag; // ensure leading v
+                    if (!tag) tag = headerEl?.dataset.fallback || 'v?';
+                    const releaseUrl = `https://github.com/sean2077/obsidian-dynamic-theme-background/releases/tag/${tag.replace(/^v/i, '')}`;
+                    setVersion(tag, releaseUrl);
+                    // update JSON-LD (no hard-coded version). If existing script present, patch it; else create.
+                    const schema = document.getElementById('schema-dtb');
+                    const ver = tag.replace(/^v/, '');
+                    if (schema) {
+                        try {
+                            const data = JSON.parse(schema.textContent || '{}');
+                            data.softwareVersion = ver;
+                            schema.textContent = JSON.stringify(data);
+                        } catch (err) {
+                            const s = document.createElement('script');
+                            s.type = 'application/ld+json';
+                            s.id = 'schema-dtb';
+                            s.textContent = JSON.stringify({
+                                "@context": "https://schema.org",
+                                "@type": "SoftwareApplication",
+                                "name": "Dynamic Theme Background",
+                                "softwareVersion": ver
+                            });
+                            document.head.appendChild(s);
+                        }
+                    } else {
+                        const s = document.createElement('script');
+                        s.type = 'application/ld+json';
+                        s.id = 'schema-dtb';
+                        s.textContent = JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "SoftwareApplication",
+                            "name": "Dynamic Theme Background",
+                            "softwareVersion": ver
+                        });
+                        document.head.appendChild(s);
+                    }
+                } catch (e) {
+                    const fallback = headerEl?.dataset.fallback || 'v?';
+                    setVersion(fallback, 'https://github.com/sean2077/obsidian-dynamic-theme-background/releases');
+                }
+                function releaseClick(el) { el?.addEventListener('click', e => { const u = el.dataset.releaseUrl; if (u) { e.preventDefault(); e.stopPropagation(); window.open(u, '_blank'); } }); }
+                releaseClick(headerEl); releaseClick(footerEl);
+            })();
+            // installation tabs + keyboard nav
+            (function () { const container = document.getElementById('install-tabs'); if (!container) return; const buttons = [...container.querySelectorAll('.tab-btn')]; const panels = [...container.querySelectorAll('.tab-panel')]; buttons.forEach((b, i) => { const id = b.dataset.tab; b.id = b.id || ('tab-' + id); const pnl = container.querySelector('#panel-' + id); if (pnl) pnl.setAttribute('aria-labelledby', b.id); b.setAttribute('tabindex', i === 0 ? '0' : '-1'); }); function activate(id, focus) { buttons.forEach((b) => { const sel = b.dataset.tab === id; b.classList.toggle('is-active', sel); b.setAttribute('aria-selected', sel ? 'true' : 'false'); b.setAttribute('tabindex', sel ? '0' : '-1'); if (sel && focus) b.focus(); }); panels.forEach(p => { const show = p.id === 'panel-' + id; p.classList.toggle('is-active', show); if (show) p.removeAttribute('hidden'); else p.setAttribute('hidden', ''); }); history.replaceState(null, '', '#install-' + id); } buttons.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.tab, true))); container.addEventListener('keydown', e => { const current = buttons.findIndex(b => b.getAttribute('aria-selected') === 'true'); if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) { e.preventDefault(); let ni = current; if (e.key === 'ArrowRight') ni = (current + 1) % buttons.length; else if (e.key === 'ArrowLeft') ni = (current - 1 + buttons.length) % buttons.length; else if (e.key === 'Home') ni = 0; else if (e.key === 'End') ni = buttons.length - 1; activate(buttons[ni].dataset.tab, true); } }); const match = location.hash.match(/^#install-(market|brat|manual)$/); if (match) activate(match[1], false); else activate(buttons[0].dataset.tab, false); })();
+        })();
+    </script>
+</body>
+
+</html>

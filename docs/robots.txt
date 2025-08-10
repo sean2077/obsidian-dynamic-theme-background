@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://YOUR-DOMAIN-HERE/sitemap.xml
+
+# Crawl-delay for better performance
+Crawl-delay: 1
