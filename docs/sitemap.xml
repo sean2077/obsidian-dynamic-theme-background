@@ -2,19 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
-        <loc>https://YOUR-DOMAIN-HERE/</loc>
+        <loc>https://obsidian-dynamic-theme-background.pages.dev/</loc>
         <lastmod>2025-01-10</lastmod>
         <changefreq>monthly</changefreq>
         <priority>1.0</priority>
-        <xhtml:link rel="alternate" hreflang="zh-CN" href="https://YOUR-DOMAIN-HERE/index.zh.html"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://YOUR-DOMAIN-HERE/"/>
+        <xhtml:link rel="alternate" hreflang="zh-CN" href="https://obsidian-dynamic-theme-background.pages.dev/index.zh.html"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://obsidian-dynamic-theme-background.pages.dev/"/>
     </url>
     <url>
-        <loc>https://YOUR-DOMAIN-HERE/index.zh.html</loc>
+        <loc>https://obsidian-dynamic-theme-background.pages.dev/index.zh.html</loc>
         <lastmod>2025-01-10</lastmod>
         <changefreq>monthly</changefreq>
         <priority>1.0</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://YOUR-DOMAIN-HERE/"/>
-        <xhtml:link rel="alternate" hreflang="zh-CN" href="https://YOUR-DOMAIN-HERE/index.zh.html"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://obsidian-dynamic-theme-background.pages.dev/"/>
+        <xhtml:link rel="alternate" hreflang="zh-CN" href="https://obsidian-dynamic-theme-background.pages.dev/index.zh.html"/>
     </url>
 </urlset>
