@@ -69,7 +69,7 @@ Obsidian Dynamic Theme Background is a highly customizable and intelligent wallp
 ## 🖼️ Preview
 
 ![](docs/assets/dtb-demo2.gif)
-
+![](docs/assets/dtb-demo3.gif)
 ![](docs/assets/dtb-demo.gif)
 
 ## ⬇️ Installation
