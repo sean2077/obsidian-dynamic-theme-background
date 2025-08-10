@@ -1,3 +1,9 @@
+## [2.6.7](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.6...2.6.7) (2025-08-10)
+
+### Fixes
+
+* Update tutorial link to new homepage ([ecb5697](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/ecb5697db3f4dfcb23fe96c41ca3869eba1e2191))
+
 ## [2.6.6](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.5...2.6.6) (2025-08-10)
 
 ### Fixes
