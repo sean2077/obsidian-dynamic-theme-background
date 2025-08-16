@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Obsidian DTB - 动态主题背景 (Dynamic Theme Background)</title>
     <meta name="description"
-        content="Dynamic Theme Background (DTB) - Obsidian 多来源动态壁纸插件：支持 Unsplash / Pixabay / Pexels / Wallhaven、本地图片与自定义 API，时间/间隔轮换、缓存与视觉调优。">
-    <meta name="keywords" content="Obsidian, 壁纸, 背景, 插件, Unsplash, Pexels, Pixabay, Wallhaven, 动态, 自定义, 主题, 背景">
+        content="Dynamic Theme Background (DTB) - Obsidian 多来源动态壁纸插件：支持 Unsplash / Pixabay / Pexels / Wallhaven / 360壁纸、本地图片与自定义 API，时间/间隔轮换、缓存与视觉调优。">
+    <meta name="keywords" content="Obsidian, 壁纸, 背景, 插件, Unsplash, Pexels, Pixabay, Wallhaven, 360壁纸, 动态, 自定义, 主题, 背景">
     <meta name="author" content="sean2077">
     <meta name="robots" content="index,follow">
     <meta name="theme-color" content="#0a0a0a">
@@ -192,9 +192,10 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 clamp(15px, 4vw, 40px);
             position: relative;
             z-index: 1;
+            width: 100%;
         }
 
         /* Header */
@@ -382,8 +383,12 @@
         /* Hero Section */
         .hero {
             text-align: center;
-            /* 原 8rem 0 改为响应式：在大屏减小首屏空白，在小屏保持可读 */
-            padding: clamp(3.5rem, 12vh, 6rem) 0 clamp(4rem, 14vh, 7rem);
+            /* 调整首页内容位置，避免过分偏下 */
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: clamp(8vh, 12vh, 15vh) 0 clamp(4rem, 8vh, 6rem);
             color: white;
             position: relative;
         }
@@ -542,8 +547,12 @@
 
         /* Features Section */
         .features {
-            /* 原 8rem 0 改为更紧凑并响应式 */
-            padding: clamp(3.2rem, 10vh, 5.2rem) 0 clamp(3.2rem, 10vh, 5.2rem);
+            /* 确保特性区域能够充满整个视口 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(2rem, 5vh, 4rem) 0;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
             color: white;
@@ -969,8 +978,12 @@
 
         /* API Sources Section */
         .api-sources {
-            /* Reduce vertical padding slightly to tighten overall page height */
-            padding: 5.2rem 0 5rem;
+            /* 确保API源区域能够充满整个视口 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(2rem, 5vh, 4rem) 0;
             background: rgba(0, 0, 0, 0.4);
             color: white;
             text-align: center;
@@ -1114,8 +1127,12 @@
 
         /* Demo Section */
         .demo {
-            /* Slight compression of huge blocks to avoid large cumulative bottom gap */
-            padding: 6.5rem 0 6rem;
+            /* 确保演示区域能够充满整个视口 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(2rem, 5vh, 4rem) 0;
             background: rgba(0, 0, 0, 0.7);
             color: white;
             text-align: center;
@@ -1289,7 +1306,12 @@
 
         /* Installation Section */
         .installation {
-            padding: 6.5rem 0 6rem;
+            /* 确保安装区域能够充满整个视口 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(2rem, 5vh, 4rem) 0;
             background: rgba(0, 0, 0, 0.8);
             color: white;
         }
@@ -1495,8 +1517,12 @@
 
         /* FAQ Section */
         .faq {
-            /* Bottom reduced to lessen end-of-page whitespace */
-            padding: 5rem 0 3.4rem;
+            /* 确保FAQ区域能够充满整个视口 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(2rem, 5vh, 4rem) 0;
             background: rgba(0, 0, 0, 0.5);
             color: white;
         }
@@ -2016,6 +2042,251 @@
                 font-size: 1.05rem;
             }
         }
+
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+
+            .container {
+                padding: 0 clamp(12px, 3.5vw, 20px);
+            }
+
+            /* 在移动设备上调整视口高度，避免过高 */
+            .hero,
+            .features,
+            .demo,
+            .api-sources,
+            .installation,
+            .faq {
+                min-height: 90vh;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .nav-links a:not(.icon-btn) {
+                font-size: 0.9rem;
+            }
+
+            .hero {
+                padding: clamp(6vh, 10vh, 12vh) 0 clamp(3rem, 8vh, 5rem);
+            }
+
+            .hero-title {
+                font-size: clamp(2.2rem, 8vw, 3.2rem);
+                line-height: 1.1;
+            }
+
+            .hero .subtitle {
+                font-size: clamp(1.3rem, 4vw, 1.6rem);
+            }
+
+            .hero p {
+                font-size: clamp(1rem, 3.5vw, 1.2rem);
+                padding: 0 10px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .feature-card {
+                padding: 1.5rem 1.2rem;
+                min-height: auto;
+            }
+
+            .api-logos {
+                grid-template-columns: 1fr;
+                gap: 1.2rem;
+            }
+
+            .demo-gallery {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .demo-item {
+                max-width: 100%;
+                flex: 1 1 auto;
+            }
+
+            .install-methods {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .install-method {
+                padding: 2rem 1.5rem;
+            }
+
+            .faq-item {
+                padding: 1.5rem 1.2rem;
+            }
+
+            h2 {
+                font-size: clamp(2rem, 6vw, 2.5rem) !important;
+            }
+
+            h3 {
+                font-size: clamp(1.2rem, 4vw, 1.4rem) !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 clamp(10px, 3vw, 15px);
+            }
+
+            /* 在小屏幕设备上进一步减少视口高度 */
+            .hero,
+            .features,
+            .demo,
+            .api-sources,
+            .installation,
+            .faq {
+                min-height: 85vh;
+            }
+
+            .nav-links {
+                gap: 0.5rem;
+            }
+
+            .nav-links a:not(.icon-btn) {
+                font-size: 0.85rem;
+                padding: 0.3rem 0.6rem;
+            }
+
+            .hero-badge {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: clamp(1.8rem, 9vw, 2.8rem);
+                gap: 0.4rem;
+            }
+
+            .hero .subtitle {
+                font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+                margin-bottom: 1.5rem;
+            }
+
+            .hero p {
+                font-size: clamp(0.9rem, 3.8vw, 1.1rem);
+                margin-bottom: 2rem;
+                padding: 0 5px;
+            }
+
+            .btn {
+                padding: 0.9rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .feature-card {
+                padding: 1.2rem 1rem;
+            }
+
+            .feature-icon {
+                font-size: 1.8rem;
+            }
+
+            .feature-card h3 {
+                font-size: 1.1rem;
+            }
+
+            .feature-card p {
+                font-size: 0.85rem;
+            }
+
+            .api-logo {
+                padding: 1.2rem 1rem;
+            }
+
+            .install-method {
+                padding: 1.5rem 1rem;
+            }
+
+            .install-method h3 {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Ultra-small screens */
+        @media (max-width: 360px) {
+            .container {
+                padding: 0 8px;
+            }
+
+            .hero-title {
+                font-size: clamp(1.6rem, 10vw, 2.4rem);
+            }
+
+            .nav-links a:not(.icon-btn) {
+                font-size: 0.8rem;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .btn {
+                padding: 0.8rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Landscape orientation on mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .hero {
+                padding: 1.5rem 0 2rem;
+            }
+
+            .hero-title {
+                font-size: clamp(1.8rem, 6vw, 2.4rem);
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+                margin-bottom: 1rem;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .cta-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 0.8rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 
@@ -2335,6 +2606,12 @@
                     <div style="font-size:3rem;">🏞️</div>
                     <div class="api-logo-name">Wallhaven</div>
                     <p style="margin-top:.5rem;opacity:.8;">壁纸社区</p>
+                </a>
+                <a class="api-logo fade-in" style="--accent:#00d26a;" href="http://wallpaper.apc.360.cn/"
+                    target="_blank">
+                    <div style="font-size:3rem;">🎯</div>
+                    <div class="api-logo-name">360壁纸</div>
+                    <p style="margin-top:.5rem;opacity:.8;">多分类高清</p>
                 </a>
                 <a class="api-logo fade-in" style="--accent:#ff9800;" href="#" onclick="alert('请在插件设置中配置自定义 API。')">
                     <div style="font-size:3rem;">🔧</div>
