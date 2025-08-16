@@ -183,8 +183,8 @@ We welcome all forms of contribution!
 5. Create a Pull Request
 
 ### 💡 Feedback & Suggestions
-- 🐛 [Report Bug](https://github.com/sean2077/obsidian-dynamic-theme-background/issues)
-- 💡 [Feature Request](https://github.com/sean2077/obsidian-dynamic-theme-background/issues)
+- 🐛 [Report Bug](https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=)
+- 💡 [Feature Request](https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=)
 
 ### ✨ Support the Project
 If this plugin helps you, you can:

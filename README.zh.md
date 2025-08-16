@@ -183,8 +183,8 @@ pull request: https://github.com/obsidianmd/obsidian-releases/pull/7359
 5. 创建 Pull Request
 
 ### 💡 反馈与建议
-- 🐛 [报告 Bug](https://github.com/sean2077/obsidian-dynamic-theme-background/issues)
-- 💡 [功能建议](https://github.com/sean2077/obsidian-dynamic-theme-background/issues)
+- 🐛 [报告 Bug](https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=)
+- 💡 [功能建议](https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=)
 
 ### ✨ 支持项目
 如果这个插件对你有帮助，你可以：
