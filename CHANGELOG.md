@@ -1,3 +1,9 @@
+## [2.7.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.7...2.7.0) (2025-08-16)
+
+### Features
+
+* Add Qihoo 360 Wallpaper API support ([80b25fb](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/80b25fb2544f6f377dbfd6b47e9e77eb345795fe))
+
 ## [2.6.7](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.6...2.6.7) (2025-08-10)
 
 ### Fixes
