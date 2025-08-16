@@ -11,6 +11,7 @@ export enum WallpaperApiType {
     Unsplash = "Unsplash",
     Pexels = "Pexels",
     Pixabay = "Pixabay",
+    Qihoo360 = "Qihoo360",
 }
 
 /**

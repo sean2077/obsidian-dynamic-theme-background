@@ -144,6 +144,14 @@ function genDefaultSettings(): DTBSettings {
                 params: apiRegistry.getDefaultParams(WallpaperApiType.Wallhaven),
             },
             {
+                id: "api-qihoo360-default",
+                name: "360壁纸 API (Default)",
+                type: WallpaperApiType.Qihoo360,
+                baseUrl: apiRegistry.getDefaultBaseUrl(WallpaperApiType.Qihoo360) || "",
+                enabled: false,
+                params: apiRegistry.getDefaultParams(WallpaperApiType.Qihoo360),
+            },
+            {
                 id: "api-peapix-bing-cn",
                 type: WallpaperApiType.Custom,
                 enabled: false,

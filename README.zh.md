@@ -32,14 +32,14 @@
 
 ## 介绍
 
-Obsidian Dynamic Theme Background 插件旨在为用户提供一个高度可定制且智能的壁纸管理解决方案。通过集成多个知名壁纸源（如 Unsplash、Pixabay、Pexels、Wallhaven）以及支持自定义 API，用户可以轻松构建个性化的壁纸库。插件支持本地与远程图片的混合管理，允许用户根据时间段自动切换壁纸，营造不同的工作与休息氛围。
+Obsidian Dynamic Theme Background 插件旨在为用户提供一个高度可定制且智能的壁纸管理解决方案。通过集成多个知名壁纸源（如 Unsplash、Pixabay、Pexels、Wallhaven、360壁纸）以及支持自定义 API，用户可以轻松构建个性化的壁纸库。插件支持本地与远程图片的混合管理，允许用户根据时间段自动切换壁纸，营造不同的工作与休息氛围。
 
 **核心目标**：让每一位 Obsidian 用户都能拥有属于自己的极致壁纸体验，让知识管理变得更加美好和富有灵感。
 
 ## ✨ 主要特性
 
 - 🖼️ **强大的壁纸源支持，打造个性化壁纸库**
-  - 🌐 **多源壁纸库**：集成 Unsplash、Pixabay、Pexels、Wallhaven 及自定义 API，轻松打造属于你的 Obsidian 壁纸库
+  - 🌐 **多源壁纸库**：集成 Unsplash、Pixabay、Pexels、Wallhaven、360壁纸 及自定义 API，轻松打造属于你的 Obsidian 壁纸库
   - 📁 **本地与远程图片混合管理**：支持本地图片与网络图片灵活添加，壁纸收集与管理更自由
 
 - 🎨 **极佳的视觉体验与主题兼容性**

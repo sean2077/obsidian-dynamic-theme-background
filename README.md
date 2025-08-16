@@ -32,14 +32,14 @@
 
 ## Introduction
 
-Obsidian Dynamic Theme Background is a highly customizable and intelligent wallpaper management plugin for Obsidian. By integrating multiple popular wallpaper sources (Unsplash, Pixabay, Pexels, Wallhaven) and supporting custom APIs, you can easily build a personalized wallpaper library. The plugin supports both local and remote images, and allows automatic switching based on time periods, creating different atmospheres for work and rest.
+Obsidian Dynamic Theme Background is a highly customizable and intelligent wallpaper management plugin for Obsidian. By integrating multiple popular wallpaper sources (Unsplash, Pixabay, Pexels, Wallhaven, Qihoo 360 Wallpaper) and supporting custom APIs, you can easily build a personalized wallpaper library. The plugin supports both local and remote images, and allows automatic switching based on time periods, creating different atmospheres for work and rest.
 
 **Core Goal**: Let every Obsidian user enjoy an ultimate wallpaper experience, making knowledge management more beautiful and inspiring.
 
 ## ✨ Key Features
 
 - 🖼️ **Powerful Wallpaper Sources for a Personalized Library**
-  - 🌐 **Multi-source Wallpaper Library**: Integrates Unsplash, Pixabay, Pexels, Wallhaven, and custom APIs to build your own Obsidian wallpaper library
+  - 🌐 **Multi-source Wallpaper Library**: Integrates Unsplash, Pixabay, Pexels, Wallhaven, Qihoo 360 Wallpaper, and custom APIs to build your own Obsidian wallpaper library
   - 📁 **Local & Remote Image Management**: Freely add local or online images for flexible collection and management
 
 - 🎨 **Excellent Visual Experience & Theme Compatibility**
