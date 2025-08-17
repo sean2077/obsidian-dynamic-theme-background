@@ -118,21 +118,21 @@ export default {
     test_api_connection_desc: "测试当前 API 设置是否能正常获取壁纸",
 
     // ===== 命令相关 =====
-    command_open_settings_tab_name: "在新标签页中打开设置",
-    command_toggle_name: "切换动态背景开关",
+    command_open_settings_tab_name: "DTB: 在新标签页中打开设置",
+    command_toggle_name: "DTB: 切换动态背景开关",
     command_toggle_enabled_notice: "✅ DTB: 动态背景已启用",
     command_toggle_disabled_notice: "❌ DTB: 动态背景已禁用",
-    command_next_bg_name: "切换到下一个背景",
+    command_next_bg_name: "DTB: 切换到下一个背景",
     command_next_bg_notice: "🔄 DTB: 背景已切换为：{bgName}",
-    command_test_bg_name: "测试当前时间段背景",
+    command_test_bg_name: "DTB: 测试当前时间段背景",
     command_test_bg_success_notice: "🕒 DTB: 当前时间段：{ruleName}，背景：{bgName}",
     command_test_bg_no_bg_notice: "⚠️ DTB: 时间段 {ruleName} 没有设置背景",
     command_test_bg_no_rule_notice: "⚠️ DTB: 当前时间没有匹配的规则",
     command_test_bg_not_supported_notice: "🚫 DTB: 非时段模式不支持该测试命令",
-    command_fetch_random_wallpaper_name: "获取随机壁纸",
+    command_fetch_random_wallpaper_name: "DTB: 获取随机壁纸",
     command_fetch_random_wallpaper_notice_success: "✅ DTB: 已应用随机壁纸",
     command_fetch_random_wallpaper_notice_failed: "❌ DTB: 获取随机壁纸失败，请检查 API 设置和网络连接",
-    command_save_current_background_name: "保存当前背景",
+    command_save_current_background_name: "DTB: 保存当前背景",
 
     // ===== 通用按钮文本 =====
     button_cancel: "取消",

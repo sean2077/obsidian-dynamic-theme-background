@@ -130,22 +130,22 @@ export default {
     test_api_connection_desc: "Test whether current API settings can fetch wallpapers normally",
 
     // ===== 命令相关 =====
-    command_open_settings_tab_name: "Open Settings in New Tab",
-    command_toggle_name: "Toggle dynamic background",
+    command_open_settings_tab_name: "DTB: Open Settings in New Tab",
+    command_toggle_name: "DTB: Toggle dynamic background",
     command_toggle_enabled_notice: "✅ DTB: Dynamic background enabled",
     command_toggle_disabled_notice: "❌ DTB: Dynamic background disabled",
-    command_next_bg_name: "Switch to next background",
+    command_next_bg_name: "DTB: Switch to next background",
     command_next_bg_notice: "🎨 DTB: Background switched to: {bgName}",
-    command_test_bg_name: "Test current time period background",
+    command_test_bg_name: "DTB: Test current time period background",
     command_test_bg_success_notice: "🕒 DTB: Current period: {ruleName}, Background: {bgName}",
     command_test_bg_no_bg_notice: "⚠️ DTB: No background set for period {ruleName}",
     command_test_bg_no_rule_notice: "⚠️ DTB: No matching rule for the current time",
     command_test_bg_not_supported_notice: "⚠️ DTB: Current mode does not support background testing",
-    command_fetch_random_wallpaper_name: "Fetch Random Wallpaper",
+    command_fetch_random_wallpaper_name: "DTB: Fetch Random Wallpaper",
     command_fetch_random_wallpaper_notice_success: "🎉 DTB: Applied random wallpaper",
     command_fetch_random_wallpaper_notice_failed:
         "❌ DTB: Failed to fetch random wallpaper, please check API settings and network connection",
-    command_save_current_background_name: "Save Current Background",
+    command_save_current_background_name: "DTB: Save Current Background",
 
     // ===== 通用按钮文本 =====
     button_cancel: "Cancel",
