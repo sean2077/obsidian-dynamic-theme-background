@@ -1,3 +1,9 @@
+## [2.7.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.7.0...2.7.1) (2025-08-17)
+
+### Fixes
+
+* Add prefix 'DTB' for command notices ([49f4c9a](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/49f4c9ad21b35c0c711a82b31f2de81d5bbfc302))
+
 ## [2.7.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.6.7...2.7.0) (2025-08-16)
 
 ### Features
