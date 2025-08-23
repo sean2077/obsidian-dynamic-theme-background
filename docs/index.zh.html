@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Obsidian DTB - 动态主题背景 (Dynamic Theme Background)</title>
     <meta name="description"
-        content="Dynamic Theme Background (DTB) - Obsidian 多来源动态壁纸插件：支持 Unsplash / Pixabay / Pexels / Wallhaven / 360壁纸、本地图片与自定义 API，时间/间隔轮换、缓存与视觉调优。">
+        content="Dynamic Theme Background (DTB) - Obsidian 多源动态壁纸插件：支持 Unsplash / Pixabay / Pexels / Wallhaven / 360壁纸、本地图片与自定义 API，时间/间隔轮换、缓存与视觉调优。">
     <meta name="keywords" content="Obsidian, 壁纸, 背景, 插件, Unsplash, Pexels, Pixabay, Wallhaven, 360壁纸, 动态, 自定义, 主题, 背景">
     <meta name="author" content="sean2077">
     <meta name="robots" content="index,follow">
@@ -16,7 +16,7 @@
     <link rel="alternate" hreflang="zh-CN" href="index.zh.html">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Dynamic Theme Background - Obsidian 插件">
-    <meta property="og:description" content="多来源动态壁纸、智能调度与视觉调优，让你的 Obsidian 知识空间常用常新。">
+    <meta property="og:description" content="多源动态壁纸、智能调度与视觉调优，让你的 Obsidian 知识空间常用常新。">
     <meta property="og:url" content="https://obsidian-dynamic-theme-background.pages.dev/index.zh.html">
     <meta property="og:image"
         content="https://raw.githubusercontent.com/sean2077/obsidian-dynamic-theme-background/master/docs/assets/dtb-status-bar.jpg">
@@ -46,8 +46,8 @@
             "name": "Dynamic Theme Background",
             "applicationCategory": "ProductivityApplication",
             "operatingSystem": "Windows, macOS, Linux, iOS, Android",
-            "abstract": "Obsidian 多来源动态壁纸管理",
-            "description": "Obsidian 动态主题背景插件：多来源 / 时间段与间隔轮换 / 视觉调优 / 缓存 / 自定义 API / 本地+远程混合。",
+            "abstract": "Obsidian 多源动态壁纸管理",
+            "description": "Obsidian 动态主题背景插件：多源 / 时间段与间隔轮换 / 视觉调优 / 缓存 / 自定义 API / 本地+远程混合。",
             "author": {"@type": "Person", "name": "sean2077"},
             "publisher": {"@type": "Organization", "name": "Obsidian Community"},
             "license": "https://opensource.org/licenses/MIT",
@@ -2305,7 +2305,7 @@
                 <a href="#installation">安装</a>
                 <a href="#quickstart">快速开始</a>
                 <a href="#commands">命令</a>
-                <a href="#sources">来源</a>
+                <a href="#sources">源</a>
                 <a href="#roadmap">路线图</a>
                 <a href="#faq">常见问题</a>
                 <a class="icon-btn" href="https://github.com/sean2077/obsidian-dynamic-theme-background" target="_blank"
@@ -2328,7 +2328,7 @@
             <h1 class="hero-title"><span class="emoji-isolate" aria-hidden="true">🌈</span><span
                     class="hero-title-text">Dynamic Theme Background</span></h1>
             <div class="subtitle">让每一次笔记体验都充满视觉灵感</div>
-            <p>一个高度可定制且智能的壁纸管理插件。整合多种热门来源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义），支持本地 +
+            <p>一个高度可定制且智能的壁纸管理插件。整合多种热门源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义），支持本地 +
                 远程图片混合，自动轮换、视觉调节与缓存优化，让你的知识空间时刻保持新鲜与专注。</p>
             <div class="cta-buttons">
                 <a href="#installation" class="btn btn-primary"><span>⚡</span><span>开始安装</span></a>
@@ -2433,7 +2433,7 @@
         <div class="container">
             <h2 class="fade-in section-title">⬇️ <span class="heading-text">安装</span></h2>
             <p class="features-subtitle fade-in" style="margin-bottom:2.5rem;">选择一种方式开始使用，启用后前往 <a
-                    href="#quickstart">快速开始</a> 配置轮换与来源。</p>
+                    href="#quickstart">快速开始</a> 配置轮换与源。</p>
             <div class="install-tabs fade-in" id="install-tabs" data-default="market">
                 <div class="tab-list" role="tablist" aria-label="安装方式">
                     <button class="tab-btn" role="tab" aria-selected="true" data-tab="market" id="tab-market">🛒
@@ -2520,8 +2520,8 @@
             <div class="qs-steps-row three fade-in">
                 <div class="qs-step">
                     <span class="qs-step-number">STEP 1</span>
-                    <h3><span class="feature-icon">🖼️</span>添加来源</h3>
-                    <p>添加本地图片或启用 API 来源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义）。</p>
+                    <h3><span class="feature-icon">🖼️</span>添加源</h3>
+                    <p>添加本地图片或启用 API 源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义）。</p>
                 </div>
                 <div class="qs-step">
                     <span class="qs-step-number">STEP 2</span>
@@ -2551,7 +2551,7 @@
                     <div class="statusbar-tip">提示：可为命令设置快捷键</div>
                 </div>
             </div>
-            <div class="section-note fade-in">完成：来源 + 轮换 + 控制均已就绪。</div>
+            <div class="section-note fade-in">完成：源 + 轮换 + 控制均已就绪。</div>
         </div>
     </section>
     <!-- Commands Section -->
@@ -2568,7 +2568,7 @@
                     <h4>下一张背景<span class="tag-pill">rotation</span></h4>立即抓取或前进到下一张图片。
                 </div>
                 <div class="command-card fade-in">
-                    <h4>获取壁纸<span class="tag-pill">network</span></h4>强制刷新当前启用来源池。
+                    <h4>获取壁纸<span class="tag-pill">network</span></h4>强制刷新当前启用源池。
                 </div>
                 <div class="command-card fade-in">
                     <h4>保存当前背景<span class="tag-pill">utility</span></h4>将当前显示图片保存到库中复用。
@@ -2585,7 +2585,7 @@
     <!-- Sources Section (moved down) -->
     <section class="api-sources" id="sources">
         <div class="container">
-            <h2 class="fade-in section-title">🌐 <span class="heading-text">支持的来源</span></h2>
+            <h2 class="fade-in section-title">🌐 <span class="heading-text">支持的源</span></h2>
             <p class="fade-in" style="margin-bottom:2rem;opacity:.8;">高质量壁纸平台 + 自定义拓展</p>
             <div class="api-logos">
                 <a class="api-logo fade-in" style="--accent:#9aa0ae;" href="https://unsplash.com/" target="_blank">
@@ -2656,8 +2656,8 @@
             <h2 class="fade-in section-title">❓ <span class="heading-text">常见问题</span></h2>
             <div class="faq-grid">
                 <div class="faq-item fade-in">
-                    <div class="faq-question">支持哪些壁纸来源？</div>
-                    <div class="faq-answer">Unsplash、Pixabay、Pexels、Wallhaven 及自定义 API；更多来源即将推出。</div>
+                    <div class="faq-question">支持哪些壁纸源？</div>
+                    <div class="faq-answer">Unsplash、Pixabay、Pexels、Wallhaven 及自定义 API；更多源即将推出。</div>
                 </div>
                 <div class="faq-item fade-in">
                     <div class="faq-question">如何设置轮换规则？</div>
