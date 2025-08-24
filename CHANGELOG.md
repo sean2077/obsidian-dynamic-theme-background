@@ -1,3 +1,9 @@
+## [2.7.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.7.1...2.7.2) (2025-08-24)
+
+### Fixes
+
+* Update background styles for workspace elements with dynamic colors ([eb2edaf](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/eb2edafd1ebb7cc981314c3715011b7f6beceebf))
+
 ## [2.7.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.7.0...2.7.1) (2025-08-17)
 
 ### Fixes
