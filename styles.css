@@ -69,11 +69,20 @@
    ============================================================================= */
 
 /* 工作区背景 */
-.dtb-enabled :not(.modal):not(.modal *) {
-    --background-primary: var(--dtb-bg-color) !important;
-    --background-primary-alt: var(--dtb-bg-color) !important;
-    --background-secondary: var(--dtb-bg-color) !important;
-    --background-secondary-alt: var(--dtb-bg-color) !important;
+.dtb-enabled .workspace-split,         /* 工作区分割容器 - 主要布局分割区域 */
+.dtb-enabled .workspace-leaf,          /* 工作区叶子节点 - 单个面板容器 */
+.dtb-enabled .workspace-tab-header-container,  /* 标签页头部容器 - 包含所有标签页 */
+.dtb-enabled .workspace-tab-header,    /* 单个标签页头部 - 每个标签页的头部 */
+.dtb-enabled .view-header,             /* 视图头部 - 文件/视图的顶部区域 */
+.dtb-enabled .view-content,            /* 视图内容区 - 主要内容显示区域 */
+.dtb-enabled .markdown-source-view,    /* Markdown源码视图 - 编辑模式 */
+.dtb-enabled .markdown-preview-view,   /* Markdown预览视图 - 预览模式 */
+.dtb-enabled .cm-editor /* CodeMirror编辑器 - 代码编辑器组件 */ {
+    /* 将所有背景相关的CSS变量覆盖为动态背景颜色 */
+    --background-primary: var(--dtb-bg-color) !important; /* 主要背景色 */
+    --background-primary-alt: var(--dtb-bg-color) !important; /* 主要背景色变体 */
+    --background-secondary: var(--dtb-bg-color) !important; /* 次要背景色 */
+    --background-secondary-alt: var(--dtb-bg-color) !important; /* 次要背景色变体 */
 }
 .dtb-enabled .workspace::before {
     background-image: var(--dtb-bg-image);
