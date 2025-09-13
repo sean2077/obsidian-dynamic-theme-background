@@ -26,8 +26,7 @@
     <meta property="og:site_name" content="Dynamic Theme Background">
     <meta property="og:locale" content="zh_CN">
     <meta name="msapplication-TileColor" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="manifest.json">
     <!-- Preconnect for faster image fetch (OG / demo) -->
     <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
@@ -76,6 +75,22 @@
             --dtb-bg-dark: #0a0a0a;
         }
     </style>
+    <script>
+        // 提前判定性能并降级视觉效果（尽量早于主体渲染）
+        (function () {
+            try {
+                var nav = navigator;
+                var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+                var saveData = !!(conn && conn.saveData);
+                var lowCPU = (nav.hardwareConcurrency && nav.hardwareConcurrency <= 4);
+                var lowMem = (nav.deviceMemory && nav.deviceMemory <= 4);
+                var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (saveData || lowCPU || lowMem || reduceMotion) {
+                    document.documentElement.classList.add('dtb-perf-low');
+                }
+            } catch (e) { }
+        })();
+    </script>
     <style>
         * {
             margin: 0;
@@ -196,6 +211,12 @@
             position: relative;
             z-index: 1;
             width: 100%;
+        }
+
+        /* 懒渲染主内容区，降低初始渲染成本 */
+        main>section {
+            content-visibility: auto;
+            contain-intrinsic-size: 1000px;
         }
 
         /* Header */
@@ -1240,6 +1261,12 @@
             box-shadow: 0 2px 12px rgba(102, 126, 234, 0.12);
         }
 
+        /* 为预览图固定纵横比，减少布局抖动（CLS） */
+        .demo-img-wrap,
+        .demo-img {
+            aspect-ratio: 16 / 9;
+        }
+
         .demo-img-label {
             position: absolute;
             left: 12px;
@@ -1812,6 +1839,49 @@
             }
         }
 
+        /* 低性能模式：自动降级耗时效果（动画、毛玻璃、发光描边） */
+        html.dtb-perf-low .dynamic-bg {
+            animation: none !important;
+            background-size: 200% 200%;
+        }
+
+        html.dtb-perf-low .floating-particles {
+            display: none !important;
+        }
+
+        html.dtb-perf-low .wallpaper-overlay,
+        html.dtb-perf-low .header,
+        html.dtb-perf-low .install-method,
+        html.dtb-perf-low .feature-card,
+        html.dtb-perf-low .qs-step,
+        html.dtb-perf-low .command-card,
+        html.dtb-perf-low .roadmap-item,
+        html.dtb-perf-low .api-logo {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        html.dtb-perf-low .feature-card::before,
+        html.dtb-perf-low .feature-card::after,
+        html.dtb-perf-low .qs-step::before,
+        html.dtb-perf-low .qs-step::after,
+        html.dtb-perf-low .command-card::before,
+        html.dtb-perf-low .command-card::after,
+        html.dtb-perf-low .roadmap-item::before,
+        html.dtb-perf-low .roadmap-item::after,
+        html.dtb-perf-low .api-logo::after {
+            display: none !important;
+        }
+
+        html.dtb-perf-low .feature-card:hover,
+        html.dtb-perf-low .qs-step:hover,
+        html.dtb-perf-low .command-card:hover,
+        html.dtb-perf-low .roadmap-item:hover,
+        html.dtb-perf-low .api-logo:hover {
+            transform: none !important;
+            box-shadow: 0 6px 16px -8px rgba(0, 0, 0, .45);
+        }
+
         .faq-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -2309,7 +2379,7 @@
                 <a href="#roadmap">路线图</a>
                 <a href="#faq">常见问题</a>
                 <a class="icon-btn" href="https://github.com/sean2077/obsidian-dynamic-theme-background" target="_blank"
-                    aria-label="GitHub 仓库" title="GitHub 仓库">
+                    rel="noopener noreferrer" aria-label="GitHub 仓库" title="GitHub 仓库">
                     <svg viewBox="0 0 16 16" aria-hidden="true" role="img" focusable="false">
                         <path
                             d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8Z" />
@@ -2322,378 +2392,388 @@
             </div>
         </nav>
     </header>
-    <section class="hero" id="top">
-        <div class="container">
-            <div class="hero-badge"><span>✨</span><span>在 Obsidian 中打造你的专属壁纸库</span></div>
-            <h1 class="hero-title"><span class="emoji-isolate" aria-hidden="true">🌈</span><span
-                    class="hero-title-text">Dynamic Theme Background</span></h1>
-            <div class="subtitle">让每一次笔记体验都充满视觉灵感</div>
-            <p>一个高度可定制且智能的壁纸管理插件。整合多种热门源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义），支持本地 +
-                远程图片混合，自动轮换、视觉调节与缓存优化，让你的知识空间时刻保持新鲜与专注。</p>
-            <div class="cta-buttons">
-                <a href="#installation" class="btn btn-primary"><span>⚡</span><span>开始安装</span></a>
-                <a href="https://github.com/sean2077/obsidian-dynamic-theme-background" class="btn btn-secondary"
-                    target="_blank"><span>📱</span><span>源代码</span></a>
-                <a href="#quickstart" class="btn btn-secondary"
-                    style="border:none;background:rgba(255,255,255,.15);"><span>🚀</span><span>快速开始</span></a>
-            </div>
-        </div>
-    </section>
-    <section class="demo" id="demo">
-        <div class="container">
-            <h2 class="fade-in">🎬 <span class="heading-text">预览</span></h2>
-            <div class="demo-gallery fade-in">
-                <div class="demo-item">
-                    <div class="demo-img-wrap" style="position:relative;">
-                        <img src="assets/dtb-demo2.gif" alt="壁纸轮换预览" class="demo-img" loading="lazy" decoding="async">
-                        <span class="demo-img-label">轮换</span>
-                    </div>
-                    <h3>多源壁纸库</h3>
-                    <ul>
-                        <li>Unsplash / Pixabay / Pexels / Wallhaven</li>
-                        <li>本地 + 远程混合</li>
-                        <li>自定义 API 扩展</li>
-                    </ul>
-                </div>
-                <div class="demo-item">
-                    <div class="demo-img-wrap" style="position:relative;">
-                        <img src="assets/dtb-demo.gif" alt="图片背景和渐变背景展示" class="demo-img" loading="lazy"
-                            decoding="async">
-                        <span class="demo-img-label">背景</span>
-                    </div>
-                    <h3>图片与渐变背景</h3>
-                    <ul>
-                        <li>丰富的图片背景支持</li>
-                        <li>精美的渐变背景</li>
-                        <li>视觉参数调节</li>
-                    </ul>
-                </div>
-                <div class="demo-item">
-                    <div class="demo-img-wrap" style="position:relative;">
-                        <img src="assets/dtb-demo3.gif" alt="主题兼容性展示" class="demo-img" loading="lazy" decoding="async">
-                        <span class="demo-img-label">主题</span>
-                    </div>
-                    <h3>主题兼容性</h3>
-                    <ul>
-                        <li>暗/亮模式自适应</li>
-                        <li>兼容各种主题</li>
-                        <li>主题变量驱动样式</li>
-                    </ul>
+    <main id="main" tabindex="-1">
+        <section class="hero" id="top">
+            <div class="container">
+                <div class="hero-badge"><span>✨</span><span>在 Obsidian 中打造你的专属壁纸库</span></div>
+                <h1 class="hero-title"><span class="emoji-isolate" aria-hidden="true">🌈</span><span
+                        class="hero-title-text">Dynamic Theme Background</span></h1>
+                <div class="subtitle">让每一次笔记体验都充满视觉灵感</div>
+                <p>一个高度可定制且智能的壁纸管理插件。整合多种热门源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义），支持本地 +
+                    远程图片混合，自动轮换、视觉调节与缓存优化，让你的知识空间时刻保持新鲜与专注。</p>
+                <div class="cta-buttons">
+                    <a href="#installation" class="btn btn-primary"><span>⚡</span><span>开始安装</span></a>
+                    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background" class="btn btn-secondary"
+                        target="_blank" rel="noopener noreferrer"><span>📱</span><span>源代码</span></a>
+                    <a href="#quickstart" class="btn btn-secondary"
+                        style="border:none;background:rgba(255,255,255,.15);"><span>🚀</span><span>快速开始</span></a>
                 </div>
             </div>
-            <div class="demo-summary fade-in">
-                <div style="font-size:.78rem;letter-spacing:.5px;opacity:.55;">主要功能一览</div>
-                <div class="summary-pills">
-                    <div class="summary-pill"><span class="ico">⏰</span><span>时间轮换</span></div>
-                    <div class="summary-pill"><span class="ico">🎨</span><span>主题自适应</span></div>
-                    <div class="summary-pill"><span class="ico">🚀</span><span>优化加载</span></div>
-                    <div class="summary-pill"><span class="ico">🖼️</span><span>多源混合</span></div>
-                    <div class="summary-pill"><span class="ico">🎚️</span><span>实时调节</span></div>
-                    <div class="summary-pill"><span class="ico">🧠</span><span>缓存预取</span></div>
-                    <div class="summary-pill"><span class="ico">⌨️</span><span>命令面板</span></div>
-                    <div class="summary-pill"><span class="ico">🔧</span><span>自定义 API</span></div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="features" id="features">
-        <div class="container">
-            <h2 class="fade-in section-title">✨ <span class="heading-text">主要特性</span></h2>
-            <p class="features-subtitle fade-in">围绕"高质量壁纸 + 智能切换 + 极佳性能"打造的增强体验</p>
-            <div class="features-grid">
-                <div class="feature-card fade-in" style="--accent:#667eea;">
-                    <h3><span class="feature-icon">🖼️</span>多源整合</h3>
-                    <p>内置 Unsplash / Pixabay / Pexels / Wallhaven；支持自定义 API 与本地文件夹，集中管理。
-                    </p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#14b8a6;">
-                    <h3><span class="feature-icon">🎨</span>可调视觉</h3>
-                    <p>模糊、亮度、饱和度、色相、透明度实时调节，兼容暗/亮主题。</p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#f59e0b;">
-                    <h3><span class="feature-icon">⚡</span>智能轮换</h3>
-                    <p>支持时间段、固定间隔、命令面板、状态栏快捷触发，多场景动态切换。</p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#8b5cf6;">
-                    <h3><span class="feature-icon">🤝</span>优秀体验</h3>
-                    <p>异步加载与缓存、默认示例、批量操作、快捷命令，快速高效。</p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#f43f5e;">
-                    <h3><span class="feature-icon">🚀</span>性能优化</h3>
-                    <p>按需请求 + 预取策略 + 渲染优化，降低对编辑性能的影响。</p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#06b6d4;">
-                    <h3><span class="feature-icon">📦</span>前瞻计划</h3>
-                    <p>天气联动、主题包、视频/音频/AI 背景、移动端强化等持续演进。</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="installation" id="installation">
-        <div class="container">
-            <h2 class="fade-in section-title">⬇️ <span class="heading-text">安装</span></h2>
-            <p class="features-subtitle fade-in" style="margin-bottom:2.5rem;">选择一种方式开始使用，启用后前往 <a
-                    href="#quickstart">快速开始</a> 配置轮换与源。</p>
-            <div class="install-tabs fade-in" id="install-tabs" data-default="market">
-                <div class="tab-list" role="tablist" aria-label="安装方式">
-                    <button class="tab-btn" role="tab" aria-selected="true" data-tab="market" id="tab-market">🛒
-                        市场</button>
-                    <button class="tab-btn" role="tab" aria-selected="false" data-tab="brat" id="tab-brat">🧪
-                        BRAT</button>
-                    <button class="tab-btn" role="tab" aria-selected="false" data-tab="manual" id="tab-manual">📦
-                        手动</button>
-                </div>
-                <div class="tab-panels">
-                    <div class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-market" id="panel-market">
-                        <div class="install-method" style="margin:0;">
-                            <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🛒</span>
-                                社区市场 <span class="install-status status-pending">审核中</span>
-                            </h3>
-                            <ul class="install-steps">
-                                <li><span class="step-number">1</span> 设置 → 社区插件 →
-                                    <strong>浏览</strong>
-                                </li>
-                                <li><span class="step-number">2</span> （通过后）搜索 <strong>Dynamic Theme
-                                        Background</strong> / <strong>DTB</strong></li>
-                                <li><span class="step-number">3</span> 安装并启用</li>
-                            </ul>
-                            <div class="install-note-small">当前在官方审核队列。待通过前可使用 BRAT 或 手动 安装。跟踪 PR: <code
-                                    class="repo-inline-code">obsidian-releases</code></div>
+        </section>
+        <section class="demo" id="demo">
+            <div class="container">
+                <h2 class="fade-in">🎬 <span class="heading-text">预览</span></h2>
+                <div class="demo-gallery fade-in">
+                    <div class="demo-item">
+                        <div class="demo-img-wrap" style="position:relative;">
+                            <img src="assets/dtb-demo2.gif" alt="壁纸轮换预览" class="demo-img" loading="lazy"
+                                decoding="async">
+                            <span class="demo-img-label">轮换</span>
                         </div>
+                        <h3>多源壁纸库</h3>
+                        <ul>
+                            <li>Unsplash / Pixabay / Pexels / Wallhaven</li>
+                            <li>本地 + 远程混合</li>
+                            <li>自定义 API 扩展</li>
+                        </ul>
                     </div>
-                    <div class="tab-panel" role="tabpanel" aria-labelledby="tab-brat" id="panel-brat" hidden>
-                        <div class="install-method" style="margin:0;">
-                            <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🧪</span> BRAT
-                                (Beta) <span class="install-status status-beta">Beta</span></h3>
-                            <ul class="install-steps">
-                                <li><span class="step-number">1</span> 安装 <a
-                                        href="https://github.com/TfTHacker/obsidian42-brat" target="_blank">BRAT</a>
-                                </li>
-                                <li><span class="step-number">2</span> BRAT → Add beta plugin →
-                                    粘贴仓库地址：<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>
-                                </li>
-                                <li><span class="step-number">3</span> 在设置中启用插件</li>
-                            </ul>
-                            <div class="install-note-small">在 Marketplace 上架前最快体验最新功能的方式。
+                    <div class="demo-item">
+                        <div class="demo-img-wrap" style="position:relative;">
+                            <img src="assets/dtb-demo.gif" alt="图片背景和渐变背景展示" class="demo-img" loading="lazy"
+                                decoding="async">
+                            <span class="demo-img-label">背景</span>
+                        </div>
+                        <h3>图片与渐变背景</h3>
+                        <ul>
+                            <li>丰富的图片背景支持</li>
+                            <li>精美的渐变背景</li>
+                            <li>视觉参数调节</li>
+                        </ul>
+                    </div>
+                    <div class="demo-item">
+                        <div class="demo-img-wrap" style="position:relative;">
+                            <img src="assets/dtb-demo3.gif" alt="主题兼容性展示" class="demo-img" loading="lazy"
+                                decoding="async">
+                            <span class="demo-img-label">主题</span>
+                        </div>
+                        <h3>主题兼容性</h3>
+                        <ul>
+                            <li>暗/亮模式自适应</li>
+                            <li>兼容各种主题</li>
+                            <li>主题变量驱动样式</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="demo-summary fade-in">
+                    <div style="font-size:.78rem;letter-spacing:.5px;opacity:.55;">主要功能一览</div>
+                    <div class="summary-pills">
+                        <div class="summary-pill"><span class="ico">⏰</span><span>时间轮换</span></div>
+                        <div class="summary-pill"><span class="ico">🎨</span><span>主题自适应</span></div>
+                        <div class="summary-pill"><span class="ico">🚀</span><span>优化加载</span></div>
+                        <div class="summary-pill"><span class="ico">🖼️</span><span>多源混合</span></div>
+                        <div class="summary-pill"><span class="ico">🎚️</span><span>实时调节</span></div>
+                        <div class="summary-pill"><span class="ico">🧠</span><span>缓存预取</span></div>
+                        <div class="summary-pill"><span class="ico">⌨️</span><span>命令面板</span></div>
+                        <div class="summary-pill"><span class="ico">🔧</span><span>自定义 API</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="features" id="features">
+            <div class="container">
+                <h2 class="fade-in section-title">✨ <span class="heading-text">主要特性</span></h2>
+                <p class="features-subtitle fade-in">围绕"高质量壁纸 + 智能切换 + 极佳性能"打造的增强体验</p>
+                <div class="features-grid">
+                    <div class="feature-card fade-in" style="--accent:#667eea;">
+                        <h3><span class="feature-icon">🖼️</span>多源整合</h3>
+                        <p>内置 Unsplash / Pixabay / Pexels / Wallhaven；支持自定义 API 与本地文件夹，集中管理。
+                        </p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#14b8a6;">
+                        <h3><span class="feature-icon">🎨</span>可调视觉</h3>
+                        <p>模糊、亮度、饱和度、色相、透明度实时调节，兼容暗/亮主题。</p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#f59e0b;">
+                        <h3><span class="feature-icon">⚡</span>智能轮换</h3>
+                        <p>支持时间段、固定间隔、命令面板、状态栏快捷触发，多场景动态切换。</p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#8b5cf6;">
+                        <h3><span class="feature-icon">🤝</span>优秀体验</h3>
+                        <p>异步加载与缓存、默认示例、批量操作、快捷命令，快速高效。</p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#f43f5e;">
+                        <h3><span class="feature-icon">🚀</span>性能优化</h3>
+                        <p>按需请求 + 预取策略 + 渲染优化，降低对编辑性能的影响。</p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#06b6d4;">
+                        <h3><span class="feature-icon">📦</span>前瞻计划</h3>
+                        <p>天气联动、主题包、视频/音频/AI 背景、移动端强化等持续演进。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="installation" id="installation">
+            <div class="container">
+                <h2 class="fade-in section-title">⬇️ <span class="heading-text">安装</span></h2>
+                <p class="features-subtitle fade-in" style="margin-bottom:2.5rem;">选择一种方式开始使用，启用后前往 <a
+                        href="#quickstart">快速开始</a> 配置轮换与源。</p>
+                <div class="install-tabs fade-in" id="install-tabs" data-default="market">
+                    <div class="tab-list" role="tablist" aria-label="安装方式">
+                        <button class="tab-btn" role="tab" aria-selected="true" data-tab="market" id="tab-market">🛒
+                            市场</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" data-tab="brat" id="tab-brat">🧪
+                            BRAT</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" data-tab="manual" id="tab-manual">📦
+                            手动</button>
+                    </div>
+                    <div class="tab-panels">
+                        <div class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-market" id="panel-market">
+                            <div class="install-method" style="margin:0;">
+                                <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🛒</span>
+                                    社区市场 <span class="install-status status-pending">审核中</span>
+                                </h3>
+                                <ul class="install-steps">
+                                    <li><span class="step-number">1</span> 设置 → 社区插件 →
+                                        <strong>浏览</strong>
+                                    </li>
+                                    <li><span class="step-number">2</span> （通过后）搜索 <strong>Dynamic Theme
+                                            Background</strong> / <strong>DTB</strong></li>
+                                    <li><span class="step-number">3</span> 安装并启用</li>
+                                </ul>
+                                <div class="install-note-small">当前在官方审核队列。待通过前可使用 BRAT 或 手动 安装。跟踪 PR: <code
+                                        class="repo-inline-code">obsidian-releases</code></div>
+                            </div>
+                        </div>
+                        <div class="tab-panel" role="tabpanel" aria-labelledby="tab-brat" id="panel-brat" hidden>
+                            <div class="install-method" style="margin:0;">
+                                <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🧪</span> BRAT
+                                    (Beta) <span class="install-status status-beta">Beta</span></h3>
+                                <ul class="install-steps">
+                                    <li><span class="step-number">1</span> 安装 <a
+                                            href="https://github.com/TfTHacker/obsidian42-brat" target="_blank"
+                                            rel="noopener noreferrer">BRAT</a>
+                                    </li>
+                                    <li><span class="step-number">2</span> BRAT → Add beta plugin →
+                                        粘贴仓库地址：<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>
+                                    </li>
+                                    <li><span class="step-number">3</span> 在设置中启用插件</li>
+                                </ul>
+                                <div class="install-note-small">在 Marketplace 上架前最快体验最新功能的方式。
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-panel" role="tabpanel" aria-labelledby="tab-manual" id="panel-manual" hidden>
+                            <div class="install-method" style="margin:0;">
+                                <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>📦</span> 手动安装
+                                    <span class="install-status status-available">进阶</span>
+                                </h3>
+                                <ul class="install-steps">
+                                    <li><span class="step-number">1</span> 前往 <a
+                                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"
+                                            target="_blank" rel="noopener noreferrer">Releases</a> 下载最新
+                                        <code>main.js</code>、<code>manifest.json</code>、<code>styles.css</code>
+                                    </li>
+                                    <li><span class="step-number">2</span>
+                                        创建文件夹：<br><code>.obsidian/plugins/obsidian-dynamic-theme-background/</code></li>
+                                    <li><span class="step-number">3</span> 将文件放入该文件夹</li>
+                                    <li><span class="step-number">4</span> 重启 Obsidian 并在设置中启用</li>
+                                </ul>
+                                <div class="install-note-small">适用于固定版本、离线或需手动审查的环境。
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="tab-panel" role="tabpanel" aria-labelledby="tab-manual" id="panel-manual" hidden>
-                        <div class="install-method" style="margin:0;">
-                            <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>📦</span> 手动安装
-                                <span class="install-status status-available">进阶</span>
-                            </h3>
-                            <ul class="install-steps">
-                                <li><span class="step-number">1</span> 前往 <a
-                                        href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"
-                                        target="_blank">Releases</a> 下载最新
-                                    <code>main.js</code>、<code>manifest.json</code>、<code>styles.css</code>
-                                </li>
-                                <li><span class="step-number">2</span>
-                                    创建文件夹：<br><code>.obsidian/plugins/obsidian-dynamic-theme-background/</code></li>
-                                <li><span class="step-number">3</span> 将文件放入该文件夹</li>
-                                <li><span class="step-number">4</span> 重启 Obsidian 并在设置中启用</li>
-                            </ul>
-                            <div class="install-note-small">适用于固定版本、离线或需手动审查的环境。
-                            </div>
+                </div>
+                <div style="text-align:center;margin-bottom:2rem;opacity:.7;">需要帮助？查看 <a
+                        href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme" target="_blank"
+                        rel="noopener noreferrer">README</a>
+                    或<a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues" target="_blank"
+                        rel="noopener noreferrer">提交
+                        Issue</a>。</div>
+                <div style="text-align:center;margin-top:1.5rem;">
+                    <a href="#quickstart" class="btn btn-primary" style="padding:.75rem 1.4rem;font-size:.9rem;">
+                        <span>🚀</span><span>进入快速开始</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- Quick Start Section (now follows Installation) -->
+        <section class="features" id="quickstart" style="padding:6rem 0;background:rgba(0,0,0,.55);">
+            <div class="container">
+                <h2 class="fade-in section-title">🚀 <span class="heading-text">快速开始</span></h2>
+                <p class="features-subtitle fade-in" style="margin-bottom:3rem;">已安装？3 步完成基础配置。</p>
+                <div class="qs-steps-row three fade-in">
+                    <div class="qs-step">
+                        <span class="qs-step-number">STEP 1</span>
+                        <h3><span class="feature-icon">🖼️</span>添加源</h3>
+                        <p>添加本地图片或启用 API 源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义）。</p>
+                    </div>
+                    <div class="qs-step">
+                        <span class="qs-step-number">STEP 2</span>
+                        <h3><span class="feature-icon">⏱️</span>设置轮换</h3>
+                        <p>配置间隔 + 可选时间段（早 / 日 / 夜）实现上下文切换。</p>
+                    </div>
+                    <div class="qs-step">
+                        <span class="qs-step-number">STEP 3</span>
+                        <h3><span class="feature-icon">⚡</span>控制与体验</h3>
+                        <p>使用状态栏或命令面板 (<code>dtb</code>) 切换、保存与获取。</p>
+                    </div>
+                </div>
+                <div class="statusbar-preview fade-in"
+                    style="margin:1.8rem auto 2.8rem; justify-content:center; text-align:center;">
+                    <figure style="flex:0 1 640px;">
+                        <img src="assets/dtb-status-bar.jpg" alt="状态栏控制截图" loading="lazy" decoding="async" />
+                        <figcaption>状态栏示例</figcaption>
+                    </figure>
+                    <div class="statusbar-details" style="max-width:340px;">
+                        <h4 style="justify-content:center;">⚡ 状态栏快速控制</h4>
+                        <ul class="statusbar-actions" style="text-align:left;">
+                            <li><span class="action-ico">🖱️</span><strong>左键</strong> 随机壁纸</li>
+                            <li><span class="action-ico">🖱️</span><strong>中键</strong> 打开设置</li>
+                            <li><span class="action-ico">🖱️</span><strong>右键</strong> 保存当前背景</li>
+                        </ul>
+                        <div style="font-size:.75rem;opacity:.75;line-height:1.45;">日常交互主要在此或命令面板完成。</div>
+                        <div class="statusbar-tip">提示：可为命令设置快捷键</div>
+                    </div>
+                </div>
+                <div class="section-note fade-in">完成：源 + 轮换 + 控制均已就绪。</div>
+            </div>
+        </section>
+        <!-- Commands Section -->
+        <section class="demo" id="commands" style="background:rgba(0,0,0,.65);">
+            <div class="container">
+                <h2 class="fade-in section-title">⌨️ <span class="heading-text">命令</span></h2>
+                <p class="fade-in" style="max-width:700px;margin:0 auto 3rem;opacity:.8;">在命令面板输入 <code>dtb</code>
+                    查找全部命令，可绑定快捷键提升效率。</p>
+                <div class="commands-grid">
+                    <div class="command-card fade-in">
+                        <h4>切换背景<span class="tag-pill">core</span></h4>启用 / 禁用当前背景层，不丢失状态。
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>下一张背景<span class="tag-pill">rotation</span></h4>立即抓取或前进到下一张图片。
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>获取壁纸<span class="tag-pill">network</span></h4>强制刷新当前启用源池。
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>保存当前背景<span class="tag-pill">utility</span></h4>将当前显示图片保存到库中复用。
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>打开设置<span class="tag-pill">ui</span></h4>直接跳转到插件设置面板。
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>测试背景<span class="tag-pill">debug</span></h4>调试抓取与渲染流程。
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Sources Section (moved down) -->
+        <section class="api-sources" id="sources">
+            <div class="container">
+                <h2 class="fade-in section-title">🌐 <span class="heading-text">支持的源</span></h2>
+                <p class="fade-in" style="margin-bottom:2rem;opacity:.8;">高质量壁纸平台 + 自定义拓展</p>
+                <div class="api-logos">
+                    <a class="api-logo fade-in" style="--accent:#9aa0ae;" href="https://unsplash.com/" target="_blank"
+                        rel="noopener noreferrer">
+                        <div style="font-size:3rem;">📸</div>
+                        <div class="api-logo-name">Unsplash</div>
+                        <p style="margin-top:.5rem;opacity:.8;">摄影</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#28c76f;" href="https://pixabay.com/" target="_blank"
+                        rel="noopener noreferrer">
+                        <div style="font-size:3rem;">🖼️</div>
+                        <div class="api-logo-name">Pixabay</div>
+                        <p style="margin-top:.5rem;opacity:.8;">免费图片</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#14b8a6;" href="https://www.pexels.com/" target="_blank"
+                        rel="noopener noreferrer">
+                        <div style="font-size:3rem;">🎨</div>
+                        <div class="api-logo-name">Pexels</div>
+                        <p style="margin-top:.5rem;opacity:.8;">精选图库</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#8b5cf6;" href="https://wallhaven.cc/" target="_blank"
+                        rel="noopener noreferrer">
+                        <div style="font-size:3rem;">🏞️</div>
+                        <div class="api-logo-name">Wallhaven</div>
+                        <p style="margin-top:.5rem;opacity:.8;">壁纸社区</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#00d26a;" href="http://wallpaper.apc.360.cn/"
+                        target="_blank" rel="noopener noreferrer">
+                        <div style="font-size:3rem;">🎯</div>
+                        <div class="api-logo-name">360壁纸</div>
+                        <p style="margin-top:.5rem;opacity:.8;">多分类高清</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#ff9800;" href="#" onclick="alert('请在插件设置中配置自定义 API。')">
+                        <div style="font-size:3rem;">🔧</div>
+                        <div class="api-logo-name">自定义 API</div>
+                        <p style="margin-top:.5rem;opacity:.8;">自带数据源</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- Roadmap Section -->
+        <section class="api-sources" id="roadmap" style="background:rgba(0,0,0,.5);">
+            <div class="container" style="max-width:1150px;">
+                <h2 class="fade-in section-title">🧭 <span class="heading-text">发展路线图</span></h2>
+                <p class="fade-in" style="max-width:760px;margin:0 0 2.2rem;opacity:.8;text-align:left;">
+                    规划中和探索性功能（可能发生变化）。通过 GitHub Issues / Milestones 跟踪开发进展。</p>
+                <ul class="roadmap-list" style="text-align:left;">
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🌤️</span>
+                        <div><strong>上下文感知</strong><br><span style="opacity:.75;">根据天气/系统主题/专注模式驱动的壁纸组合。</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🎞️</span>
+                        <div><strong>动态图像</strong><br><span style="opacity:.75;">支持视频/微妙的电影图像和可能的 GIF 优化。</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🧠</span>
+                        <div><strong>AI 背景</strong><br><span style="opacity:.75;">按需生成（本地或 API）配合样式预设。</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">📱</span>
+                        <div><strong>移动端优化</strong><br><span style="opacity:.75;">自适应性能和触摸手势支持。</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🎚️</span>
+                        <div><strong>预设包</strong><br><span style="opacity:.75;">可分享的主题+调整参数套装。</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🗂️</span>
+                        <div><strong>收藏集</strong><br><span style="opacity:.75;">用户定义的命名图片集和收藏功能。</span></div>
+                    </li>
+                </ul>
+                <div class="section-note fade-in">有想法？在 GitHub 上提交功能请求。</div>
+            </div>
+        </section>
+        <section class="faq" id="faq">
+            <div class="container">
+                <h2 class="fade-in section-title">❓ <span class="heading-text">常见问题</span></h2>
+                <div class="faq-grid">
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">支持哪些壁纸源？</div>
+                        <div class="faq-answer">Unsplash、Pixabay、Pexels、Wallhaven 及自定义 API；更多源即将推出。</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">如何设置轮换规则？</div>
+                        <div class="faq-answer">可配置时间段、间隔自动轮换或通过命令面板手动触发。</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">主题和移动端支持？</div>
+                        <div class="faq-answer">是的——响应式布局以及深浅色模式的主题变量集成。</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">性能影响？</div>
+                        <div class="faq-answer">异步加载和智能缓存保持工作区响应流畅。</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">反馈与问题？</div>
+                        <div class="faq-answer">通过 <a
+                                href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=bug_report.md&title="
+                                target="_blank">Bug 报告</a> 反馈问题或通过 <a
+                                href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=feature_request.md&title="
+                                target="_blank">功能建议</a> 提出需求。</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">能否禁用动画？</div>
+                        <div class="faq-answer">可以——启用操作系统的减少动画偏好设置或切换插件动画设置（即将推出）。</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">配置存储在哪里？</div>
+                        <div class="faq-answer">在您的库的
+                            <code>.obsidian/plugins/obsidian-dynamic-theme-background/</code> 文件夹中（标准的 Obsidian 插件模式）。
                         </div>
                     </div>
                 </div>
+                <div style="margin-top:3rem;opacity:.6;font-size:.85rem;" class="fade-in">API
+                    使用必须遵守各提供商的服务条款。请遵守访问频率限制和必要的归属政策。</div>
             </div>
-            <div style="text-align:center;margin-bottom:2rem;opacity:.7;">需要帮助？查看 <a
-                    href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme"
-                    target="_blank">README</a>
-                或<a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues" target="_blank">提交
-                    Issue</a>。</div>
-            <div style="text-align:center;margin-top:1.5rem;">
-                <a href="#quickstart" class="btn btn-primary" style="padding:.75rem 1.4rem;font-size:.9rem;">
-                    <span>🚀</span><span>进入快速开始</span>
-                </a>
-            </div>
-        </div>
-    </section>
-    <!-- Quick Start Section (now follows Installation) -->
-    <section class="features" id="quickstart" style="padding:6rem 0;background:rgba(0,0,0,.55);">
-        <div class="container">
-            <h2 class="fade-in section-title">🚀 <span class="heading-text">快速开始</span></h2>
-            <p class="features-subtitle fade-in" style="margin-bottom:3rem;">已安装？3 步完成基础配置。</p>
-            <div class="qs-steps-row three fade-in">
-                <div class="qs-step">
-                    <span class="qs-step-number">STEP 1</span>
-                    <h3><span class="feature-icon">🖼️</span>添加源</h3>
-                    <p>添加本地图片或启用 API 源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义）。</p>
-                </div>
-                <div class="qs-step">
-                    <span class="qs-step-number">STEP 2</span>
-                    <h3><span class="feature-icon">⏱️</span>设置轮换</h3>
-                    <p>配置间隔 + 可选时间段（早 / 日 / 夜）实现上下文切换。</p>
-                </div>
-                <div class="qs-step">
-                    <span class="qs-step-number">STEP 3</span>
-                    <h3><span class="feature-icon">⚡</span>控制与体验</h3>
-                    <p>使用状态栏或命令面板 (<code>dtb</code>) 切换、保存与获取。</p>
-                </div>
-            </div>
-            <div class="statusbar-preview fade-in"
-                style="margin:1.8rem auto 2.8rem; justify-content:center; text-align:center;">
-                <figure style="flex:0 1 640px;">
-                    <img src="assets/dtb-status-bar.jpg" alt="状态栏控制截图" loading="lazy" decoding="async" />
-                    <figcaption>状态栏示例</figcaption>
-                </figure>
-                <div class="statusbar-details" style="max-width:340px;">
-                    <h4 style="justify-content:center;">⚡ 状态栏快速控制</h4>
-                    <ul class="statusbar-actions" style="text-align:left;">
-                        <li><span class="action-ico">🖱️</span><strong>左键</strong> 随机壁纸</li>
-                        <li><span class="action-ico">🖱️</span><strong>中键</strong> 打开设置</li>
-                        <li><span class="action-ico">🖱️</span><strong>右键</strong> 保存当前背景</li>
-                    </ul>
-                    <div style="font-size:.75rem;opacity:.75;line-height:1.45;">日常交互主要在此或命令面板完成。</div>
-                    <div class="statusbar-tip">提示：可为命令设置快捷键</div>
-                </div>
-            </div>
-            <div class="section-note fade-in">完成：源 + 轮换 + 控制均已就绪。</div>
-        </div>
-    </section>
-    <!-- Commands Section -->
-    <section class="demo" id="commands" style="background:rgba(0,0,0,.65);">
-        <div class="container">
-            <h2 class="fade-in section-title">⌨️ <span class="heading-text">命令</span></h2>
-            <p class="fade-in" style="max-width:700px;margin:0 auto 3rem;opacity:.8;">在命令面板输入 <code>dtb</code>
-                查找全部命令，可绑定快捷键提升效率。</p>
-            <div class="commands-grid">
-                <div class="command-card fade-in">
-                    <h4>切换背景<span class="tag-pill">core</span></h4>启用 / 禁用当前背景层，不丢失状态。
-                </div>
-                <div class="command-card fade-in">
-                    <h4>下一张背景<span class="tag-pill">rotation</span></h4>立即抓取或前进到下一张图片。
-                </div>
-                <div class="command-card fade-in">
-                    <h4>获取壁纸<span class="tag-pill">network</span></h4>强制刷新当前启用源池。
-                </div>
-                <div class="command-card fade-in">
-                    <h4>保存当前背景<span class="tag-pill">utility</span></h4>将当前显示图片保存到库中复用。
-                </div>
-                <div class="command-card fade-in">
-                    <h4>打开设置<span class="tag-pill">ui</span></h4>直接跳转到插件设置面板。
-                </div>
-                <div class="command-card fade-in">
-                    <h4>测试背景<span class="tag-pill">debug</span></h4>调试抓取与渲染流程。
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Sources Section (moved down) -->
-    <section class="api-sources" id="sources">
-        <div class="container">
-            <h2 class="fade-in section-title">🌐 <span class="heading-text">支持的源</span></h2>
-            <p class="fade-in" style="margin-bottom:2rem;opacity:.8;">高质量壁纸平台 + 自定义拓展</p>
-            <div class="api-logos">
-                <a class="api-logo fade-in" style="--accent:#9aa0ae;" href="https://unsplash.com/" target="_blank">
-                    <div style="font-size:3rem;">📸</div>
-                    <div class="api-logo-name">Unsplash</div>
-                    <p style="margin-top:.5rem;opacity:.8;">摄影</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#28c76f;" href="https://pixabay.com/" target="_blank">
-                    <div style="font-size:3rem;">🖼️</div>
-                    <div class="api-logo-name">Pixabay</div>
-                    <p style="margin-top:.5rem;opacity:.8;">免费图片</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#14b8a6;" href="https://www.pexels.com/" target="_blank">
-                    <div style="font-size:3rem;">🎨</div>
-                    <div class="api-logo-name">Pexels</div>
-                    <p style="margin-top:.5rem;opacity:.8;">精选图库</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#8b5cf6;" href="https://wallhaven.cc/" target="_blank">
-                    <div style="font-size:3rem;">🏞️</div>
-                    <div class="api-logo-name">Wallhaven</div>
-                    <p style="margin-top:.5rem;opacity:.8;">壁纸社区</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#00d26a;" href="http://wallpaper.apc.360.cn/"
-                    target="_blank">
-                    <div style="font-size:3rem;">🎯</div>
-                    <div class="api-logo-name">360壁纸</div>
-                    <p style="margin-top:.5rem;opacity:.8;">多分类高清</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#ff9800;" href="#" onclick="alert('请在插件设置中配置自定义 API。')">
-                    <div style="font-size:3rem;">🔧</div>
-                    <div class="api-logo-name">自定义 API</div>
-                    <p style="margin-top:.5rem;opacity:.8;">自带数据源</p>
-                </a>
-            </div>
-        </div>
-    </section>
-    <!-- Roadmap Section -->
-    <section class="api-sources" id="roadmap" style="background:rgba(0,0,0,.5);">
-        <div class="container" style="max-width:1150px;">
-            <h2 class="fade-in section-title">🧭 <span class="heading-text">发展路线图</span></h2>
-            <p class="fade-in" style="max-width:760px;margin:0 0 2.2rem;opacity:.8;text-align:left;">
-                规划中和探索性功能（可能发生变化）。通过 GitHub Issues / Milestones 跟踪开发进展。</p>
-            <ul class="roadmap-list" style="text-align:left;">
-                <li class="roadmap-item fade-in"><span class="ri-ico">🌤️</span>
-                    <div><strong>上下文感知</strong><br><span style="opacity:.75;">根据天气/系统主题/专注模式驱动的壁纸组合。</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">🎞️</span>
-                    <div><strong>动态图像</strong><br><span style="opacity:.75;">支持视频/微妙的电影图像和可能的 GIF 优化。</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">🧠</span>
-                    <div><strong>AI 背景</strong><br><span style="opacity:.75;">按需生成（本地或 API）配合样式预设。</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">📱</span>
-                    <div><strong>移动端优化</strong><br><span style="opacity:.75;">自适应性能和触摸手势支持。</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">🎚️</span>
-                    <div><strong>预设包</strong><br><span style="opacity:.75;">可分享的主题+调整参数套装。</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">🗂️</span>
-                    <div><strong>收藏集</strong><br><span style="opacity:.75;">用户定义的命名图片集和收藏功能。</span></div>
-                </li>
-            </ul>
-            <div class="section-note fade-in">有想法？在 GitHub 上提交功能请求。</div>
-        </div>
-    </section>
-    <section class="faq" id="faq">
-        <div class="container">
-            <h2 class="fade-in section-title">❓ <span class="heading-text">常见问题</span></h2>
-            <div class="faq-grid">
-                <div class="faq-item fade-in">
-                    <div class="faq-question">支持哪些壁纸源？</div>
-                    <div class="faq-answer">Unsplash、Pixabay、Pexels、Wallhaven 及自定义 API；更多源即将推出。</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">如何设置轮换规则？</div>
-                    <div class="faq-answer">可配置时间段、间隔自动轮换或通过命令面板手动触发。</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">主题和移动端支持？</div>
-                    <div class="faq-answer">是的——响应式布局以及深浅色模式的主题变量集成。</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">性能影响？</div>
-                    <div class="faq-answer">异步加载和智能缓存保持工作区响应流畅。</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">反馈与问题？</div>
-                    <div class="faq-answer">通过 <a
-                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=bug_report.md&title="
-                            target="_blank">Bug 报告</a> 反馈问题或通过 <a
-                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=feature_request.md&title="
-                            target="_blank">功能建议</a> 提出需求。</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">能否禁用动画？</div>
-                    <div class="faq-answer">可以——启用操作系统的减少动画偏好设置或切换插件动画设置（即将推出）。</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">配置存储在哪里？</div>
-                    <div class="faq-answer">在您的库的
-                        <code>.obsidian/plugins/obsidian-dynamic-theme-background/</code> 文件夹中（标准的 Obsidian 插件模式）。
-                    </div>
-                </div>
-            </div>
-            <div style="margin-top:3rem;opacity:.6;font-size:.85rem;" class="fade-in">API
-                使用必须遵守各提供商的服务条款。请遵守访问频率限制和必要的归属政策。</div>
-        </div>
-    </section>
+        </section>
+    </main>
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -2704,19 +2784,21 @@
                 <div class="footer-section">
                     <h3>链接</h3>
                     <div class="footer-links"><a href="https://github.com/sean2077/obsidian-dynamic-theme-background"
-                            target="_blank">GitHub 仓库</a><a
-                            href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme"
-                            target="_blank">文档</a><a href="#faq">常见问题</a></div>
+                            target="_blank" rel="noopener noreferrer">GitHub 仓库</a><a
+                            href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme" target="_blank"
+                            rel="noopener noreferrer">文档</a><a href="#faq">常见问题</a></div>
                 </div>
                 <div class="footer-section">
                     <h3>联系</h3>
                     <div>需要帮助或定制开发？<a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues"
-                            target="_blank">通过 GitHub Issues 联系</a>。</div>
+                            target="_blank" rel="noopener noreferrer">通过 GitHub Issues 联系</a>。</div>
                 </div>
             </div>
             <div class="badges"><span class="badge">MIT 许可证</span><span class="badge">由
-                    sean2077 用 ❤️ 制作</span><span class="badge">Obsidian 社区</span><span class="badge"
-                    id="dtb-version-footer" data-fallback="v?">版本…</span></div>
+                    sean2077 用 ❤️ 制作</span><span class="badge">Obsidian 社区</span><a class="badge"
+                    id="dtb-version-footer" data-fallback="v?"
+                    href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases" target="_blank"
+                    rel="noopener noreferrer">版本…</a></div>
             <div style="opacity:.5;font-size:.85rem;">© 2025 Dynamic Theme Background. 保留所有权利。</div>
         </div>
     </footer>
@@ -2747,15 +2829,18 @@
             const back = document.getElementById('back-to-top'); const threshold = () => window.innerHeight * 0.65; function toggleBack() { if (window.scrollY > threshold()) back.classList.add('visible'); else back.classList.remove('visible'); } window.addEventListener('scroll', toggleBack, { passive: true }); toggleBack(); back.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
             // Copy buttons
             document.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => { const id = btn.getAttribute('data-copy-target'); const code = document.getElementById(id); if (!code) return; navigator.clipboard.writeText(code.innerText).then(() => { const o = btn.innerHTML; btn.textContent = '✓ Copied'; setTimeout(() => btn.innerHTML = o, 1800); }); }); });
-            // dynamic version fetch
+            // dynamic version fetch (guarded by ?noapi=1 to disable in local preview)
             (async () => {
                 const headerEl = document.getElementById('dtb-version-header');
                 const footerEl = document.getElementById('dtb-version-footer');
                 function setVersion(v, url) {
                     if (headerEl) { headerEl.textContent = v; headerEl.dataset.releaseUrl = url || ''; headerEl.style.cursor = 'pointer'; headerEl.title = '打开发行版 ' + v; }
-                    if (footerEl) { footerEl.textContent = v; footerEl.dataset.releaseUrl = url || ''; footerEl.style.cursor = 'pointer'; footerEl.title = '打开发行版 ' + v; }
+                    if (footerEl) { footerEl.textContent = v; footerEl.dataset.releaseUrl = url || ''; footerEl.title = '打开发行版 ' + v; if (footerEl.tagName === 'A' && url) footerEl.setAttribute('href', url); }
                 }
+                const params = new URLSearchParams(location.search);
+                const skipApi = params.has('noapi') || params.get('noapi') === '1';
                 try {
+                    if (skipApi) throw new Error('skip-api');
                     const res = await fetch('https://api.github.com/repos/sean2077/obsidian-dynamic-theme-background/releases/latest', {
                         headers: { 'Accept': 'application/vnd.github+json' }
                     });
@@ -2800,10 +2885,17 @@
                     }
                 } catch (e) {
                     const fallback = headerEl?.dataset.fallback || 'v?';
-                    setVersion(fallback, 'https://github.com/sean2077/obsidian-dynamic-theme-background/releases');
+                    const fallbackUrl = 'https://github.com/sean2077/obsidian-dynamic-theme-background/releases';
+                    setVersion(fallback, fallbackUrl);
+                    if (footerEl && footerEl.tagName === 'A') footerEl.setAttribute('href', fallbackUrl);
                 }
-                function releaseClick(el) { el?.addEventListener('click', e => { const u = el.dataset.releaseUrl; if (u) { e.preventDefault(); e.stopPropagation(); window.open(u, '_blank'); } }); }
-                releaseClick(headerEl); releaseClick(footerEl);
+                // Make header badge navigate via location.assign instead of window.open
+                if (headerEl) {
+                    headerEl.addEventListener('click', e => {
+                        const u = headerEl.dataset.releaseUrl;
+                        if (u) { e.preventDefault(); e.stopPropagation(); location.assign(u); }
+                    });
+                }
             })();
             // installation tabs + keyboard nav
             (function () { const container = document.getElementById('install-tabs'); if (!container) return; const buttons = [...container.querySelectorAll('.tab-btn')]; const panels = [...container.querySelectorAll('.tab-panel')]; buttons.forEach((b, i) => { const id = b.dataset.tab; b.id = b.id || ('tab-' + id); const pnl = container.querySelector('#panel-' + id); if (pnl) pnl.setAttribute('aria-labelledby', b.id); b.setAttribute('tabindex', i === 0 ? '0' : '-1'); }); function activate(id, focus) { buttons.forEach((b) => { const sel = b.dataset.tab === id; b.classList.toggle('is-active', sel); b.setAttribute('aria-selected', sel ? 'true' : 'false'); b.setAttribute('tabindex', sel ? '0' : '-1'); if (sel && focus) b.focus(); }); panels.forEach(p => { const show = p.id === 'panel-' + id; p.classList.toggle('is-active', show); if (show) p.removeAttribute('hidden'); else p.setAttribute('hidden', ''); }); history.replaceState(null, '', '#install-' + id); } buttons.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.tab, true))); container.addEventListener('keydown', e => { const current = buttons.findIndex(b => b.getAttribute('aria-selected') === 'true'); if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) { e.preventDefault(); let ni = current; if (e.key === 'ArrowRight') ni = (current + 1) % buttons.length; else if (e.key === 'ArrowLeft') ni = (current - 1 + buttons.length) % buttons.length; else if (e.key === 'Home') ni = 0; else if (e.key === 'End') ni = buttons.length - 1; activate(buttons[ni].dataset.tab, true); } }); const match = location.hash.match(/^#install-(market|brat|manual)$/); if (match) activate(match[1], false); else activate(buttons[0].dataset.tab, false); })();

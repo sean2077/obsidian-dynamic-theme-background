@@ -29,8 +29,7 @@
     <link rel="alternate" hreflang="en" href="index.html">
     <link rel="alternate" hreflang="zh-CN" href="index.zh.html">
     <meta name="msapplication-TileColor" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="manifest.json">
     <!-- Preconnect for faster image fetch (OG / demo) -->
     <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
@@ -79,6 +78,22 @@
             --dtb-bg-dark: #0a0a0a;
         }
     </style>
+    <script>
+        // 提前判定性能并降级视觉效果（尽量早于主体渲染）
+        (function () {
+            try {
+                var nav = navigator;
+                var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+                var saveData = !!(conn && conn.saveData);
+                var lowCPU = (nav.hardwareConcurrency && nav.hardwareConcurrency <= 4);
+                var lowMem = (nav.deviceMemory && nav.deviceMemory <= 4);
+                var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (saveData || lowCPU || lowMem || reduceMotion) {
+                    document.documentElement.classList.add('dtb-perf-low');
+                }
+            } catch (e) { }
+        })();
+    </script>
     <style>
         * {
             margin: 0;
@@ -199,6 +214,12 @@
             position: relative;
             z-index: 1;
             width: 100%;
+        }
+
+        /* 懒渲染主内容区，降低初始渲染成本 */
+        main>section {
+            content-visibility: auto;
+            contain-intrinsic-size: 1000px;
         }
 
         /* Header */
@@ -1243,6 +1264,12 @@
             box-shadow: 0 2px 12px rgba(102, 126, 234, 0.12);
         }
 
+        /* 为预览图固定纵横比，减少布局抖动（CLS） */
+        .demo-img-wrap,
+        .demo-img {
+            aspect-ratio: 16 / 9;
+        }
+
         .demo-img-label {
             position: absolute;
             left: 12px;
@@ -1815,6 +1842,49 @@
             }
         }
 
+        /* 低性能模式：自动降级耗时效果（动画、毛玻璃、发光描边） */
+        html.dtb-perf-low .dynamic-bg {
+            animation: none !important;
+            background-size: 200% 200%;
+        }
+
+        html.dtb-perf-low .floating-particles {
+            display: none !important;
+        }
+
+        html.dtb-perf-low .wallpaper-overlay,
+        html.dtb-perf-low .header,
+        html.dtb-perf-low .install-method,
+        html.dtb-perf-low .feature-card,
+        html.dtb-perf-low .qs-step,
+        html.dtb-perf-low .command-card,
+        html.dtb-perf-low .roadmap-item,
+        html.dtb-perf-low .api-logo {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        html.dtb-perf-low .feature-card::before,
+        html.dtb-perf-low .feature-card::after,
+        html.dtb-perf-low .qs-step::before,
+        html.dtb-perf-low .qs-step::after,
+        html.dtb-perf-low .command-card::before,
+        html.dtb-perf-low .command-card::after,
+        html.dtb-perf-low .roadmap-item::before,
+        html.dtb-perf-low .roadmap-item::after,
+        html.dtb-perf-low .api-logo::after {
+            display: none !important;
+        }
+
+        html.dtb-perf-low .feature-card:hover,
+        html.dtb-perf-low .qs-step:hover,
+        html.dtb-perf-low .command-card:hover,
+        html.dtb-perf-low .roadmap-item:hover,
+        html.dtb-perf-low .api-logo:hover {
+            transform: none !important;
+            box-shadow: 0 6px 16px -8px rgba(0, 0, 0, .45);
+        }
+
         .faq-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -2313,7 +2383,7 @@
                 <a href="#roadmap">Roadmap</a>
                 <a href="#faq">FAQ</a>
                 <a class="icon-btn" href="https://github.com/sean2077/obsidian-dynamic-theme-background" target="_blank"
-                    aria-label="GitHub Repository" title="GitHub Repository">
+                    rel="noopener noreferrer" aria-label="GitHub Repository" title="GitHub Repository">
                     <svg viewBox="0 0 16 16" aria-hidden="true" role="img" focusable="false">
                         <path
                             d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8Z" />
@@ -2327,400 +2397,433 @@
             </div>
         </nav>
     </header>
-    <section class="hero" id="top">
-        <div class="container">
-            <div class="hero-badge"><span>✨</span><span>Build Your Own Wallpaper Library in Obsidian</span></div>
-            <h1 class="hero-title"><span class="emoji-isolate" aria-hidden="true">🌈</span><span
-                    class="hero-title-text">Dynamic Theme Background</span></h1>
-            <div class="subtitle">Make every note-taking experience visually inspiring</div>
-            <p>A highly customizable and intelligent wallpaper management solution. Integrates multiple popular sources
-                (Unsplash, Pixabay, Pexels, Wallhaven & custom). Supports local + remote image mixing so your knowledge
-                space stays fresh and motivating.</p>
-            <div class="cta-buttons">
-                <a href="#installation" class="btn btn-primary"><span>⚡</span><span>Install Now</span></a>
-                <a href="https://github.com/sean2077/obsidian-dynamic-theme-background" class="btn btn-secondary"
-                    target="_blank"><span>📱</span><span>Source Code</span></a>
-                <a href="#quickstart" class="btn btn-secondary"
-                    style="border:none;background:rgba(255,255,255,.15);"><span>🚀</span><span>Quick Start</span></a>
-            </div>
-        </div>
-    </section>
-    <section class="demo" id="demo">
-        <div class="container">
-            <h2 class="fade-in">🎬 <span class="heading-text">Preview</span></h2>
-            <div class="demo-gallery fade-in">
-                <div class="demo-item">
-                    <div class="demo-img-wrap" style="position:relative;">
-                        <img src="assets/dtb-demo2.gif" alt="Wallpaper switching preview" class="demo-img"
-                            loading="lazy" decoding="async">
-                        <span class="demo-img-label">Switching</span>
-                    </div>
-                    <h3>Multi‑source Library</h3>
-                    <ul>
-                        <li>Unsplash / Pixabay / Pexels / Wallhaven</li>
-                        <li>Local & remote images combined</li>
-                        <li>Custom API extensibility</li>
-                    </ul>
-                </div>
-                <div class="demo-item">
-                    <div class="demo-img-wrap" style="position:relative;">
-                        <img src="assets/dtb-demo.gif" alt="Image backgrounds and gradient backgrounds" class="demo-img"
-                            loading="lazy" decoding="async">
-                        <span class="demo-img-label">Backgrounds</span>
-                    </div>
-                    <h3>Image & Gradient Backgrounds</h3>
-                    <ul>
-                        <li>Rich image backgrounds support</li>
-                        <li>Beautiful gradient backgrounds</li>
-                        <li>Visual parameter adjustments</li>
-                    </ul>
-                </div>
-                <div class="demo-item">
-                    <div class="demo-img-wrap" style="position:relative;">
-                        <img src="assets/dtb-demo3.gif" alt="Theme compatibility showcase" class="demo-img"
-                            loading="lazy" decoding="async">
-                        <span class="demo-img-label">Themes</span>
-                    </div>
-                    <h3>Theme Compatibility</h3>
-                    <ul>
-                        <li>Dark & light mode adaptive</li>
-                        <li>Works with various themes</li>
-                        <li>Theme variable driven styling</li>
-                    </ul>
+    <main id="main" tabindex="-1">
+        <section class="hero" id="top">
+            <div class="container">
+                <div class="hero-badge"><span>✨</span><span>Build Your Own Wallpaper Library in Obsidian</span></div>
+                <h1 class="hero-title"><span class="emoji-isolate" aria-hidden="true">🌈</span><span
+                        class="hero-title-text">Dynamic Theme Background</span></h1>
+                <div class="subtitle">Make every note-taking experience visually inspiring</div>
+                <p>A highly customizable and intelligent wallpaper management solution. Integrates multiple popular
+                    sources
+                    (Unsplash, Pixabay, Pexels, Wallhaven & custom). Supports local + remote image mixing so your
+                    knowledge
+                    space stays fresh and motivating.</p>
+                <div class="cta-buttons">
+                    <a href="#installation" class="btn btn-primary"><span>⚡</span><span>Install Now</span></a>
+                    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background" class="btn btn-secondary"
+                        target="_blank" rel="noopener noreferrer"><span>📱</span><span>Source Code</span></a>
+                    <a href="#quickstart" class="btn btn-secondary"
+                        style="border:none;background:rgba(255,255,255,.15);"><span>🚀</span><span>Quick
+                            Start</span></a>
                 </div>
             </div>
-            <div class="demo-summary fade-in">
-                <div style="font-size:.78rem;letter-spacing:.5px;opacity:.55;">Key capabilities at a glance</div>
-                <div class="summary-pills">
-                    <div class="summary-pill"><span class="ico">⏰</span><span>Time Rotation</span></div>
-                    <div class="summary-pill"><span class="ico">🎨</span><span>Theme Adaptive</span></div>
-                    <div class="summary-pill"><span class="ico">🚀</span><span>Optimized Loading</span></div>
-                    <div class="summary-pill"><span class="ico">�️</span><span>Multi-Source Mix</span></div>
-                    <div class="summary-pill"><span class="ico">🎚️</span><span>Live Tuning</span></div>
-                    <div class="summary-pill"><span class="ico">🧠</span><span>Caching & Prefetch</span></div>
-                    <div class="summary-pill"><span class="ico">⌨️</span><span>Command Palette</span></div>
-                    <div class="summary-pill"><span class="ico">🔧</span><span>Custom API</span></div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="features" id="features">
-        <div class="container">
-            <h2 class="fade-in section-title">✨ <span class="heading-text">Key Features</span></h2>
-            <p class="features-subtitle fade-in">An elevated wallpaper experience crafted for Obsidian</p>
-            <div class="features-grid">
-                <div class="feature-card fade-in" style="--accent:#667eea;">
-                    <h3><span class="feature-icon">🖼️</span>Multi-source Library</h3>
-                    <p>Unsplash, Pixabay, Pexels, Wallhaven + custom API & local folders—flexibly combine and curate.
-                    </p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#14b8a6;">
-                    <h3><span class="feature-icon">🎨</span>Visual Tuning</h3>
-                    <p>Adjust blur, brightness, saturation, hue & more—theme-friendly and dark/light aware.</p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#f59e0b;">
-                    <h3><span class="feature-icon">⚡</span>Smart Rotation</h3>
-                    <p>Time windows, interval auto-change, command palette quick switch, minute-level scheduling.</p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#8b5cf6;">
-                    <h3><span class="feature-icon">🤝</span>Great UX</h3>
-                    <p>Async loading, caching, default presets, batch ops & shortcut commands for fast workflows.</p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#f43f5e;">
-                    <h3><span class="feature-icon">🚀</span>Performance Minded</h3>
-                    <p>Optimized rendering & caching for minimal impact on editor responsiveness.</p>
-                </div>
-                <div class="feature-card fade-in" style="--accent:#06b6d4;">
-                    <h3><span class="feature-icon">📦</span>Roadmap</h3>
-                    <p>Weather integration, theme packs, video / audio / AI backgrounds, mobile refinements.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="installation" id="installation">
-        <div class="container">
-            <h2 class="fade-in section-title">⬇️ <span class="heading-text">Installation</span></h2>
-            <p class="features-subtitle fade-in" style="margin-bottom:2.5rem;">Pick a method below. Once enabled, jump
-                to <a href="#quickstart">Quick Start</a> to configure rotation & sources.</p>
-            <div class="install-tabs fade-in" id="install-tabs" data-default="market">
-                <div class="tab-list" role="tablist" aria-label="Installation methods">
-                    <button class="tab-btn" role="tab" aria-selected="true" data-tab="market" id="tab-market">🛒
-                        Marketplace</button>
-                    <button class="tab-btn" role="tab" aria-selected="false" data-tab="brat" id="tab-brat">🧪
-                        BRAT</button>
-                    <button class="tab-btn" role="tab" aria-selected="false" data-tab="manual" id="tab-manual">📦
-                        Manual</button>
-                </div>
-                <div class="tab-panels">
-                    <div class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-market" id="panel-market">
-                        <div class="install-method" style="margin:0;">
-                            <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🛒</span>
-                                Community Marketplace <span class="install-status status-pending">Pending Review</span>
-                            </h3>
-                            <ul class="install-steps">
-                                <li><span class="step-number">1</span> Settings → Community plugins →
-                                    <strong>Browse</strong>
-                                </li>
-                                <li><span class="step-number">2</span> (After approval) Search <strong>Dynamic Theme
-                                        Background</strong> / <strong>DTB</strong></li>
-                                <li><span class="step-number">3</span> Install & enable</li>
-                            </ul>
-                            <div class="install-note-small">Currently in Obsidian review queue. Until approved, use BRAT
-                                or Manual. Track PR in <code class="repo-inline-code">obsidian-releases</code>.</div>
+        </section>
+        <section class="demo" id="demo">
+            <div class="container">
+                <h2 class="fade-in">🎬 <span class="heading-text">Preview</span></h2>
+                <div class="demo-gallery fade-in">
+                    <div class="demo-item">
+                        <div class="demo-img-wrap" style="position:relative;">
+                            <img src="assets/dtb-demo2.gif" alt="Wallpaper switching preview" class="demo-img"
+                                loading="lazy" decoding="async">
+                            <span class="demo-img-label">Switching</span>
                         </div>
+                        <h3>Multi‑source Library</h3>
+                        <ul>
+                            <li>Unsplash / Pixabay / Pexels / Wallhaven</li>
+                            <li>Local & remote images combined</li>
+                            <li>Custom API extensibility</li>
+                        </ul>
                     </div>
-                    <div class="tab-panel" role="tabpanel" aria-labelledby="tab-brat" id="panel-brat" hidden>
-                        <div class="install-method" style="margin:0;">
-                            <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🧪</span> BRAT
-                                (Beta) <span class="install-status status-beta">Beta</span></h3>
-                            <ul class="install-steps">
-                                <li><span class="step-number">1</span> Install <a
-                                        href="https://github.com/TfTHacker/obsidian42-brat" target="_blank">BRAT</a>
-                                </li>
-                                <li><span class="step-number">2</span> BRAT → Add beta plugin → Paste repo
-                                    URL:<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>
-                                </li>
-                                <li><span class="step-number">3</span> Enable plugin in settings</li>
-                            </ul>
-                            <div class="install-note-small">Fastest way to try latest code before Marketplace approval.
+                    <div class="demo-item">
+                        <div class="demo-img-wrap" style="position:relative;">
+                            <img src="assets/dtb-demo.gif" alt="Image backgrounds and gradient backgrounds"
+                                class="demo-img" loading="lazy" decoding="async">
+                            <span class="demo-img-label">Backgrounds</span>
+                        </div>
+                        <h3>Image & Gradient Backgrounds</h3>
+                        <ul>
+                            <li>Rich image backgrounds support</li>
+                            <li>Beautiful gradient backgrounds</li>
+                            <li>Visual parameter adjustments</li>
+                        </ul>
+                    </div>
+                    <div class="demo-item">
+                        <div class="demo-img-wrap" style="position:relative;">
+                            <img src="assets/dtb-demo3.gif" alt="Theme compatibility showcase" class="demo-img"
+                                loading="lazy" decoding="async">
+                            <span class="demo-img-label">Themes</span>
+                        </div>
+                        <h3>Theme Compatibility</h3>
+                        <ul>
+                            <li>Dark & light mode adaptive</li>
+                            <li>Works with various themes</li>
+                            <li>Theme variable driven styling</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="demo-summary fade-in">
+                    <div style="font-size:.78rem;letter-spacing:.5px;opacity:.55;">Key capabilities at a glance</div>
+                    <div class="summary-pills">
+                        <div class="summary-pill"><span class="ico">⏰</span><span>Time Rotation</span></div>
+                        <div class="summary-pill"><span class="ico">🎨</span><span>Theme Adaptive</span></div>
+                        <div class="summary-pill"><span class="ico">🚀</span><span>Optimized Loading</span></div>
+                        <div class="summary-pill"><span class="ico">🧩</span><span>Multi-Source Mix</span></div>
+                        <div class="summary-pill"><span class="ico">🎚️</span><span>Live Tuning</span></div>
+                        <div class="summary-pill"><span class="ico">🧠</span><span>Caching & Prefetch</span></div>
+                        <div class="summary-pill"><span class="ico">⌨️</span><span>Command Palette</span></div>
+                        <div class="summary-pill"><span class="ico">🔧</span><span>Custom API</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="features" id="features">
+            <div class="container">
+                <h2 class="fade-in section-title">✨ <span class="heading-text">Key Features</span></h2>
+                <p class="features-subtitle fade-in">An elevated wallpaper experience crafted for Obsidian</p>
+                <div class="features-grid">
+                    <div class="feature-card fade-in" style="--accent:#667eea;">
+                        <h3><span class="feature-icon">🖼️</span>Multi-source Library</h3>
+                        <p>Unsplash, Pixabay, Pexels, Wallhaven + custom API & local folders—flexibly combine and
+                            curate.
+                        </p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#14b8a6;">
+                        <h3><span class="feature-icon">🎨</span>Visual Tuning</h3>
+                        <p>Adjust blur, brightness, saturation, hue & more—theme-friendly and dark/light aware.</p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#f59e0b;">
+                        <h3><span class="feature-icon">⚡</span>Smart Rotation</h3>
+                        <p>Time windows, interval auto-change, command palette quick switch, minute-level scheduling.
+                        </p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#8b5cf6;">
+                        <h3><span class="feature-icon">🤝</span>Great UX</h3>
+                        <p>Async loading, caching, default presets, batch ops & shortcut commands for fast workflows.
+                        </p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#f43f5e;">
+                        <h3><span class="feature-icon">🚀</span>Performance Minded</h3>
+                        <p>Optimized rendering & caching for minimal impact on editor responsiveness.</p>
+                    </div>
+                    <div class="feature-card fade-in" style="--accent:#06b6d4;">
+                        <h3><span class="feature-icon">📦</span>Roadmap</h3>
+                        <p>Weather integration, theme packs, video / audio / AI backgrounds, mobile refinements.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="installation" id="installation">
+            <div class="container">
+                <h2 class="fade-in section-title">⬇️ <span class="heading-text">Installation</span></h2>
+                <p class="features-subtitle fade-in" style="margin-bottom:2.5rem;">Pick a method below. Once enabled,
+                    jump
+                    to <a href="#quickstart">Quick Start</a> to configure rotation & sources.</p>
+                <div class="install-tabs fade-in" id="install-tabs" data-default="market">
+                    <div class="tab-list" role="tablist" aria-label="Installation methods">
+                        <button class="tab-btn" role="tab" aria-selected="true" data-tab="market" id="tab-market">🛒
+                            Marketplace</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" data-tab="brat" id="tab-brat">🧪
+                            BRAT</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" data-tab="manual" id="tab-manual">📦
+                            Manual</button>
+                    </div>
+                    <div class="tab-panels">
+                        <div class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-market" id="panel-market">
+                            <div class="install-method" style="margin:0;">
+                                <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🛒</span>
+                                    Community Marketplace <span class="install-status status-pending">Pending
+                                        Review</span>
+                                </h3>
+                                <ul class="install-steps">
+                                    <li><span class="step-number">1</span> Settings → Community plugins →
+                                        <strong>Browse</strong>
+                                    </li>
+                                    <li><span class="step-number">2</span> (After approval) Search <strong>Dynamic Theme
+                                            Background</strong> / <strong>DTB</strong></li>
+                                    <li><span class="step-number">3</span> Install & enable</li>
+                                </ul>
+                                <div class="install-note-small">Currently in Obsidian review queue. Until approved, use
+                                    BRAT
+                                    or Manual. Track PR in <code class="repo-inline-code">obsidian-releases</code>.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-panel" role="tabpanel" aria-labelledby="tab-brat" id="panel-brat" hidden>
+                            <div class="install-method" style="margin:0;">
+                                <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🧪</span> BRAT
+                                    (Beta) <span class="install-status status-beta">Beta</span></h3>
+                                <ul class="install-steps">
+                                    <li><span class="step-number">1</span> Install <a
+                                            href="https://github.com/TfTHacker/obsidian42-brat" target="_blank"
+                                            rel="noopener noreferrer">BRAT</a>
+                                    </li>
+                                    <li><span class="step-number">2</span> BRAT → Add beta plugin → Paste repo
+                                        URL:<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>
+                                    </li>
+                                    <li><span class="step-number">3</span> Enable plugin in settings</li>
+                                </ul>
+                                <div class="install-note-small">Fastest way to try latest code before Marketplace
+                                    approval.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-panel" role="tabpanel" aria-labelledby="tab-manual" id="panel-manual" hidden>
+                            <div class="install-method" style="margin:0;">
+                                <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>📦</span>
+                                    Manual
+                                    Install <span class="install-status status-available">Advanced</span></h3>
+                                <ul class="install-steps">
+                                    <li><span class="step-number">1</span> Download latest <code>main.js</code>,
+                                        <code>manifest.json</code>, <code>styles.css</code> from <a
+                                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"
+                                            target="_blank" rel="noopener noreferrer">Releases</a>
+                                    </li>
+                                    <li><span class="step-number">2</span> Create
+                                        folder:<br><code>.obsidian/plugins/obsidian-dynamic-theme-background/</code>
+                                    </li>
+                                    <li><span class="step-number">3</span> Place files inside</li>
+                                    <li><span class="step-number">4</span> Restart Obsidian & enable</li>
+                                </ul>
+                                <div class="install-note-small">Use for pinned versions, air‑gapped envs, or manual
+                                    audits.
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="tab-panel" role="tabpanel" aria-labelledby="tab-manual" id="panel-manual" hidden>
-                        <div class="install-method" style="margin:0;">
-                            <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>📦</span> Manual
-                                Install <span class="install-status status-available">Advanced</span></h3>
-                            <ul class="install-steps">
-                                <li><span class="step-number">1</span> Download latest <code>main.js</code>,
-                                    <code>manifest.json</code>, <code>styles.css</code> from <a
-                                        href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"
-                                        target="_blank">Releases</a>
-                                </li>
-                                <li><span class="step-number">2</span> Create
-                                    folder:<br><code>.obsidian/plugins/obsidian-dynamic-theme-background/</code></li>
-                                <li><span class="step-number">3</span> Place files inside</li>
-                                <li><span class="step-number">4</span> Restart Obsidian & enable</li>
-                            </ul>
-                            <div class="install-note-small">Use for pinned versions, air‑gapped envs, or manual audits.
-                            </div>
+                </div>
+                <div style="text-align:center;margin-bottom:2rem;opacity:.7;">Need help? See the <a
+                        href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme" target="_blank"
+                        rel="noopener noreferrer">README</a>
+                    or <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues" target="_blank"
+                        rel="noopener noreferrer">report
+                        an issue</a>.</div>
+                <div style="text-align:center;margin-top:1.5rem;">
+                    <a href="#quickstart" class="btn btn-primary" style="padding:.75rem 1.4rem;font-size:.9rem;">
+                        <span>🚀</span><span>Go to Quick Start</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- Quick Start Section (now follows Installation) -->
+        <section class="features" id="quickstart" style="padding:6rem 0;background:rgba(0,0,0,.55);">
+            <div class="container">
+                <h2 class="fade-in section-title">🚀 <span class="heading-text">Quick Start</span></h2>
+                <p class="features-subtitle fade-in" style="margin-bottom:3rem;">Already installed? In three short steps
+                    you'll have smart rotation running.</p>
+                <div class="qs-steps-row three fade-in">
+                    <div class="qs-step">
+                        <span class="qs-step-number">STEP 1</span>
+                        <h3><span class="feature-icon">🖼️</span>Add Sources</h3>
+                        <p>Add local images or enable API providers (Unsplash / Pixabay / Pexels / Wallhaven / Custom).
+                        </p>
+                    </div>
+                    <div class="qs-step">
+                        <span class="qs-step-number">STEP 2</span>
+                        <h3><span class="feature-icon">⏱️</span>Set Rotation</h3>
+                        <p>Choose interval + optional time windows (morning / day / night) for contextual change.</p>
+                    </div>
+                    <div class="qs-step">
+                        <span class="qs-step-number">STEP 3</span>
+                        <h3><span class="feature-icon">⚡</span>Control & Enjoy</h3>
+                        <p>Use status bar clicks or Command Palette (<code>dtb</code>) to switch, save & fetch.</p>
+                    </div>
+                </div>
+                <div class="statusbar-preview fade-in"
+                    style="margin:1.8rem auto 2.8rem; justify-content:center; text-align:center;">
+                    <figure style="flex:0 1 640px;">
+                        <img src="assets/dtb-status-bar.jpg" alt="Status bar controls screenshot" loading="lazy"
+                            decoding="async" />
+                        <figcaption>Status Bar Snapshot</figcaption>
+                    </figure>
+                    <div class="statusbar-details" style="max-width:340px;">
+                        <h4 style="justify-content:center;">⚡ Status Bar Quick Control</h4>
+                        <ul class="statusbar-actions" style="text-align:left;">
+                            <li><span class="action-ico">🖱️</span><strong>Left Click</strong> Random wallpaper</li>
+                            <li><span class="action-ico">🖱️</span><strong>Middle Click</strong> Open settings tab</li>
+                            <li><span class="action-ico">🖱️</span><strong>Right Click</strong> Save current background
+                            </li>
+                        </ul>
+                        <div style="font-size:.75rem;opacity:.75;line-height:1.45;">Daily interaction happens here or
+                            via
+                            the command palette.</div>
+                        <div class="statusbar-tip">Tip: assign hotkeys for even faster switching</div>
+                    </div>
+                </div>
+                <div class="section-note fade-in">You're set: sources + rotation + controls active.</div>
+            </div>
+        </section>
+        <!-- Commands Section -->
+        <section class="demo" id="commands" style="background:rgba(0,0,0,.65);">
+            <div class="container">
+                <h2 class="fade-in section-title">⌨️ <span class="heading-text">Commands</span></h2>
+                <p class="fade-in" style="max-width:700px;margin:0 auto 3rem;opacity:.8;">Access via Command Palette.
+                    Assign
+                    hotkeys for instant control.</p>
+                <div class="commands-grid">
+                    <div class="command-card fade-in">
+                        <h4>Toggle Background<span class="tag-pill">core</span></h4>Enable/disable the current wallpaper
+                        layer without losing state.
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>Next Background<span class="tag-pill">rotation</span></h4>Immediately fetch or advance to
+                        the
+                        next image.
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>Fetch Wallpaper<span class="tag-pill">network</span></h4>Force-refresh from active provider
+                        pool.
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>Save Current Background<span class="tag-pill">utility</span></h4>Persist the displayed image
+                        to
+                        your vault for reuse.
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>Open Settings<span class="tag-pill">ui</span></h4>Jump directly to DTB settings pane.
+                    </div>
+                    <div class="command-card fade-in">
+                        <h4>Test Background<span class="tag-pill">debug</span></h4>Diagnostic fetch & render for
+                        troubleshooting.
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Sources Section (moved down) -->
+        <section class="api-sources" id="sources">
+            <div class="container">
+                <h2 class="fade-in section-title">🌐 <span class="heading-text">Supported Sources</span></h2>
+                <p class="fade-in" style="margin-bottom:2rem;opacity:.8;">High quality wallpaper platforms + custom
+                    endpoints</p>
+                <div class="api-logos">
+                    <a class="api-logo fade-in" style="--accent:#9aa0ae;" href="https://unsplash.com/" target="_blank"
+                        rel="noopener noreferrer">
+                        <div style="font-size:3rem;">📸</div>
+                        <div class="api-logo-name">Unsplash</div>
+                        <p style="margin-top:.5rem;opacity:.8;">Photography</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#28c76f;" href="https://pixabay.com/" target="_blank"
+                        rel="noopener noreferrer">
+                        <div style="font-size:3rem;">🖼️</div>
+                        <div class="api-logo-name">Pixabay</div>
+                        <p style="margin-top:.5rem;opacity:.8;">Free images</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#14b8a6;" href="https://www.pexels.com/" target="_blank"
+                        rel="noopener noreferrer">
+                        <div style="font-size:3rem;">🎨</div>
+                        <div class="api-logo-name">Pexels</div>
+                        <p style="margin-top:.5rem;opacity:.8;">Curated shots</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#8b5cf6;" href="https://wallhaven.cc/" target="_blank"
+                        rel="noopener noreferrer">
+                        <div style="font-size:3rem;">🏞️</div>
+                        <div class="api-logo-name">Wallhaven</div>
+                        <p style="margin-top:.5rem;opacity:.8;">Wallpaper hub</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#00d26a;" href="http://wallpaper.apc.360.cn/"
+                        target="_blank">
+                        <div style="font-size:3rem;">🎯</div>
+                        <div class="api-logo-name">360 Wallpaper</div>
+                        <p style="margin-top:.5rem;opacity:.8;">HD categories</p>
+                    </a>
+                    <a class="api-logo fade-in" style="--accent:#ff9800;" href="#"
+                        onclick="alert('Configure your custom API in the plugin settings.')">
+                        <div style="font-size:3rem;">🔧</div>
+                        <div class="api-logo-name">Custom API</div>
+                        <p style="margin-top:.5rem;opacity:.8;">Bring your own</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- Roadmap Section -->
+        <section class="api-sources" id="roadmap" style="background:rgba(0,0,0,.5);">
+            <div class="container" style="max-width:1150px;">
+                <h2 class="fade-in section-title">🧭 <span class="heading-text">Roadmap</span></h2>
+                <p class="fade-in" style="max-width:760px;margin:0 0 2.2rem;opacity:.8;text-align:left;">Planned &
+                    exploratory ideas (subject to change). Track progress on GitHub Issues / Milestones.</p>
+                <ul class="roadmap-list" style="text-align:left;">
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🌤️</span>
+                        <div><strong>Context Aware</strong><br><span style="opacity:.75;">Weather / system theme / focus
+                                mode driven wallpaper sets.</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🎞️</span>
+                        <div><strong>Animated Media</strong><br><span style="opacity:.75;">Video / subtle cinemagraph &
+                                possible GIF optimization.</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🧠</span>
+                        <div><strong>AI Backgrounds</strong><br><span style="opacity:.75;">On-demand generation (local
+                                or
+                                API) with style presets.</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">📱</span>
+                        <div><strong>Mobile Refinements</strong><br><span style="opacity:.75;">Adaptive performance &
+                                touch
+                                gestures.</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🎚️</span>
+                        <div><strong>Preset Packs</strong><br><span style="opacity:.75;">Shareable theme + adjustment
+                                bundles.</span></div>
+                    </li>
+                    <li class="roadmap-item fade-in"><span class="ri-ico">🗂️</span>
+                        <div><strong>Collections</strong><br><span style="opacity:.75;">User-defined named image sets &
+                                pinning.</span></div>
+                    </li>
+                </ul>
+                <div class="section-note fade-in">Have an idea? Open a feature request on GitHub.</div>
+            </div>
+        </section>
+        <section class="faq" id="faq">
+            <div class="container">
+                <h2 class="fade-in section-title">❓ <span class="heading-text">FAQ</span></h2>
+                <div class="faq-grid">
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">Which wallpaper sources are supported?</div>
+                        <div class="faq-answer">Unsplash, Pixabay, Pexels, Wallhaven plus custom APIs; more incoming.
+                        </div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">How do I set rotation rules?</div>
+                        <div class="faq-answer">Configure time slots, interval auto-rotate or trigger manually via the
+                            command palette.</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">Theme & mobile support?</div>
+                        <div class="faq-answer">Yes—responsive layout and theme variable integration for dark & light
+                            modes.
+                        </div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">Performance impact?</div>
+                        <div class="faq-answer">Async loading + smart caching keeps the workspace responsive.</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">Feedback & issues?</div>
+                        <div class="faq-answer">Report bugs via <a
+                                href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=bug_report.md&title="
+                                target="_blank" rel="noopener noreferrer">Bug Report</a> or suggest features via <a
+                                href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=feature_request.md&title="
+                                target="_blank" rel="noopener noreferrer">Feature Request</a>.</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">Can I disable animations?</div>
+                        <div class="faq-answer">Yes—enable your OS reduced motion preference or toggle plugin animation
+                            settings (coming soon).</div>
+                    </div>
+                    <div class="faq-item fade-in">
+                        <div class="faq-question">Where is configuration stored?</div>
+                        <div class="faq-answer">Inside your vault
+                            <code>.obsidian/plugins/obsidian-dynamic-theme-background/</code> folder (standard Obsidian
+                            plugin pattern).
                         </div>
                     </div>
                 </div>
+                <div style="margin-top:3rem;opacity:.6;font-size:.85rem;" class="fade-in">API usage must comply with
+                    each
+                    provider's Terms of Service. Respect rate limits & attribution policies where required.</div>
             </div>
-            <div style="text-align:center;margin-bottom:2rem;opacity:.7;">Need help? See the <a
-                    href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme"
-                    target="_blank">README</a>
-                or <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues" target="_blank">report
-                    an issue</a>.</div>
-            <div style="text-align:center;margin-top:1.5rem;">
-                <a href="#quickstart" class="btn btn-primary" style="padding:.75rem 1.4rem;font-size:.9rem;">
-                    <span>🚀</span><span>Go to Quick Start</span>
-                </a>
-            </div>
-        </div>
-    </section>
-    <!-- Quick Start Section (now follows Installation) -->
-    <section class="features" id="quickstart" style="padding:6rem 0;background:rgba(0,0,0,.55);">
-        <div class="container">
-            <h2 class="fade-in section-title">🚀 <span class="heading-text">Quick Start</span></h2>
-            <p class="features-subtitle fade-in" style="margin-bottom:3rem;">Already installed? In three short steps
-                you'll have smart rotation running.</p>
-            <div class="qs-steps-row three fade-in">
-                <div class="qs-step">
-                    <span class="qs-step-number">STEP 1</span>
-                    <h3><span class="feature-icon">🖼️</span>Add Sources</h3>
-                    <p>Add local images or enable API providers (Unsplash / Pixabay / Pexels / Wallhaven / Custom).</p>
-                </div>
-                <div class="qs-step">
-                    <span class="qs-step-number">STEP 2</span>
-                    <h3><span class="feature-icon">⏱️</span>Set Rotation</h3>
-                    <p>Choose interval + optional time windows (morning / day / night) for contextual change.</p>
-                </div>
-                <div class="qs-step">
-                    <span class="qs-step-number">STEP 3</span>
-                    <h3><span class="feature-icon">⚡</span>Control & Enjoy</h3>
-                    <p>Use status bar clicks or Command Palette (<code>dtb</code>) to switch, save & fetch.</p>
-                </div>
-            </div>
-            <div class="statusbar-preview fade-in"
-                style="margin:1.8rem auto 2.8rem; justify-content:center; text-align:center;">
-                <figure style="flex:0 1 640px;">
-                    <img src="assets/dtb-status-bar.jpg" alt="Status bar controls screenshot" loading="lazy"
-                        decoding="async" />
-                    <figcaption>Status Bar Snapshot</figcaption>
-                </figure>
-                <div class="statusbar-details" style="max-width:340px;">
-                    <h4 style="justify-content:center;">⚡ Status Bar Quick Control</h4>
-                    <ul class="statusbar-actions" style="text-align:left;">
-                        <li><span class="action-ico">🖱️</span><strong>Left Click</strong> Random wallpaper</li>
-                        <li><span class="action-ico">🖱️</span><strong>Middle Click</strong> Open settings tab</li>
-                        <li><span class="action-ico">🖱️</span><strong>Right Click</strong> Save current background</li>
-                    </ul>
-                    <div style="font-size:.75rem;opacity:.75;line-height:1.45;">Daily interaction happens here or via
-                        the command palette.</div>
-                    <div class="statusbar-tip">Tip: assign hotkeys for even faster switching</div>
-                </div>
-            </div>
-            <div class="section-note fade-in">You're set: sources + rotation + controls active.</div>
-        </div>
-    </section>
-    <!-- Commands Section -->
-    <section class="demo" id="commands" style="background:rgba(0,0,0,.65);">
-        <div class="container">
-            <h2 class="fade-in section-title">⌨️ <span class="heading-text">Commands</span></h2>
-            <p class="fade-in" style="max-width:700px;margin:0 auto 3rem;opacity:.8;">Access via Command Palette. Assign
-                hotkeys for instant control.</p>
-            <div class="commands-grid">
-                <div class="command-card fade-in">
-                    <h4>Toggle Background<span class="tag-pill">core</span></h4>Enable/disable the current wallpaper
-                    layer without losing state.
-                </div>
-                <div class="command-card fade-in">
-                    <h4>Next Background<span class="tag-pill">rotation</span></h4>Immediately fetch or advance to the
-                    next image.
-                </div>
-                <div class="command-card fade-in">
-                    <h4>Fetch Wallpaper<span class="tag-pill">network</span></h4>Force-refresh from active provider
-                    pool.
-                </div>
-                <div class="command-card fade-in">
-                    <h4>Save Current Background<span class="tag-pill">utility</span></h4>Persist the displayed image to
-                    your vault for reuse.
-                </div>
-                <div class="command-card fade-in">
-                    <h4>Open Settings<span class="tag-pill">ui</span></h4>Jump directly to DTB settings pane.
-                </div>
-                <div class="command-card fade-in">
-                    <h4>Test Background<span class="tag-pill">debug</span></h4>Diagnostic fetch & render for
-                    troubleshooting.
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Sources Section (moved down) -->
-    <section class="api-sources" id="sources">
-        <div class="container">
-            <h2 class="fade-in section-title">🌐 <span class="heading-text">Supported Sources</span></h2>
-            <p class="fade-in" style="margin-bottom:2rem;opacity:.8;">High quality wallpaper platforms + custom
-                endpoints</p>
-            <div class="api-logos">
-                <a class="api-logo fade-in" style="--accent:#9aa0ae;" href="https://unsplash.com/" target="_blank">
-                    <div style="font-size:3rem;">📸</div>
-                    <div class="api-logo-name">Unsplash</div>
-                    <p style="margin-top:.5rem;opacity:.8;">Photography</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#28c76f;" href="https://pixabay.com/" target="_blank">
-                    <div style="font-size:3rem;">🖼️</div>
-                    <div class="api-logo-name">Pixabay</div>
-                    <p style="margin-top:.5rem;opacity:.8;">Free images</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#14b8a6;" href="https://www.pexels.com/" target="_blank">
-                    <div style="font-size:3rem;">🎨</div>
-                    <div class="api-logo-name">Pexels</div>
-                    <p style="margin-top:.5rem;opacity:.8;">Curated shots</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#8b5cf6;" href="https://wallhaven.cc/" target="_blank">
-                    <div style="font-size:3rem;">🏞️</div>
-                    <div class="api-logo-name">Wallhaven</div>
-                    <p style="margin-top:.5rem;opacity:.8;">Wallpaper hub</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#00d26a;" href="http://wallpaper.apc.360.cn/"
-                    target="_blank">
-                    <div style="font-size:3rem;">🎯</div>
-                    <div class="api-logo-name">360 Wallpaper</div>
-                    <p style="margin-top:.5rem;opacity:.8;">HD categories</p>
-                </a>
-                <a class="api-logo fade-in" style="--accent:#ff9800;" href="#"
-                    onclick="alert('Configure your custom API in the plugin settings.')">
-                    <div style="font-size:3rem;">🔧</div>
-                    <div class="api-logo-name">Custom API</div>
-                    <p style="margin-top:.5rem;opacity:.8;">Bring your own</p>
-                </a>
-            </div>
-        </div>
-    </section>
-    <!-- Roadmap Section -->
-    <section class="api-sources" id="roadmap" style="background:rgba(0,0,0,.5);">
-        <div class="container" style="max-width:1150px;">
-            <h2 class="fade-in section-title">🧭 <span class="heading-text">Roadmap</span></h2>
-            <p class="fade-in" style="max-width:760px;margin:0 0 2.2rem;opacity:.8;text-align:left;">Planned &
-                exploratory ideas (subject to change). Track progress on GitHub Issues / Milestones.</p>
-            <ul class="roadmap-list" style="text-align:left;">
-                <li class="roadmap-item fade-in"><span class="ri-ico">🌤️</span>
-                    <div><strong>Context Aware</strong><br><span style="opacity:.75;">Weather / system theme / focus
-                            mode driven wallpaper sets.</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">🎞️</span>
-                    <div><strong>Animated Media</strong><br><span style="opacity:.75;">Video / subtle cinemagraph &
-                            possible GIF optimization.</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">🧠</span>
-                    <div><strong>AI Backgrounds</strong><br><span style="opacity:.75;">On-demand generation (local or
-                            API) with style presets.</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">📱</span>
-                    <div><strong>Mobile Refinements</strong><br><span style="opacity:.75;">Adaptive performance & touch
-                            gestures.</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">🎚️</span>
-                    <div><strong>Preset Packs</strong><br><span style="opacity:.75;">Shareable theme + adjustment
-                            bundles.</span></div>
-                </li>
-                <li class="roadmap-item fade-in"><span class="ri-ico">🗂️</span>
-                    <div><strong>Collections</strong><br><span style="opacity:.75;">User-defined named image sets &
-                            pinning.</span></div>
-                </li>
-            </ul>
-            <div class="section-note fade-in">Have an idea? Open a feature request on GitHub.</div>
-        </div>
-    </section>
-    <section class="faq" id="faq">
-        <div class="container">
-            <h2 class="fade-in section-title">❓ <span class="heading-text">FAQ</span></h2>
-            <div class="faq-grid">
-                <div class="faq-item fade-in">
-                    <div class="faq-question">Which wallpaper sources are supported?</div>
-                    <div class="faq-answer">Unsplash, Pixabay, Pexels, Wallhaven plus custom APIs; more incoming.</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">How do I set rotation rules?</div>
-                    <div class="faq-answer">Configure time slots, interval auto-rotate or trigger manually via the
-                        command palette.</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">Theme & mobile support?</div>
-                    <div class="faq-answer">Yes—responsive layout and theme variable integration for dark & light modes.
-                    </div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">Performance impact?</div>
-                    <div class="faq-answer">Async loading + smart caching keeps the workspace responsive.</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">Feedback & issues?</div>
-                    <div class="faq-answer">Report bugs via <a
-                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=bug_report.md&title="
-                            target="_blank">Bug Report</a> or suggest features via <a
-                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=feature_request.md&title="
-                            target="_blank">Feature Request</a>.</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">Can I disable animations?</div>
-                    <div class="faq-answer">Yes—enable your OS reduced motion preference or toggle plugin animation
-                        settings (coming soon).</div>
-                </div>
-                <div class="faq-item fade-in">
-                    <div class="faq-question">Where is configuration stored?</div>
-                    <div class="faq-answer">Inside your vault
-                        <code>.obsidian/plugins/obsidian-dynamic-theme-background/</code> folder (standard Obsidian
-                        plugin pattern).
-                    </div>
-                </div>
-            </div>
-            <div style="margin-top:3rem;opacity:.6;font-size:.85rem;" class="fade-in">API usage must comply with each
-                provider's Terms of Service. Respect rate limits & attribution policies where required.</div>
-        </div>
-    </section>
+        </section>
+    </main>
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -2732,20 +2835,21 @@
                 <div class="footer-section">
                     <h3>Links</h3>
                     <div class="footer-links"><a href="https://github.com/sean2077/obsidian-dynamic-theme-background"
-                            target="_blank">GitHub Repo</a><a
-                            href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme"
-                            target="_blank">Documentation</a><a href="#faq">FAQ</a></div>
+                            target="_blank" rel="noopener noreferrer">GitHub Repo</a><a
+                            href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme" target="_blank"
+                            rel="noopener noreferrer">Documentation</a><a href="#faq">FAQ</a></div>
                 </div>
                 <div class="footer-section">
                     <h3>Contact</h3>
                     <div>Need help or custom work? <a
-                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues"
-                            target="_blank">Contact via GitHub Issues</a>.</div>
+                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues" target="_blank"
+                            rel="noopener noreferrer">Contact via GitHub Issues</a>.</div>
                 </div>
             </div>
             <div class="badges"><span class="badge">MIT License</span><span class="badge">Made with ❤️ by
-                    sean2077</span><span class="badge">Obsidian Community</span><span class="badge"
-                    id="dtb-version-footer" data-fallback="v?">version…</span></div>
+                    sean2077</span><span class="badge">Obsidian Community</span><a class="badge" id="dtb-version-footer"
+                    data-fallback="v?" href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"
+                    target="_blank" rel="noopener noreferrer">version…</a></div>
             <div style="opacity:.5;font-size:.85rem;">© 2025 Dynamic Theme Background. All rights reserved.</div>
         </div>
     </footer>
@@ -2776,15 +2880,18 @@
             const back = document.getElementById('back-to-top'); const threshold = () => window.innerHeight * 0.65; function toggleBack() { if (window.scrollY > threshold()) back.classList.add('visible'); else back.classList.remove('visible'); } window.addEventListener('scroll', toggleBack, { passive: true }); toggleBack(); back.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
             // Copy buttons
             document.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => { const id = btn.getAttribute('data-copy-target'); const code = document.getElementById(id); if (!code) return; navigator.clipboard.writeText(code.innerText).then(() => { const o = btn.innerHTML; btn.textContent = '✓ Copied'; setTimeout(() => btn.innerHTML = o, 1800); }); }); });
-            // dynamic version fetch
+            // dynamic version fetch (guarded by ?noapi=1 to disable in local preview)
             (async () => {
                 const headerEl = document.getElementById('dtb-version-header');
                 const footerEl = document.getElementById('dtb-version-footer');
                 function setVersion(v, url) {
                     if (headerEl) { headerEl.textContent = v; headerEl.dataset.releaseUrl = url || ''; headerEl.style.cursor = 'pointer'; headerEl.title = 'Open release ' + v; }
-                    if (footerEl) { footerEl.textContent = v; footerEl.dataset.releaseUrl = url || ''; footerEl.style.cursor = 'pointer'; footerEl.title = 'Open release ' + v; }
+                    if (footerEl) { footerEl.textContent = v; footerEl.dataset.releaseUrl = url || ''; footerEl.title = 'Open release ' + v; if (footerEl.tagName === 'A' && url) footerEl.setAttribute('href', url); }
                 }
+                const params = new URLSearchParams(location.search);
+                const skipApi = params.has('noapi') || params.get('noapi') === '1';
                 try {
+                    if (skipApi) throw new Error('skip-api');
                     const res = await fetch('https://api.github.com/repos/sean2077/obsidian-dynamic-theme-background/releases/latest', {
                         headers: { 'Accept': 'application/vnd.github+json' }
                     });
@@ -2829,10 +2936,17 @@
                     }
                 } catch (e) {
                     const fallback = headerEl?.dataset.fallback || 'v?';
-                    setVersion(fallback, 'https://github.com/sean2077/obsidian-dynamic-theme-background/releases');
+                    const fallbackUrl = 'https://github.com/sean2077/obsidian-dynamic-theme-background/releases';
+                    setVersion(fallback, fallbackUrl);
+                    if (footerEl && footerEl.tagName === 'A') footerEl.setAttribute('href', fallbackUrl);
                 }
-                function releaseClick(el) { el?.addEventListener('click', e => { const u = el.dataset.releaseUrl; if (u) { e.preventDefault(); e.stopPropagation(); window.open(u, '_blank'); } }); }
-                releaseClick(headerEl); releaseClick(footerEl);
+                // Make header badge navigate via location.assign instead of window.open
+                if (headerEl) {
+                    headerEl.addEventListener('click', e => {
+                        const u = headerEl.dataset.releaseUrl;
+                        if (u) { e.preventDefault(); e.stopPropagation(); location.assign(u); }
+                    });
+                }
             })();
             // installation tabs + keyboard nav
             (function () { const container = document.getElementById('install-tabs'); if (!container) return; const buttons = [...container.querySelectorAll('.tab-btn')]; const panels = [...container.querySelectorAll('.tab-panel')]; buttons.forEach((b, i) => { const id = b.dataset.tab; b.id = b.id || ('tab-' + id); const pnl = container.querySelector('#panel-' + id); if (pnl) pnl.setAttribute('aria-labelledby', b.id); b.setAttribute('tabindex', i === 0 ? '0' : '-1'); }); function activate(id, focus) { buttons.forEach((b) => { const sel = b.dataset.tab === id; b.classList.toggle('is-active', sel); b.setAttribute('aria-selected', sel ? 'true' : 'false'); b.setAttribute('tabindex', sel ? '0' : '-1'); if (sel && focus) b.focus(); }); panels.forEach(p => { const show = p.id === 'panel-' + id; p.classList.toggle('is-active', show); if (show) p.removeAttribute('hidden'); else p.setAttribute('hidden', ''); }); history.replaceState(null, '', '#install-' + id); } buttons.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.tab, true))); container.addEventListener('keydown', e => { const current = buttons.findIndex(b => b.getAttribute('aria-selected') === 'true'); if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) { e.preventDefault(); let ni = current; if (e.key === 'ArrowRight') ni = (current + 1) % buttons.length; else if (e.key === 'ArrowLeft') ni = (current - 1 + buttons.length) % buttons.length; else if (e.key === 'Home') ni = 0; else if (e.key === 'End') ni = buttons.length - 1; activate(buttons[ni].dataset.tab, true); } }); const match = location.hash.match(/^#install-(market|brat|manual)$/); if (match) activate(match[1], false); else activate(buttons[0].dataset.tab, false); })();
