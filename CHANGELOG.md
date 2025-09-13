@@ -1,3 +1,13 @@
+## [2.8.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.7.2...2.8.0) (2025-09-13)
+
+### Fixes
+
+* Streamline and optimize styles.css ([38c72c4](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/38c72c40ad130df34cc4af4d2f0003e46e6f56df))
+
+### Features
+
+* Support background mask settings for light/dark themes, update related configurations and interfaces ([73efd0c](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/73efd0ce949381e13772ef2a48ed97cab1ee7326))
+
 ## [2.7.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.7.1...2.7.2) (2025-08-24)
 
 ### Fixes
