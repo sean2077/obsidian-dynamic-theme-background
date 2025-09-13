@@ -84,6 +84,14 @@
     --background-secondary: var(--dtb-bg-color) !important; /* 次要背景色 */
     --background-secondary-alt: var(--dtb-bg-color) !important; /* 次要背景色变体 */
 }
+
+/* 通过主题类切换遮罩变量：将 light/dark 两套变量映射到统一 --dtb-bg-color */
+.theme-light {
+    --dtb-bg-color: var(--dtb-bg-color-light, rgba(224, 224, 224, 0.32));
+}
+.theme-dark {
+    --dtb-bg-color: var(--dtb-bg-color-dark, rgba(31, 30, 30, 0.38));
+}
 .dtb-enabled .workspace::before {
     background-image: var(--dtb-bg-image);
     background-size: var(--dtb-bg-size);
@@ -234,6 +242,13 @@
 .dtb-section-container .setting-item:hover .setting-item-description {
     opacity: 1;
     color: var(--text-normal);
+}
+
+/* 仅亮主题下：插件设置项描述文字稍微加深，便于区分（不影响其他区域） */
+.theme-light .setting-item-description,
+.theme-light .dtb-section-container .setting-item .setting-item-description {
+    color: var(--text-normal);
+    opacity: 0.95;
 }
 
 /* 紧凑控件区域 */
@@ -524,6 +539,10 @@
     gap: 8px;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.theme-light .dtb-hint {
+    color: var(--text-normal);
+    opacity: 0.95;
 }
 /* 拖拽提示悬停效果 */
 .dtb-hint:hover {

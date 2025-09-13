@@ -79,7 +79,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
     async loadSettings() {
         const defaultSettings = getDefaultSettings();
-        this.settings = Object.assign({}, defaultSettings, await this.loadData());
+        const saved = (await this.loadData()) ?? {};
+        this.settings = Object.assign({}, defaultSettings, saved);
     }
 
     async saveSettings() {
@@ -297,8 +298,13 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         }
 
         if (!this.background) {
+            // 没有激活背景时，仍然更新遮罩变量，保证设置页调整立即生效
+            const bgColorLight = hexToRgba(this.settings.bgColorLight, this.settings.bgColorOpacityLight);
+            const bgColorDark = hexToRgba(this.settings.bgColorDark, this.settings.bgColorOpacityDark);
             document.documentElement.setCssProps({
                 "--dtb-bg-image": "none",
+                "--dtb-bg-color-light": bgColorLight,
+                "--dtb-bg-color-dark": bgColorDark,
             });
         } else {
             const bgCssValue =
@@ -308,9 +314,18 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             const blurDepth = this.background.blurDepth ?? this.settings.blurDepth;
             const brightness4Bg = this.background.brightness4Bg ?? this.settings.brightness4Bg;
             const saturate4Bg = this.background.saturate4Bg ?? this.settings.saturate4Bg;
-            const bgColor = this.background.bgColor ?? this.settings.bgColor;
-            const bgColorOpacity = this.background.bgColorOpacity ?? this.settings.bgColorOpacity;
-            const bgColorWithOpacity = hexToRgba(bgColor, bgColorOpacity);
+            // 计算遮罩颜色与透明度（优先级：每背景按主题覆盖 > 全局 light/dark）
+            const perBgLightColor = this.background.bgColorLight;
+            const perBgLightOpacity = this.background.bgColorOpacityLight;
+            const perBgDarkColor = this.background.bgColorDark;
+            const perBgDarkOpacity = this.background.bgColorOpacityDark;
+
+            const lightColor = perBgLightColor ?? this.settings.bgColorLight;
+            const lightOpacity = perBgLightOpacity ?? this.settings.bgColorOpacityLight;
+            const darkColor = perBgDarkColor ?? this.settings.bgColorDark;
+            const darkOpacity = perBgDarkOpacity ?? this.settings.bgColorOpacityDark;
+            const bgColorLight = hexToRgba(lightColor, lightOpacity);
+            const bgColorDark = hexToRgba(darkColor, darkOpacity);
             bgSize = bgSize ?? this.background.bgSize ?? this.settings.bgSize ?? "intelligent";
             // 如果是 "intelligent"，则根据图片和屏幕比例动态选择
             if (bgSize === "intelligent") {
@@ -326,7 +341,9 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                 "--dtb-blur-depth": `${blurDepth}px`,
                 "--dtb-brightness": `${brightness4Bg}`,
                 "--dtb-saturate": `${saturate4Bg}`,
-                "--dtb-bg-color": bgColorWithOpacity,
+                // 仅设置明/暗两套变量；统一变量 --dtb-bg-color 交由 CSS 中的 .theme-light/.theme-dark 进行映射
+                "--dtb-bg-color-light": bgColorLight,
+                "--dtb-bg-color-dark": bgColorDark,
                 "--dtb-bg-size": bgSize,
             });
         }

@@ -23,8 +23,11 @@ export class BackgroundModal extends Modal {
     blurDepth?: number;
     brightness4Bg?: number;
     saturate4Bg?: number;
-    bgColor?: string;
-    bgColorOpacity?: number;
+    // 按主题覆盖（新）
+    bgColorLight?: string;
+    bgColorOpacityLight?: number;
+    bgColorDark?: string;
+    bgColorOpacityDark?: number;
     bgSize?: "cover" | "contain" | "auto" | "intelligent";
 
     constructor(
@@ -113,6 +116,9 @@ export class BackgroundModal extends Modal {
 
         // 背景单独的模糊度、亮度、饱和度、遮罩颜色和透明度、填充方式设置
         contentEl.createEl("h4", { text: t("appearance_settings_title") });
+        // 提示：重置仅清空当前背景的覆盖值，继承全局设置
+        const hint = contentEl.createEl("div", { cls: "dtb-hint" });
+        hint.setText(t("per_bg_reset_hint"));
         const appearanceContainer = contentEl.createDiv();
         this.displayAppearanceSettings(appearanceContainer);
 
@@ -137,8 +143,11 @@ export class BackgroundModal extends Modal {
             this.bgItem.blurDepth = this.blurDepth ?? this.bgItem.blurDepth;
             this.bgItem.brightness4Bg = this.brightness4Bg ?? this.bgItem.brightness4Bg;
             this.bgItem.saturate4Bg = this.saturate4Bg ?? this.bgItem.saturate4Bg;
-            this.bgItem.bgColor = this.bgColor ?? this.bgItem.bgColor;
-            this.bgItem.bgColorOpacity = this.bgColorOpacity ?? this.bgItem.bgColorOpacity;
+            // 保存按主题覆盖（优先级更高）
+            this.bgItem.bgColorDark = this.bgColorDark ?? this.bgItem.bgColorDark;
+            this.bgItem.bgColorOpacityDark = this.bgColorOpacityDark ?? this.bgItem.bgColorOpacityDark;
+            this.bgItem.bgColorLight = this.bgColorLight ?? this.bgItem.bgColorLight;
+            this.bgItem.bgColorOpacityLight = this.bgColorOpacityLight ?? this.bgItem.bgColorOpacityLight;
             this.bgItem.bgSize = this.bgSize ?? this.bgItem.bgSize;
             // call onSubmit callback with updated bgItem
             this.onSubmit(this.bgItem);
@@ -167,7 +176,9 @@ export class BackgroundModal extends Modal {
                     .setIcon("reset")
                     .setTooltip(t("reset_blur_tooltip"))
                     .onClick(async () => {
-                        this.blurDepth = this.plugin.settings.blurDepth;
+                        // 清空每背景覆盖，让其回退到全局
+                        this.blurDepth = undefined;
+                        this.bgItem.blurDepth = undefined as any;
                         this.displayAppearanceSettings(containerEl); // 重新渲染设置
                     })
             );
@@ -189,7 +200,9 @@ export class BackgroundModal extends Modal {
                     .setIcon("reset")
                     .setTooltip(t("reset_brightness_tooltip"))
                     .onClick(async () => {
-                        this.brightness4Bg = this.plugin.settings.brightness4Bg;
+                        // 清空每背景覆盖，让其回退到全局
+                        this.brightness4Bg = undefined;
+                        this.bgItem.brightness4Bg = undefined as any;
                         this.displayAppearanceSettings(containerEl); // 重新渲染设置
                     })
             );
@@ -211,40 +224,74 @@ export class BackgroundModal extends Modal {
                     .setIcon("reset")
                     .setTooltip(t("reset_saturate_tooltip"))
                     .onClick(async () => {
-                        this.saturate4Bg = this.plugin.settings.saturate4Bg;
+                        // 清空每背景覆盖，让其回退到全局
+                        this.saturate4Bg = undefined;
+                        this.bgItem.saturate4Bg = undefined as any;
                         this.displayAppearanceSettings(containerEl); // 重新渲染设置
                     })
             );
-        // 背景遮罩颜色和透明度设置
-        new Setting(containerEl)
-            .setName(t("bg_mask_color_name"))
-            .setDesc(t("bg_mask_color_desc"))
-            .addColorPicker((picker) =>
-                picker
-                    .setValue(this.bgColor ?? this.bgItem.bgColor ?? this.plugin.settings.bgColor)
-                    .onChange(async (value: string) => {
-                        this.bgColor = value;
-                    })
-            )
-            .addSlider((slider) =>
-                slider
-                    .setLimits(0, 1, 0.01)
-                    .setDynamicTooltip()
-                    .setValue(this.bgColorOpacity ?? this.bgItem.bgColorOpacity ?? this.plugin.settings.bgColorOpacity)
-                    .onChange(async (value: number) => {
-                        this.bgColorOpacity = value;
-                    })
-            )
-            .addExtraButton((button) =>
-                button
-                    .setIcon("reset")
-                    .setTooltip(t("reset_bg_mask_color_tooltip"))
-                    .onClick(async () => {
-                        this.bgColor = this.plugin.settings.bgColor;
-                        this.bgColorOpacity = this.plugin.settings.bgColorOpacity;
-                        this.displayAppearanceSettings(containerEl); // 重新渲染设置
-                    })
-            );
+        // 背景遮罩（每背景的暗/亮两套覆盖）
+        const overlayRow = new Setting(containerEl).setName(t("bg_mask_color_name")).setDesc(t("bg_mask_color_desc"));
+        // 暗主题（左）
+        overlayRow.addExtraButton((btn) => btn.setTooltip(t("overlay_dark_tooltip")).setIcon("moon"));
+        overlayRow.addColorPicker((picker) =>
+            picker
+                .setValue(this.bgColorDark ?? this.bgItem.bgColorDark ?? this.plugin.settings.bgColorDark)
+                .onChange(async (value: string) => {
+                    this.bgColorDark = value;
+                })
+        );
+        overlayRow.addSlider((slider) =>
+            slider
+                .setLimits(0, 1, 0.01)
+                .setDynamicTooltip()
+                .setValue(
+                    this.bgColorOpacityDark ?? this.bgItem.bgColorOpacityDark ?? this.plugin.settings.bgColorOpacityDark
+                )
+                .onChange(async (value: number) => {
+                    this.bgColorOpacityDark = value;
+                })
+        );
+        // 亮主题（右）
+        overlayRow.addExtraButton((btn) => btn.setTooltip(t("overlay_light_tooltip")).setIcon("sun"));
+        overlayRow.addColorPicker((picker) =>
+            picker
+                .setValue(this.bgColorLight ?? this.bgItem.bgColorLight ?? this.plugin.settings.bgColorLight)
+                .onChange(async (value: string) => {
+                    this.bgColorLight = value;
+                })
+        );
+        overlayRow.addSlider((slider) =>
+            slider
+                .setLimits(0, 1, 0.01)
+                .setDynamicTooltip()
+                .setValue(
+                    this.bgColorOpacityLight ??
+                        this.bgItem.bgColorOpacityLight ??
+                        this.plugin.settings.bgColorOpacityLight
+                )
+                .onChange(async (value: number) => {
+                    this.bgColorOpacityLight = value;
+                })
+        );
+        overlayRow.addExtraButton((button) =>
+            button
+                .setIcon("reset")
+                .setTooltip(t("reset_bg_mask_color_tooltip"))
+                .onClick(async () => {
+                    // 清空每背景遮罩覆盖，让其回退到全局
+                    this.bgColorDark = undefined;
+                    this.bgColorOpacityDark = undefined;
+                    this.bgColorLight = undefined;
+                    this.bgColorOpacityLight = undefined;
+                    this.bgItem.bgColorDark = undefined as any;
+                    this.bgItem.bgColorOpacityDark = undefined as any;
+                    this.bgItem.bgColorLight = undefined as any;
+                    this.bgItem.bgColorOpacityLight = undefined as any;
+                    this.displayAppearanceSettings(containerEl);
+                })
+        );
+
         // 背景填充方式设置
         new Setting(containerEl)
             .setName(t("bg_size_name"))
@@ -282,7 +329,9 @@ export class BackgroundModal extends Modal {
                     .setIcon("reset")
                     .setTooltip(t("reset_bg_size_tooltip"))
                     .onClick(async () => {
-                        this.bgSize = this.plugin.settings.bgSize;
+                        // 清空每背景覆盖，让其回退到全局
+                        this.bgSize = undefined;
+                        this.bgItem.bgSize = undefined as any;
                         this.displayAppearanceSettings(containerEl); // 重新渲染设置
                     })
             );

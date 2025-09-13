@@ -13,8 +13,11 @@ export interface DTBSettings {
     blurDepth: number; // 背景模糊度
     brightness4Bg: number; // 背景亮度
     saturate4Bg: number; // 背景饱和度
-    bgColor: string; // 背景遮罩颜色
-    bgColorOpacity: number; // 背景颜色透明度
+    // 亮/暗主题两套默认遮罩（通过 CSS 自动切换）
+    bgColorLight: string; // 亮主题遮罩颜色
+    bgColorOpacityLight: number; // 亮主题遮罩透明度
+    bgColorDark: string; // 暗主题遮罩颜色
+    bgColorOpacityDark: number; // 暗主题遮罩透明度
     bgSize: "cover" | "contain" | "auto" | "intelligent"; // 背景图片填充方式, intelligent 表示智能选择填充方式
 
     // 背景切换模式和规则
@@ -52,7 +55,10 @@ export interface BackgroundItem {
     blurDepth?: number;
     brightness4Bg?: number;
     saturate4Bg?: number;
-    bgColor?: string;
-    bgColorOpacity?: number;
+    // 按主题覆盖
+    bgColorLight?: string;
+    bgColorOpacityLight?: number;
+    bgColorDark?: string;
+    bgColorOpacityDark?: number;
     bgSize?: "cover" | "contain" | "auto" | "intelligent";
 }

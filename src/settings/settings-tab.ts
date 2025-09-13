@@ -120,7 +120,7 @@ export class DTBSettingTab extends PluginSettingTab {
             cls: "dtb-link",
         });
         infoContainer.createEl("a", {
-            text: t("tutorial") + "homepage",
+            text: t("homepage") + "Obsidian DTB",
             href: "https://obsidian-dynamic-theme-background.pages.dev",
             cls: "dtb-link",
         });
@@ -263,40 +263,80 @@ export class DTBSettingTab extends PluginSettingTab {
                     })
             );
 
-        // 背景颜色和透明度设置
-        new Setting(containerEl)
-            .setName(t("bg_mask_color_name"))
-            .setDesc(t("bg_mask_color_desc"))
-            .addColorPicker((colorPicker) =>
-                colorPicker.setValue(this.plugin.settings.bgColor).onChange(async (value: string) => {
-                    this.plugin.settings.bgColor = value;
-                    await this.plugin.saveSettings();
-                    this.plugin.updateStyleCss();
-                })
-            )
-            .addSlider((slider) =>
-                slider
-                    .setLimits(0, 1, 0.01)
-                    .setValue(this.plugin.settings.bgColorOpacity)
-                    .setDynamicTooltip()
-                    .onChange(async (value: number) => {
-                        this.plugin.settings.bgColorOpacity = value;
+        // 背景颜色和透明度设置（暗/亮两套，同一行：暗在前，亮在后）
+        {
+            const setting = new Setting(containerEl).setName(t("bg_mask_color_name")).setDesc(t("bg_mask_color_desc"));
+
+            // 暗主题标签
+            const darkLabel = setting.controlEl.createSpan({ text: "🌙" });
+            darkLabel.setAttribute("title", t("overlay_dark_tooltip"));
+
+            // 暗主题：颜色
+            setting.addColorPicker((colorPicker) =>
+                colorPicker
+                    .setValue(this.plugin.settings.bgColorDark ?? this.defaultSettings.bgColorDark)
+                    .onChange(async (value: string) => {
+                        this.plugin.settings.bgColorDark = value;
                         await this.plugin.saveSettings();
                         this.plugin.updateStyleCss();
                     })
-            )
-            .addExtraButton((button) =>
+            );
+            // 暗主题：透明度
+            setting.addSlider((slider) =>
+                slider
+                    .setLimits(0, 1, 0.01)
+                    .setValue(this.plugin.settings.bgColorOpacityDark ?? this.defaultSettings.bgColorOpacityDark)
+                    .setDynamicTooltip()
+                    .onChange(async (value: number) => {
+                        this.plugin.settings.bgColorOpacityDark = value;
+                        await this.plugin.saveSettings();
+                        this.plugin.updateStyleCss();
+                    })
+            );
+
+            // 亮主题标签
+            const lightLabel = setting.controlEl.createSpan({ text: "☀️" });
+            lightLabel.setAttribute("title", t("overlay_light_tooltip"));
+
+            // 亮主题：颜色
+            setting.addColorPicker((colorPicker) =>
+                colorPicker
+                    .setValue(this.plugin.settings.bgColorLight ?? this.defaultSettings.bgColorLight)
+                    .onChange(async (value: string) => {
+                        this.plugin.settings.bgColorLight = value;
+                        await this.plugin.saveSettings();
+                        this.plugin.updateStyleCss();
+                    })
+            );
+            // 亮主题：透明度
+            setting.addSlider((slider) =>
+                slider
+                    .setLimits(0, 1, 0.01)
+                    .setValue(this.plugin.settings.bgColorOpacityLight ?? this.defaultSettings.bgColorOpacityLight)
+                    .setDynamicTooltip()
+                    .onChange(async (value: number) => {
+                        this.plugin.settings.bgColorOpacityLight = value;
+                        await this.plugin.saveSettings();
+                        this.plugin.updateStyleCss();
+                    })
+            );
+
+            // 重置（两套新字段）
+            setting.addExtraButton((button) =>
                 button
                     .setIcon("reset")
                     .setTooltip(t("reset_bg_mask_color_tooltip"))
                     .onClick(async () => {
-                        this.plugin.settings.bgColor = this.defaultSettings.bgColor;
-                        this.plugin.settings.bgColorOpacity = this.defaultSettings.bgColorOpacity;
+                        this.plugin.settings.bgColorDark = this.defaultSettings.bgColorDark;
+                        this.plugin.settings.bgColorOpacityDark = this.defaultSettings.bgColorOpacityDark;
+                        this.plugin.settings.bgColorLight = this.defaultSettings.bgColorLight;
+                        this.plugin.settings.bgColorOpacityLight = this.defaultSettings.bgColorOpacityLight;
                         await this.plugin.saveSettings();
                         this.plugin.updateStyleCss();
                         this.displayBasicSettings();
                     })
             );
+        }
 
         // 背景填充方式设置
         new Setting(containerEl)

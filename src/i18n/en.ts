@@ -3,7 +3,7 @@ export default {
     settings_title: "🌈 Dynamic Theme Background Settings",
     version: "🛠️ Version: ",
     author: "🎨 Author: ",
-    tutorial: "📖 Tutorial: ",
+    homepage: "🏠 Homepage: ",
 
     // ===== 基础设置 =====
     enable_plugin_name: "Enable dynamic background",
@@ -29,6 +29,10 @@ export default {
     bg_mask_color_name: "Background Mask Color & Opacity",
     bg_mask_color_desc: "Set the background mask color and adjust its opacity with the slider on the right.",
     reset_bg_mask_color_tooltip: "Reset background mask color and opacity to default",
+    overlay_dark_tooltip: "Dark theme overlay",
+    overlay_light_tooltip: "Light theme overlay",
+    per_bg_reset_hint:
+        "Reset only clears overrides for this background, so it inherits global settings (does not modify global settings)",
     bg_size_name: "Background Size",
     bg_size_desc:
         "Set how the background image is sized. 'Intelligent'  means choosing size based on image and window dimensions.",

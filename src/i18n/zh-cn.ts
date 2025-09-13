@@ -3,7 +3,7 @@ export default {
     settings_title: "🌈 动态主题背景设置",
     version: "🛠️ 版本: ",
     author: "🎨 作者: ",
-    tutorial: "📖 教程: ",
+    homepage: "🏠 首页: ",
 
     // ===== 基础设置 =====
     enable_plugin_name: "启用动态背景",
@@ -28,6 +28,9 @@ export default {
     bg_mask_color_name: "背景遮罩颜色和透明度",
     bg_mask_color_desc: "设置背景遮罩的颜色和透明度，透明度可通过右侧滑块调整",
     reset_bg_mask_color_tooltip: "重置背景遮罩颜色和透明度为默认值",
+    overlay_dark_tooltip: "暗主题遮罩",
+    overlay_light_tooltip: "亮主题遮罩",
+    per_bg_reset_hint: "重置仅清空当前背景的覆盖值，恢复继承全局设置（不会修改全局设置）",
     bg_size_name: "背景填充方式",
     bg_size_desc: "设置背景图片的填充方式，智能选择表示根据图片和窗口尺寸智能选择填充方式",
     reset_bg_size_tooltip: "重置为默认填充方式",

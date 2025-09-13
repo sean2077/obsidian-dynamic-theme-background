@@ -18,8 +18,11 @@ function genDefaultSettings(): DTBSettings {
         blurDepth: 0,
         brightness4Bg: 0.9,
         saturate4Bg: 1,
-        bgColor: "#1f1e1e",
-        bgColorOpacity: 0.38,
+        // 亮/暗主题两套默认遮罩
+        bgColorLight: "#e0e0e0",
+        bgColorOpacityLight: 0.32,
+        bgColorDark: "#1f1e1e",
+        bgColorOpacityDark: 0.38,
         bgSize: "intelligent",
 
         // 背景切换模式和规则
@@ -133,7 +136,7 @@ function genDefaultSettings(): DTBSettings {
         currentIndex: 0,
 
         // 壁纸 API 管理
-        enableRandomWallpaper: false, // 默认不启用随机壁纸
+        enableRandomWallpaper: true, // 默认启用随机壁纸
         wallpaperApis: [
             {
                 id: "api-wallhaven-default",
