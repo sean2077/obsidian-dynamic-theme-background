@@ -65,8 +65,23 @@
  ============================================================================= */
 
 /* =============================================================================
-   🚀 核心样式
-   ============================================================================= */
+    🎛️ 设计变量（Tokens） & 模块入口（单文件模块化）
+============================================================================= */
+:root {
+    /* 动画节奏 */
+    --dtb-anim-quick-curve: 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    --dtb-anim-fast-curve: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --dtb-anim-normal-curve: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* 阴影仅保留两档：基础/悬停（另保留焦点描边） */
+    --dtb-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --dtb-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --dtb-shadow-outline: 0 0 0 2px var(--interactive-accent-hover);
+}
+
+/* =============================================================================
+    🚀 核心样式
+============================================================================= */
 
 /* 工作区背景 */
 .dtb-enabled .workspace-split,         /* 工作区分割容器 - 主要布局分割区域 */
@@ -87,7 +102,7 @@
 
 /* 通过主题类切换遮罩变量：将 light/dark 两套变量映射到统一 --dtb-bg-color */
 .theme-light {
-    --dtb-bg-color: var(--dtb-bg-color-light, rgba(224, 224, 224, 0.32));
+    --dtb-bg-color: var(--dtb-bg-color-light, rgba(200, 200, 200, 0.38));
 }
 .theme-dark {
     --dtb-bg-color: var(--dtb-bg-color-dark, rgba(31, 30, 30, 0.38));
@@ -100,10 +115,7 @@
     filter: blur(var(--dtb-blur-depth)) brightness(var(--dtb-brightness)) saturate(var(--dtb-saturate));
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     z-index: -1;
 }
 
@@ -132,14 +144,14 @@
     border: 1px solid var(--background-modifier-border);
     border-radius: 10px;
     background-color: var(--background-secondary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--dtb-shadow-base);
     position: relative;
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow var(--dtb-anim-normal-curve);
 }
 
 /* 容器悬停效果 */
 .dtb-section-container:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--dtb-shadow-hover);
 }
 
 /* 设置项 - 紧凑现代卡片 */
@@ -148,16 +160,15 @@
     border: 1px solid var(--background-modifier-border);
     border-radius: 10px;
     padding: 0.75rem !important;
-    margin-bottom: 0.4rem;
     background: var(--background-primary-alt);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--dtb-anim-normal-curve);
     position: relative;
     overflow: hidden;
     display: flex !important;
     flex-direction: row !important;
     align-items: flex-start !important;
     gap: 1rem !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--dtb-shadow-base);
 }
 
 /* 左侧装饰条 */
@@ -171,7 +182,7 @@
     height: 100%;
     background: var(--interactive-accent);
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: all var(--dtb-anim-normal-curve);
     border-radius: 0 2px 2px 0;
 }
 
@@ -195,14 +206,13 @@
 .dtb-item:active,
 .dtb-section-container .setting-item:active {
     transform: translateY(-1px) scale(0.99);
-    transition: all 0.1s ease;
+    transition: all var(--dtb-anim-quick-curve);
 }
 
 /* 设置项信息区域 - 紧凑优化 */
 .dtb-section-container .setting-item .setting-item-info {
     flex: 1;
     min-width: 0;
-    word-wrap: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
     margin-right: 1rem;
@@ -215,7 +225,7 @@
     font-size: 1rem;
     margin-bottom: 0.25rem;
     line-height: 1.3;
-    transition: color 0.3s ease;
+    transition: color var(--dtb-anim-normal-curve);
 }
 
 /* 标题悬停效果 */
@@ -226,16 +236,14 @@
 
 /* 紧凑描述文字 */
 .dtb-section-container .setting-item .setting-item-description {
-    word-wrap: break-word;
     overflow-wrap: break-word;
     word-break: break-word;
     hyphens: auto;
     line-height: 1.4;
     color: var(--text-muted);
     font-size: 0.88rem;
-    white-space: normal;
     opacity: 0.85;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--dtb-anim-normal-curve);
 }
 
 .dtb-item:hover .setting-item-description,
@@ -261,20 +269,6 @@
     flex-wrap: nowrap;
     white-space: nowrap;
     margin: auto 0; /* 控件垂直居中 */
-}
-
-/* ===== 炫酷动画效果 ===== */
-
-/* 流畅入场动画 */
-@keyframes slideInUpSmooth {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* ===== 响应式优化 ===== */
@@ -303,16 +297,16 @@
 
 /* ===== 暗色模式优化 ===== */
 .theme-dark .dtb-section-container {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--dtb-shadow-base);
 }
 
 .theme-dark .dtb-section-container:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--dtb-shadow-hover);
 }
 
 .theme-dark .dtb-item,
 .theme-dark .dtb-section-container .setting-item {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--dtb-shadow-base);
 }
 
 .theme-dark .dtb-item:hover,
@@ -395,12 +389,12 @@
     background-color: var(--background-primary);
     color: var(--text-normal);
     font-size: var(--font-ui-medium);
-    transition: border-color 0.2s ease;
+    transition: border-color var(--dtb-anim-fast-curve);
 }
 .dtb-input:focus {
     outline: none;
     border-color: var(--interactive-accent);
-    box-shadow: 0 0 0 2px var(--interactive-accent-hover);
+    box-shadow: var(--dtb-shadow-outline);
 }
 
 /* 通用下拉选择框样式 */
@@ -418,23 +412,19 @@
     font-size: var(--font-ui-medium);
     cursor: pointer;
     box-sizing: border-box;
-    transition: border-color 0.2s ease;
+    transition: border-color var(--dtb-anim-fast-curve);
     appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
     /* 使用更好的下拉箭头图标 */
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 16px;
     padding-right: 40px;
-    /* 确保文字垂直居中 */
-    vertical-align: middle;
 }
 .dtb-dropdown:focus {
     outline: none;
     border-color: var(--interactive-accent);
-    box-shadow: 0 0 0 2px var(--interactive-accent-hover);
+    box-shadow: var(--dtb-shadow-outline);
 }
 .dtb-dropdown option {
     background-color: var(--background-primary);
@@ -455,7 +445,6 @@
 .dtb-field-description {
     font-style: italic;
     color: var(--text-muted);
-    font-weight: normal;
 }
 
 /* 通用多选容器样式 */
@@ -477,7 +466,6 @@
 }
 .dtb-checkbox label {
     margin: 0 0 0 8px;
-    font-weight: normal;
 }
 
 /* 模态框文本域样式 */
@@ -492,23 +480,21 @@
     font-family: var(--font-monospace);
     font-size: var(--font-ui-small);
     resize: vertical;
-    transition: border-color 0.2s ease;
+    transition: border-color var(--dtb-anim-fast-curve);
 }
 .dtb-textarea:focus {
     outline: none;
     border-color: var(--interactive-accent);
-    box-shadow: 0 0 0 2px var(--interactive-accent-hover);
+    box-shadow: var(--dtb-shadow-outline);
 }
 
 /* 响应式设计 (Responsive Design) */
-@media (max-width: 600px) {
-}
 
 /* =============================================================================
    🎨 视觉元素
    ============================================================================= */
 
-/* 通用类型标签徽章*/
+/* 通用类型标签徽章 */
 .dtb-badge {
     background: linear-gradient(135deg, var(--interactive-accent), var(--interactive-accent-hover));
     color: var(--text-on-accent);
@@ -518,10 +504,8 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border: none;
+    box-shadow: var(--dtb-shadow-base);
     display: inline-block;
-    cursor: default;
     user-select: none;
 }
 
@@ -537,8 +521,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all var(--dtb-anim-fast-curve);
+    box-shadow: var(--dtb-shadow-base);
 }
 .theme-light .dtb-hint {
     color: var(--text-normal);
@@ -547,7 +531,7 @@
 /* 拖拽提示悬停效果 */
 .dtb-hint:hover {
     transform: translateX(4px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--dtb-shadow-hover);
 }
 
 /* 链接容器样式 */
@@ -565,14 +549,14 @@
     border-radius: 6px;
     border: 1px solid var(--background-modifier-border);
     background: var(--background-secondary);
-    transition: all 0.2s ease;
+    transition: all var(--dtb-anim-fast-curve);
     white-space: nowrap;
 }
 .dtb-link:hover {
     background: var(--background-modifier-hover);
     border-color: var(--text-accent);
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--dtb-shadow-hover);
 }
 .dtb-link:active {
     transform: translateY(0);
@@ -612,7 +596,7 @@
     cursor: pointer;
     font-size: 0.8rem;
     font-weight: 500;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--dtb-anim-fast-curve);
     position: relative;
     overflow: hidden;
 }
@@ -634,7 +618,7 @@
     background: var(--interactive-hover) !important;
     border-color: var(--interactive-accent) !important;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--dtb-shadow-hover);
 }
 .dtb-button:hover::before,
 .dtb-button-container button:hover::before {
@@ -644,7 +628,7 @@
 .dtb-button:active,
 .dtb-button-container button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--dtb-shadow-base);
 }
 
 /* 大按钮容器样式， 用于放置添加背景、API等的按钮 */
@@ -659,16 +643,16 @@
     border-radius: 10px;
     padding: 0.8rem 1.5rem;
     font-weight: 600;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--dtb-anim-fast-curve);
     border: 2px solid transparent;
     background: linear-gradient(135deg, var(--interactive-accent), var(--interactive-accent-hover));
     color: var(--text-on-accent);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--dtb-shadow-base);
 }
 .dtb-large-button:hover,
 .dtb-large-button-container button:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--dtb-shadow-hover);
     border-color: var(--background-modifier-border);
 }
 
@@ -676,7 +660,7 @@
 .dtb-remove-button {
     background-color: var(--background-modifier-error);
     color: var(--text-on-accent);
-    border: none;
+    /* 使用默认 border 值 */
     border-radius: 50%;
     width: 24px;
     height: 24px;
@@ -685,7 +669,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--dtb-anim-fast-curve);
 }
 .dtb-remove-button:hover {
     background-color: var(--background-modifier-error-hover);
@@ -696,7 +680,7 @@
     padding: 8px 12px;
     cursor: pointer;
     border-radius: 4px;
-    transition: background-color 0.15s ease;
+    transition: background-color var(--dtb-anim-fast-curve);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -712,7 +696,7 @@
 /* 可拖拽元素的基础样式 */
 .dtb-draggable {
     cursor: grab;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--dtb-anim-fast-curve);
 }
 .dtb-draggable:hover {
     transform: translateY(-1px);
@@ -733,7 +717,7 @@
     user-select: none;
     font-weight: bold;
     line-height: 1;
-    transition: all 0.2s ease;
+    transition: all var(--dtb-anim-fast-curve);
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -847,8 +831,8 @@
     height: 48px;
     border-radius: 8px;
     border: 2px solid var(--background-modifier-border);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
+    box-shadow: var(--dtb-shadow-base);
+    transition: all var(--dtb-anim-fast-curve);
     position: relative;
     overflow: hidden;
     /* 默认背景样式 */
@@ -860,17 +844,11 @@
 /* 图片类型预览的特殊样式 */
 .dtb-bg-preview.dtb-preview-image {
     background-image: var(--dtb-preview-bg-image, none);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
 }
 /* 颜色和渐变类型预览的特殊样式 */
 .dtb-bg-preview.dtb-preview-color,
 .dtb-bg-preview.dtb-preview-gradient {
     background: var(--dtb-preview-bg, var(--background-secondary));
-    background-size: auto;
-    background-position: initial;
-    background-repeat: initial;
 }
 /* 预览图加载失败时的占位样式 */
 .dtb-bg-preview::before {
@@ -1012,7 +990,6 @@
 }
 .dtb-api-modal-container .dtb-input,
 .dtb-api-modal-container .dtb-dropdown {
-    width: 100%;
     margin-bottom: 8px;
 }
 /* 多选容器优化 */
@@ -1028,7 +1005,7 @@
     margin-bottom: 6px;
     padding: 4px;
     border-radius: 4px;
-    transition: background-color 0.15s ease;
+    transition: background-color var(--dtb-anim-fast-curve);
 }
 .dtb-api-modal-container .dtb-checkbox:hover {
     background-color: var(--background-modifier-hover);
@@ -1115,4 +1092,43 @@
             0 0 16px 4px #91eac9,
             0 0 4px 2px #fff8;
     }
+}
+
+/* =============================================================================
+   亮主题图标可见性优化（仅在插件启用时生效）
+   ============================================================================= */
+/* 统一图标颜色变量，便于主题/悬停态一致性处理 */
+.theme-light.dtb-enabled {
+    --icon-color: var(--text-normal);
+    --icon-color-hover: var(--text-accent);
+    --icon-color-active: var(--interactive-accent);
+}
+
+/* 常见可点击图标采用变量色，保证 currentColor 生效 */
+.theme-light.dtb-enabled .clickable-icon,
+.theme-light.dtb-enabled .workspace-tab-header .clickable-icon,
+.theme-light.dtb-enabled .view-header-icon,
+.theme-light.dtb-enabled .side-dock-ribbon .clickable-icon,
+.theme-light.dtb-enabled .status-bar .clickable-icon {
+    color: var(--icon-color);
+}
+
+.theme-light.dtb-enabled .clickable-icon:hover,
+.theme-light.dtb-enabled .workspace-tab-header .clickable-icon:hover,
+.theme-light.dtb-enabled .view-header-icon:hover,
+.theme-light.dtb-enabled .side-dock-ribbon .clickable-icon:hover,
+.theme-light.dtb-enabled .status-bar .clickable-icon:hover {
+    color: var(--icon-color-hover);
+}
+
+.theme-light.dtb-enabled .clickable-icon.is-active,
+.theme-light.dtb-enabled .clickable-icon:active {
+    color: var(--icon-color-active);
+}
+
+/* 确保 SVG 图标继承字体色生效 */
+.theme-light.dtb-enabled .clickable-icon svg,
+.theme-light.dtb-enabled .view-header-icon svg {
+    fill: none; /* 保持线框图标不被实心填充覆盖细节 */
+    stroke: currentColor;
 }

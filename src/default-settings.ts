@@ -19,7 +19,7 @@ function genDefaultSettings(): DTBSettings {
         brightness4Bg: 0.9,
         saturate4Bg: 1,
         // 亮/暗主题两套默认遮罩
-        bgColorLight: "#e0e0e0",
+        bgColorLight: "#c8c8c8",
         bgColorOpacityLight: 0.32,
         bgColorDark: "#1f1e1e",
         bgColorOpacityDark: 0.38,

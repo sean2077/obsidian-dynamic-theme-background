@@ -6,7 +6,9 @@
     "scripts": {
         "dev": "node esbuild.config.mjs",
         "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-        "fmt": "prettier --write src/**/*.ts"
+        "fmt": "prettier --write src/**/*.ts",
+        "lint:css": "stylelint \"**/*.css\"",
+        "fix:css": "stylelint \"**/*.css\" --fix"
     },
     "keywords": [],
     "author": "",
@@ -20,6 +22,11 @@
         "esbuild": "^0.25.8",
         "obsidian": "latest",
         "prettier": "latest",
+        "stylelint": "^16.9.0",
+        "stylelint-config-recommended": "^14.0.0",
+        "stylelint-config-standard": "^36.0.0",
+        "stylelint-config-idiomatic-order": "^10.0.0",
+        "stylelint-order": "^6.0.4",
         "tslib": "^2.5.0",
         "typescript": "^5.0.0"
     },
