@@ -1,3 +1,9 @@
+## [2.8.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.0...2.8.1) (2025-09-14)
+
+### Fixes
+
+* Add global appearance settings hint in settings tab ([ad472e9](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/ad472e9e17dc36977278f3a8cc4e703baea2f7c5))
+
 ## [2.8.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.7.2...2.8.0) (2025-09-13)
 
 ### Fixes
