@@ -16,6 +16,8 @@ export default {
 
     // ===== 外观设置 =====
     appearance_settings_title: "外观设置",
+    appearance_settings_hint:
+        "💡 这里设置的是全局外观，优先级低于每个背景的单独设置。如果发现此处设置不生效，请先检查当前激活的背景是否设置了单独的外观配置覆盖了全局设置。",
     blur_depth_name: "背景模糊",
     blur_depth_desc: "设置背景的模糊程度，范围 0-30",
     reset_blur_tooltip: "重置为默认模糊度",

@@ -182,6 +182,9 @@ export class DTBSettingTab extends PluginSettingTab {
 
         // 外观设置
         containerEl.createEl("h4", { text: t("appearance_settings_title") });
+        // 外观设置提示（全局外观优先级说明）
+        const appearanceHint = containerEl.createDiv("dtb-hint");
+        appearanceHint.textContent = t("appearance_settings_hint");
         // 背景模糊度设置
         new Setting(containerEl)
             .setName(t("blur_depth_name"))

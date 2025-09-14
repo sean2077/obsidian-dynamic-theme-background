@@ -17,6 +17,8 @@ export default {
 
     // ===== 外观设置 =====
     appearance_settings_title: "Appearance Settings",
+    appearance_settings_hint:
+        "💡 Global appearance settings. These act as defaults and have lower priority than per-background overrides. If changes here seem ineffective, check whether the currently active background has its own appearance overrides.",
     blur_depth_name: "Background Blur",
     blur_depth_desc: "Set the background blurriness, from 0 to 30.",
     reset_blur_tooltip: "Reset to default blur",
