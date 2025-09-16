@@ -74,8 +74,8 @@
     --dtb-anim-normal-curve: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* 阴影仅保留两档：基础/悬停（另保留焦点描边） */
-    --dtb-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.06);
-    --dtb-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --dtb-shadow-base: 0 2px 8px rgb(0 0 0 / 0.06);
+    --dtb-shadow-hover: 0 4px 12px rgb(0 0 0 / 0.15);
     --dtb-shadow-outline: 0 0 0 2px var(--interactive-accent-hover);
 }
 
@@ -102,10 +102,10 @@
 
 /* 通过主题类切换遮罩变量：将 light/dark 两套变量映射到统一 --dtb-bg-color */
 .theme-light {
-    --dtb-bg-color: var(--dtb-bg-color-light, rgba(200, 200, 200, 0.38));
+    --dtb-bg-color: var(--dtb-bg-color-light, rgb(200 200 200 / 0.38));
 }
 .theme-dark {
-    --dtb-bg-color: var(--dtb-bg-color-dark, rgba(31, 30, 30, 0.38));
+    --dtb-bg-color: var(--dtb-bg-color-dark, rgb(31 30 30 / 0.38));
 }
 .dtb-enabled .workspace::before {
     background-image: var(--dtb-bg-image);
@@ -191,8 +191,8 @@
 .dtb-section-container .setting-item:hover {
     border-color: var(--interactive-accent);
     box-shadow:
-        0 3px 12px rgba(0, 0, 0, 0.08),
-        0 1px 4px rgba(var(--interactive-accent-rgb), 0.1);
+        0 3px 12px rgb(0 0 0 / 0.08),
+        0 1px 4px rgb(var(--interactive-accent-rgb) / 0.1);
     transform: translateY(-1px);
 }
 
@@ -237,7 +237,7 @@
 /* 紧凑描述文字 */
 .dtb-section-container .setting-item .setting-item-description {
     overflow-wrap: break-word;
-    word-break: break-word;
+    /* word-break: break-word; deprecated; rely on overflow-wrap */
     hyphens: auto;
     line-height: 1.4;
     color: var(--text-muted);
@@ -312,8 +312,8 @@
 .theme-dark .dtb-item:hover,
 .theme-dark .dtb-section-container .setting-item:hover {
     box-shadow:
-        0 3px 12px rgba(0, 0, 0, 0.2),
-        0 1px 4px rgba(var(--interactive-accent-rgb), 0.15);
+        0 3px 12px rgb(0 0 0 / 0.2),
+        0 1px 4px rgb(var(--interactive-accent-rgb) / 0.15);
 }
 
 /* 通用列表容器样式 */
@@ -609,7 +609,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.1), transparent);
     transition: left 0.5s ease;
 }
 /* 按钮悬停效果 */
@@ -870,12 +870,12 @@
     position: absolute;
     inset: 0;
     border-radius: 6px;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
 }
 /* 预览图悬停效果 */
 .dtb-bg-preview:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
 }
 
 /* =============================================================================
@@ -1043,7 +1043,7 @@
     font-weight: bold;
     font-size: 1em;
     color: var(--status-bar-text-color, var(--text-normal));
-    box-shadow: 0 1px 6px 0 rgba(80, 180, 255, 0.1);
+    box-shadow: 0 1px 6px 0 rgb(80 180 255 / 0.1);
     border: 1px solid var(--background-modifier-border);
     position: relative;
     overflow: hidden;
@@ -1053,9 +1053,9 @@
 }
 .dtb-status-bar:hover {
     box-shadow:
-        0 2px 12px 0 rgba(80, 180, 255, 0.18),
+        0 2px 12px 0 rgb(80 180 255 / 0.18),
         0 0 8px 2px #91eac9;
-    background: linear-gradient(90deg, var(--status-bar-background, rgba(40, 44, 52, 0.92)) 60%, #91eac9 100%);
+    background: linear-gradient(90deg, var(--status-bar-background, rgb(40 44 52 / 0.92)) 60%, #91eac9 100%);
 }
 .dtb-status-bar .dtb-status-icon {
     width: 1.4em;

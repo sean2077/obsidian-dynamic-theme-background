@@ -9,10 +9,18 @@
         "property-no-vendor-prefix": true,
         "value-no-vendor-prefix": true,
         "color-named": "never",
-        "color-function-notation": "legacy",
+        "color-function-notation": "modern",
         "alpha-value-notation": "number",
-        "media-feature-range-notation": "prefix",
-        "selector-class-pattern": "^(dtb-[a-z0-9-]+|theme-(light|dark)|workspace.*|view.*|markdown-.*|cm-.*|setting-.*|status-.*|titlebar-.*|mod-.*|is-.*|tappable.*|enabled|disabled|error|loading)$",
+        "media-feature-range-notation": null,
+        "selector-class-pattern": "^(dtb-[a-z0-9-]+|theme-(light|dark)|workspace.*|view.*|markdown-.*|cm-.*|setting-.*|status-.*|titlebar-.*|mod-.*|is-.*|tappable.*|enabled|disabled|error|loading|clickable-icon|side-dock-ribbon)$",
+        "value-keyword-case": [
+            "lower",
+            {
+                "ignoreKeywords": [
+                    "currentColor"
+                ]
+            }
+        ],
         "no-descending-specificity": null,
         "block-no-empty": true,
         "comment-empty-line-before": null,
