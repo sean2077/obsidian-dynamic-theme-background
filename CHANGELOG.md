@@ -1,3 +1,9 @@
+## [2.8.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.1...2.8.2) (2025-09-16)
+
+### Fixes
+
+* Update stylelint configuration and improve CSS variable definitions ([a098ecc](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/a098ecc61fc47d6bfcfa7f5f329a687ecfdfe937))
+
 ## [2.8.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.0...2.8.1) (2025-09-14)
 
 ### Fixes
