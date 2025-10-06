@@ -14,21 +14,21 @@
     "author": "",
     "license": "MIT",
     "devDependencies": {
-        "@types/node": "^24.5.2",
-        "@typescript-eslint/eslint-plugin": "^8.44.1",
+        "@types/node": "^24.6.2",
+        "@typescript-eslint/eslint-plugin": "^8.45.0",
         "@typescript-eslint/parser": "^8.42.0",
         "all-contributors-cli": "^6.26.1",
         "builtin-modules": "^5.0.0",
         "esbuild": "^0.25.10",
         "obsidian": "latest",
         "prettier": "latest",
-        "stylelint": "^16.9.0",
+        "stylelint": "^16.25.0",
         "stylelint-config-recommended": "^17.0.0",
         "stylelint-config-standard": "^39.0.0",
         "stylelint-config-idiomatic-order": "^10.0.0",
         "stylelint-order": "^7.0.0",
         "tslib": "^2.5.0",
-        "typescript": "^5.0.0"
+        "typescript": "^5.9.3"
     },
     "dependencies": {
         "jsonpath-plus": "^10.3.0"
