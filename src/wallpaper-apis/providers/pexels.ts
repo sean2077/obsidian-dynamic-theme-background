@@ -65,7 +65,7 @@ export class PexelsApi extends BaseWallpaperApi {
         return [
             {
                 key: "api_key",
-                label: "API Key",
+                label: "API key",
                 type: "password",
                 required: true,
                 placeholder: "Your Pexels API key",
@@ -73,7 +73,7 @@ export class PexelsApi extends BaseWallpaperApi {
             },
             {
                 key: "query",
-                label: "Search Query",
+                label: "Search query",
                 type: "string",
                 required: false,
                 placeholder: "nature, landscape, abstract...",
@@ -166,14 +166,14 @@ export class PexelsApi extends BaseWallpaperApi {
             },
             {
                 key: "per_page",
-                label: "Photos Per Page",
+                label: "Photos per page",
                 type: "number",
                 defaultValue: defaultParams.per_page,
                 description: "Number of photos per page (max 80)",
             },
             {
                 key: "page",
-                label: "Page Number",
+                label: "Page number",
                 type: "number",
                 defaultValue: defaultParams.page,
                 description: "Page number to fetch",

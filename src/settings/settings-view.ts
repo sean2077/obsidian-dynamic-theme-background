@@ -56,6 +56,5 @@ export class DTBSettingsView extends ItemView {
             this.settingTab.containerEl.empty();
         }
         this.settingTab = null; // 释放引用，帮助垃圾回收
-        this.plugin.deactivateView(); // 确保视图被正确清理
     }
 }

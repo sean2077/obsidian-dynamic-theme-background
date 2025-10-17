@@ -32,9 +32,9 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         await this.loadSettings();
 
         // 左侧栏图标
-        this.addRibbonIcon("rainbow", "🌈 Obsidian DTB", async (evt: MouseEvent) => {
-            await this.applyRandomWallpaper();
-        });
+        // this.addRibbonIcon("rainbow", "🌈 DTB", async (evt: MouseEvent) => {
+        //     await this.applyRandomWallpaper();
+        // });
 
         // 状态栏
         if (this.settings.statusBarEnabled) {
@@ -69,7 +69,6 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
     onunload() {
         this.stopBackgroundManager();
-        this.deactivateView(); // 清理自定义视图
 
         // 清理所有注册的API实例（包括状态管理器中的所有订阅）
         apiManager.deleteAllApis();
@@ -88,25 +87,26 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     }
 
     /**
-     * 停止并清理设置标签页视图
-     */
-    deactivateView() {
-        this.app.workspace.detachLeavesOfType(DTB_SETTINGS_VIEW_TYPE);
-    }
-
-    /**
      * 激活设置标签页视图
      */
     async activateView() {
-        this.deactivateView();
-        const leaf = this.app.workspace.getLeaf("tab");
-        await leaf.setViewState({
-            type: DTB_SETTINGS_VIEW_TYPE,
-            active: true,
-        });
+        // 检查是否已经存在该类型的 leaf
+        const existingLeaf = this.app.workspace.getLeavesOfType(DTB_SETTINGS_VIEW_TYPE)[0];
 
-        // 确保标签页获得焦点
-        this.app.workspace.revealLeaf(leaf);
+        if (existingLeaf) {
+            // 如果已存在，则聚焦它
+            this.app.workspace.revealLeaf(existingLeaf);
+        } else {
+            // 如果不存在，则创建新的 leaf
+            const leaf = this.app.workspace.getLeaf("tab");
+            await leaf.setViewState({
+                type: DTB_SETTINGS_VIEW_TYPE,
+                active: true,
+            });
+
+            // 确保标签页获得焦点
+            this.app.workspace.revealLeaf(leaf);
+        }
     }
 
     /**

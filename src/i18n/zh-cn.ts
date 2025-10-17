@@ -1,6 +1,6 @@
 export default {
     // ===== 设置标题 =====
-    settings_title: "🌈 动态主题背景设置",
+    settings_title: "🌈 动态主题背景",
     version: "🛠️ 版本: ",
     author: "🎨 作者: ",
     homepage: "🏠 首页: ",

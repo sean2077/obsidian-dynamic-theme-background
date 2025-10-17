@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌈 Obsidian DTB
+# 🌈 动态主题背景 (DTB)
 ### 在 Obsidian 中打造你的专属壁纸库！
 *让每一次笔记体验都充满视觉灵感*
 

@@ -65,7 +65,7 @@ export class UnsplashApi extends BaseWallpaperApi {
         return [
             {
                 key: "client_id",
-                label: "Access Key",
+                label: "Access key",
                 type: "password",
                 required: true,
                 placeholder: "Your Unsplash access key",
@@ -73,7 +73,7 @@ export class UnsplashApi extends BaseWallpaperApi {
             },
             {
                 key: "query",
-                label: "Search Query",
+                label: "Search query",
                 type: "string",
                 required: false,
                 placeholder: "nature, landscape, abstract...",
@@ -81,7 +81,7 @@ export class UnsplashApi extends BaseWallpaperApi {
             },
             {
                 key: "order_by",
-                label: "Order By",
+                label: "Order by",
                 type: "select",
                 defaultValue: defaultParams.order_by,
                 description: "How to sort the search results",
@@ -126,7 +126,7 @@ export class UnsplashApi extends BaseWallpaperApi {
             },
             {
                 key: "content_filter",
-                label: "Content Filter",
+                label: "Content filter",
                 type: "select",
                 defaultValue: defaultParams.content_filter,
                 description: "Limit results by content safety",
@@ -145,14 +145,14 @@ export class UnsplashApi extends BaseWallpaperApi {
             },
             {
                 key: "per_page",
-                label: "Photos Per Page",
+                label: "Photos per page",
                 type: "number",
                 defaultValue: defaultParams.per_page,
                 description: "Number of photos per page (max 30)",
             },
             {
                 key: "page",
-                label: "Page Number",
+                label: "Page number",
                 type: "number",
                 defaultValue: defaultParams.page,
                 description: "Page number to fetch",

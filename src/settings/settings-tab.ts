@@ -104,7 +104,7 @@ export class DTBSettingTab extends PluginSettingTab {
 
         // 创建左侧标题容器
         const titleContainer = headerContainer.createDiv();
-        titleContainer.createEl("h2", { text: t("settings_title"), cls: "" });
+        // 移除顶级标题，按照Obsidian指南
 
         // 创建右侧信息容器
         const infoContainer = headerContainer.createDiv("dtb-links");
@@ -120,7 +120,7 @@ export class DTBSettingTab extends PluginSettingTab {
             cls: "dtb-link",
         });
         infoContainer.createEl("a", {
-            text: t("homepage") + "Obsidian DTB",
+            text: t("homepage") + "DTB",
             href: "https://obsidian-dynamic-theme-background.pages.dev",
             cls: "dtb-link",
         });
@@ -133,7 +133,9 @@ export class DTBSettingTab extends PluginSettingTab {
     displayBasicSettings() {
         const containerEl = this.basicSettingEl;
         containerEl.empty();
-        containerEl.createEl("h3", { text: t("basic_settings_title") });
+
+        // 基础设置标题
+        new Setting(containerEl).setName(t("basic_settings_title")).setHeading();
 
         // 是否启用插件
         new Setting(containerEl)
@@ -181,7 +183,7 @@ export class DTBSettingTab extends PluginSettingTab {
             );
 
         // 外观设置
-        containerEl.createEl("h4", { text: t("appearance_settings_title") });
+        new Setting(containerEl).setName(t("appearance_settings_title")).setHeading();
         // 外观设置提示（全局外观优先级说明）
         const appearanceHint = containerEl.createDiv("dtb-hint");
         appearanceHint.textContent = t("appearance_settings_hint");
@@ -392,7 +394,9 @@ export class DTBSettingTab extends PluginSettingTab {
     displayModeSettings() {
         const containerEl = this.modeSettingsEl;
         containerEl.empty();
-        containerEl.createEl("h3", { text: t("mode_settings_title") });
+
+        // 模式设置标题
+        new Setting(containerEl).setName(t("mode_settings_title")).setHeading();
 
         new Setting(containerEl)
             .setName(t("switch_mode_name"))
@@ -425,7 +429,7 @@ export class DTBSettingTab extends PluginSettingTab {
 
         // 时间规则（仅在时间模式下显示）
         if (this.plugin.settings.mode === "time-based") {
-            containerEl.createEl("h4", { text: t("time_rules_title") });
+            new Setting(containerEl).setName(t("time_rules_title")).setHeading();
             const buttonContainer = containerEl.createDiv("dtb-large-button-container");
             new Setting(buttonContainer)
                 .setName(t("manage_time_rules_name"))
@@ -655,8 +659,8 @@ export class DTBSettingTab extends PluginSettingTab {
         const containerEl = this.bgManagementEl;
         containerEl.empty();
 
-        // 背景管理
-        containerEl.createEl("h3", { text: t("bg_management_title") });
+        // 背景管理标题
+        new Setting(containerEl).setName(t("bg_management_title")).setHeading();
 
         // 保存远程图片的本地路径
         const imageFolderInputContainer = containerEl.createDiv("setting-item dtb-flex-container-spaced");
@@ -1078,7 +1082,8 @@ export class DTBSettingTab extends PluginSettingTab {
         const containerEl = this.wallpaperApiSettingsEl;
         containerEl.empty();
 
-        containerEl.createEl("h3", { text: t("wallpaper_api_management_title") });
+        // 壁纸API管理标题
+        new Setting(containerEl).setName(t("wallpaper_api_management_title")).setHeading();
 
         // 添加 API 按钮
         const buttonContainer = containerEl.createDiv("dtb-large-button-container");

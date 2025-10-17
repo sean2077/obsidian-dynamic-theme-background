@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌈 Obsidian DTB
+# 🌈 Dynamic Theme Background
 ### Build Your Own Wallpaper Library in Obsidian!
 *Make every note-taking experience visually inspiring*
 

@@ -55,7 +55,7 @@ export class CustomApi extends BaseWallpaperApi {
         return [
             {
                 key: "imageUrlJsonPath",
-                label: "Image URL JSON Path",
+                label: "Image URL JSON path",
                 type: "string",
                 required: true,
                 placeholder: "$.data.images[*].url or $.url or $[*].imageUrl",

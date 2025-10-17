@@ -64,7 +64,7 @@ export class WallhavenApi extends BaseWallpaperApi {
         return [
             {
                 key: "apikey",
-                label: "API Key",
+                label: "API key",
                 type: "password",
                 required: false,
                 placeholder: "Your Wallhaven API key (optional)",
@@ -72,7 +72,7 @@ export class WallhavenApi extends BaseWallpaperApi {
             },
             {
                 key: "q",
-                label: "Search Query",
+                label: "Search query",
                 type: "string",
                 required: false,
                 placeholder: "nature, landscape, abstract...",
@@ -107,7 +107,7 @@ export class WallhavenApi extends BaseWallpaperApi {
             },
             {
                 key: "purity",
-                label: "Content Purity",
+                label: "Content purity",
                 type: "multiselect",
                 defaultValue: "100",
                 description: "Select content purity levels",
@@ -135,7 +135,7 @@ export class WallhavenApi extends BaseWallpaperApi {
             },
             {
                 key: "sorting",
-                label: "Sort By",
+                label: "Sort by",
                 type: "select",
                 defaultValue: defaultParams.sorting,
                 description: "How to sort the results",
@@ -161,7 +161,7 @@ export class WallhavenApi extends BaseWallpaperApi {
             },
             {
                 key: "topRange",
-                label: "Top Range",
+                label: "Top range",
                 type: "select",
                 defaultValue: defaultParams.topRange,
                 description: "Time range for top wallpapers. (Sorting MUST be set to 'toplist')",
@@ -176,7 +176,7 @@ export class WallhavenApi extends BaseWallpaperApi {
             },
             {
                 key: "atleast",
-                label: "Minimum Resolution",
+                label: "Minimum resolution",
                 type: "string",
                 required: false,
                 placeholder: "1920x1080",
@@ -192,7 +192,7 @@ export class WallhavenApi extends BaseWallpaperApi {
             },
             {
                 key: "ratios",
-                label: "Aspect Ratios",
+                label: "Aspect ratios",
                 type: "string",
                 required: false,
                 placeholder: "16x9,16x10",
@@ -208,7 +208,7 @@ export class WallhavenApi extends BaseWallpaperApi {
             },
             {
                 key: "page",
-                label: "Page Number",
+                label: "Page number",
                 type: "number",
                 defaultValue: defaultParams.page,
                 description: "Page number to fetch",
