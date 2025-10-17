@@ -1,3 +1,9 @@
+## [2.8.3](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.2...2.8.3) (2025-10-17)
+
+### Fixes
+
+* comply with Obsidian plugin guidelines ([5ab3478](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/5ab3478aeb1b55ea697a65d598c83d6a371fb991)), closes [/github.com/obsidianmd/obsidian-releases/pull/7359#issuecomment-3403529390](https://github.com/sean2077//github.com/obsidianmd/obsidian-releases/pull/7359/issues/issuecomment-3403529390)
+
 ## [2.8.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.1...2.8.2) (2025-09-16)
 
 ### Fixes
