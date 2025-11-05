@@ -1,3 +1,9 @@
+## [2.8.4](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.3...2.8.4) (2025-11-05)
+
+### Fixes
+
+* resolve ESLint errors for Obsidian plugin validation ([d3663dc](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/d3663dc7bc050964468e2f6ecae53f437e9b06e0))
+
 ## [2.8.3](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.2...2.8.3) (2025-10-17)
 
 ### Fixes
