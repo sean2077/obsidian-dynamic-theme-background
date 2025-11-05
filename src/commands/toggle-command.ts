@@ -11,7 +11,7 @@ export function createToggleCommand(plugin: DynamicThemeBackgroundPlugin): Comma
         name: t("command_toggle_name"),
         callback: () => {
             plugin.settings.enabled = !plugin.settings.enabled;
-            plugin.saveSettings();
+            void plugin.saveSettings();
 
             if (plugin.settings.enabled) {
                 plugin.startBackgroundManager();

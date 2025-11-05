@@ -263,11 +263,11 @@ export class Qihoo360Api extends BaseWallpaperApi {
         }
     }
 
-    async deinit(): Promise<boolean> {
+    deinit(): Promise<boolean> {
         this.initialized = false;
         this.categoriesCache = [];
         this.hotSearchCache = [];
-        return true;
+        return Promise.resolve(true);
     }
 
     async updateImageCache(): Promise<boolean> {

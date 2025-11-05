@@ -57,8 +57,8 @@ export function confirm(app: App, message: string): Promise<boolean> {
     return new Promise((resolve) => {
         new ConfirmModal(app, {
             message,
-            onConfirm: async () => resolve(true),
-            onCancel: async () => resolve(false),
+            onConfirm: () => resolve(true),
+            onCancel: () => resolve(false),
         }).open();
     });
 }

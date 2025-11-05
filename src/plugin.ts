@@ -64,7 +64,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             apiManager.createApi(apiConfig);
         }
 
-        console.log("Dynamic Theme Background plugin loaded");
+        console.debug("Dynamic Theme Background plugin loaded");
     }
 
     onunload() {
@@ -73,7 +73,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         // 清理所有注册的API实例（包括状态管理器中的所有订阅）
         apiManager.deleteAllApis();
 
-        console.log("Dynamic Theme Background plugin unloaded");
+        console.debug("Dynamic Theme Background plugin unloaded");
     }
 
     async loadSettings() {
@@ -99,7 +99,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         } else {
             // 如果不存在，则创建新的 leaf
             const leaf = this.app.workspace.getLeaf("tab");
-            await leaf.setViewState({
+            void leaf.setViewState({
                 type: DTB_SETTINGS_VIEW_TYPE,
                 active: true,
             });
@@ -125,19 +125,19 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         this.statusBar.setText("🌈 DTB");
         this.statusBar.addClass("dtb-status-bar");
         this.statusBar.setAttribute("title", t("status_bar_title"));
-        this.statusBar.addEventListener("click", async (evt) => {
+        this.statusBar.addEventListener("click", (evt) => {
             if (evt.button === 0) {
-                await this.applyRandomWallpaper();
+                void this.applyRandomWallpaper();
             }
         });
-        this.statusBar.addEventListener("auxclick", async (evt) => {
+        this.statusBar.addEventListener("auxclick", (evt) => {
             if (evt.button === 1) {
-                await this.activateView();
+                void this.activateView();
             }
         });
-        this.statusBar.addEventListener("contextmenu", async (evt) => {
+        this.statusBar.addEventListener("contextmenu", (evt) => {
             evt.preventDefault();
-            await this.saveBackground();
+            void this.saveBackground();
         });
     }
 
@@ -169,7 +169,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         }
 
         // 立即执行一次更新
-        this.updateBackground(true);
+        void this.updateBackground(true);
 
         if (this.settings.mode === "time-based") {
             // 时段模式：使用 setTimeout，计算到下一个时段的时间
@@ -178,8 +178,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             // 间隔模式：使用 setInterval
             const intervalMs = this.settings.intervalMinutes * 60000;
             this.intervalId = this.registerInterval(
-                window.setInterval(async () => {
-                    await this.updateBackground(false);
+                window.setInterval(() => {
+                    void this.updateBackground(false);
                 }, intervalMs)
             );
 
@@ -195,7 +195,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     }
 
     // 时段规则下的背景更新循环，通过 setTimeout 实现
-    async startTimeBasedManager() {
+    startTimeBasedManager(): void {
         const scheduleNext = () => {
             const nextRuleChange = this.getNextRuleChangeTime();
             if (nextRuleChange) {
@@ -204,8 +204,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                 // 确保延迟时间为正数，最少1秒
                 const actualDelay = Math.max(delay, 1000);
 
-                this.timeoutId = window.setTimeout(async () => {
-                    await this.updateBackground(false);
+                this.timeoutId = window.setTimeout(() => {
+                    void this.updateBackground(false);
                     // 此处应该刷新设置页中的时间规则列表
                     this.refreshActiveTimeRules();
                     scheduleNext(); // 递归调度下一个时段
@@ -219,8 +219,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             } else {
                 // 如果没有下一个时段，24小时后重新检查
                 this.timeoutId = window.setTimeout(
-                    async () => {
-                        await this.updateBackground(false);
+                    () => {
+                        void this.updateBackground(false);
                         scheduleNext();
                     },
                     24 * 60 * 60 * 1000
@@ -270,7 +270,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
                     // API失败时回退到本地背景
                     this.settings.currentIndex = (this.settings.currentIndex + 1) % this.settings.backgrounds.length;
                     this.background = this.settings.backgrounds[this.settings.currentIndex];
-                    this.saveSettings();
+                    void this.saveSettings();
                     needsUpdate = true;
                 }
                 break;
@@ -385,7 +385,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             }
 
             // 异步加载图片并更新尺寸
-            this.loadImageAndUpdateSize(resourcePath, screenRatio);
+            void this.loadImageAndUpdateSize(resourcePath, screenRatio);
 
             return "contain"; // 默认返回contain，异步更新后会重新渲染
         } catch (error) {
@@ -522,7 +522,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         }
 
         // 默认图片名为 bg.name + .jpg , 并规范化路径 移除禁止的字符： \ / : * ? " < > |
-        const imageName = bg.name.replace(/[\\\/:\*\?"<>\|]/g, "_") + ".jpg";
+        const imageName = bg.name.replace(/[\\/:*?"<>|]/g, "_") + ".jpg";
         const localPath = `${folderPath}/${imageName}`;
 
         // 判断路径是否存在，如果存在，由用户确定是否覆盖
@@ -545,7 +545,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
         // 如果需要覆盖，则先删除旧文件
         if (file) {
-            await this.app.vault.delete(file);
+            await this.app.fileManager.trashFile(file);
         }
         await this.app.vault.createBinary(localPath, arrayBuffer);
 
@@ -586,7 +586,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             loadingNotice.hide();
 
             if (!wallpaperImages || wallpaperImages.length === 0) {
-                console.warn(`DTB: No images returned from API: ${selectedApi.getName}`);
+                console.warn(`DTB: No images returned from API: ${selectedApi.getName()}`);
                 return null;
             }
             const randomImage = wallpaperImages[Math.floor(Math.random() * wallpaperImages.length)];
@@ -634,7 +634,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         if (bg.remoteUrl) {
             // 这里恢复备份, 按理在这做不太合适
             bg.value = bg.remoteUrl;
-            this.saveSettings(); // 保存设置
+            void this.saveSettings(); // 保存设置
             return `url("${bg.remoteUrl}")`;
         }
 

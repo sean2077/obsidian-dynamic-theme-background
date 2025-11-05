@@ -14,7 +14,7 @@ export function createNextBackgroundCommand(plugin: DynamicThemeBackgroundPlugin
                 plugin.settings.currentIndex = (plugin.settings.currentIndex + 1) % plugin.settings.backgrounds.length;
                 plugin.background = plugin.settings.backgrounds[plugin.settings.currentIndex];
                 plugin.updateStyleCss();
-                plugin.saveSettings();
+                void plugin.saveSettings();
                 new Notice(
                     t("command_next_bg_notice", {
                         bgName: plugin.background.name,

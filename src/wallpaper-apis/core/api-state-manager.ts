@@ -52,7 +52,7 @@ export class ApiStateManager {
      */
     notify(apiId: string, state: ApiState): void {
         // 立即返回，异步执行所有回调以避免阻塞调用者
-        setTimeout(async () => {
+        setTimeout(() => {
             const callbackPromises: Promise<void>[] = [];
 
             for (const { subscriber, callback } of this.listeners.values()) {
@@ -76,7 +76,7 @@ export class ApiStateManager {
 
             // 并发执行所有回调，但不等待结果（火后即忘模式）
             if (callbackPromises.length > 0) {
-                Promise.all(callbackPromises).catch((error) => {
+                void Promise.all(callbackPromises).catch((error) => {
                     console.warn("DTB: Unexpected error in state notification batch:", error);
                 });
             }

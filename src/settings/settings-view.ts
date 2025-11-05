@@ -43,6 +43,7 @@ export class DTBSettingsView extends ItemView {
             this.settingTab.containerEl = container as HTMLElement;
             this.settingTab.display();
         }
+        return Promise.resolve();
     }
 
     async onClose(): Promise<void> {
@@ -56,5 +57,6 @@ export class DTBSettingsView extends ItemView {
             this.settingTab.containerEl.empty();
         }
         this.settingTab = null; // 释放引用，帮助垃圾回收
+        return Promise.resolve();
     }
 }

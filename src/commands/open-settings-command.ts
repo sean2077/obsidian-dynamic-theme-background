@@ -10,7 +10,7 @@ export function createOpenSettingsCommand(plugin: DynamicThemeBackgroundPlugin):
         id: "open-dtb-settings-tab",
         name: t("command_open_settings_tab_name"),
         callback: () => {
-            plugin.activateView();
+            void plugin.activateView();
         },
     };
 }

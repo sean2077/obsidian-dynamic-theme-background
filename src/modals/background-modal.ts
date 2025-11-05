@@ -167,7 +167,7 @@ export class BackgroundModal extends Modal {
                     .setLimits(0, 30, 1)
                     .setDynamicTooltip()
                     .setValue(this.blurDepth ?? this.bgItem.blurDepth ?? this.plugin.settings.blurDepth)
-                    .onChange(async (value: number) => {
+                    .onChange((value: number) => {
                         this.blurDepth = value;
                     })
             )
@@ -175,7 +175,7 @@ export class BackgroundModal extends Modal {
                 button
                     .setIcon("reset")
                     .setTooltip(t("reset_blur_tooltip"))
-                    .onClick(async () => {
+                    .onClick(() => {
                         // 清空每背景覆盖，让其回退到全局
                         this.blurDepth = undefined;
                         this.bgItem.blurDepth = undefined as any;
@@ -191,7 +191,7 @@ export class BackgroundModal extends Modal {
                     .setLimits(0, 1.5, 0.01)
                     .setDynamicTooltip()
                     .setValue(this.brightness4Bg ?? this.bgItem.brightness4Bg ?? this.plugin.settings.brightness4Bg)
-                    .onChange(async (value: number) => {
+                    .onChange((value: number) => {
                         this.brightness4Bg = value;
                     })
             )
@@ -199,7 +199,7 @@ export class BackgroundModal extends Modal {
                 button
                     .setIcon("reset")
                     .setTooltip(t("reset_brightness_tooltip"))
-                    .onClick(async () => {
+                    .onClick(() => {
                         // 清空每背景覆盖，让其回退到全局
                         this.brightness4Bg = undefined;
                         this.bgItem.brightness4Bg = undefined as any;
@@ -215,7 +215,7 @@ export class BackgroundModal extends Modal {
                     .setLimits(0, 2, 0.01)
                     .setDynamicTooltip()
                     .setValue(this.saturate4Bg ?? this.bgItem.saturate4Bg ?? this.plugin.settings.saturate4Bg)
-                    .onChange(async (value: number) => {
+                    .onChange((value: number) => {
                         this.saturate4Bg = value;
                     })
             )
@@ -223,7 +223,7 @@ export class BackgroundModal extends Modal {
                 button
                     .setIcon("reset")
                     .setTooltip(t("reset_saturate_tooltip"))
-                    .onClick(async () => {
+                    .onClick(() => {
                         // 清空每背景覆盖，让其回退到全局
                         this.saturate4Bg = undefined;
                         this.bgItem.saturate4Bg = undefined as any;
@@ -237,7 +237,7 @@ export class BackgroundModal extends Modal {
         overlayRow.addColorPicker((picker) =>
             picker
                 .setValue(this.bgColorDark ?? this.bgItem.bgColorDark ?? this.plugin.settings.bgColorDark)
-                .onChange(async (value: string) => {
+                .onChange((value: string) => {
                     this.bgColorDark = value;
                 })
         );
@@ -248,7 +248,7 @@ export class BackgroundModal extends Modal {
                 .setValue(
                     this.bgColorOpacityDark ?? this.bgItem.bgColorOpacityDark ?? this.plugin.settings.bgColorOpacityDark
                 )
-                .onChange(async (value: number) => {
+                .onChange((value: number) => {
                     this.bgColorOpacityDark = value;
                 })
         );
@@ -257,7 +257,7 @@ export class BackgroundModal extends Modal {
         overlayRow.addColorPicker((picker) =>
             picker
                 .setValue(this.bgColorLight ?? this.bgItem.bgColorLight ?? this.plugin.settings.bgColorLight)
-                .onChange(async (value: string) => {
+                .onChange((value: string) => {
                     this.bgColorLight = value;
                 })
         );
@@ -270,7 +270,7 @@ export class BackgroundModal extends Modal {
                         this.bgItem.bgColorOpacityLight ??
                         this.plugin.settings.bgColorOpacityLight
                 )
-                .onChange(async (value: number) => {
+                .onChange((value: number) => {
                     this.bgColorOpacityLight = value;
                 })
         );
@@ -278,7 +278,7 @@ export class BackgroundModal extends Modal {
             button
                 .setIcon("reset")
                 .setTooltip(t("reset_bg_mask_color_tooltip"))
-                .onClick(async () => {
+                .onClick(() => {
                     // 清空每背景遮罩覆盖，让其回退到全局
                     this.bgColorDark = undefined;
                     this.bgColorOpacityDark = undefined;
@@ -318,7 +318,7 @@ export class BackgroundModal extends Modal {
                 );
                 dropdown
                     .setValue(this.bgSize ?? this.bgItem.bgSize ?? this.plugin.settings.bgSize)
-                    .onChange(async (value: "cover" | "contain" | "auto" | "intelligent") => {
+                    .onChange((value: "cover" | "contain" | "auto" | "intelligent") => {
                         this.bgSize = value;
                     });
 
@@ -328,7 +328,7 @@ export class BackgroundModal extends Modal {
                 button
                     .setIcon("reset")
                     .setTooltip(t("reset_bg_size_tooltip"))
-                    .onClick(async () => {
+                    .onClick(() => {
                         // 清空每背景覆盖，让其回退到全局
                         this.bgSize = undefined;
                         this.bgItem.bgSize = undefined as any;

@@ -246,9 +246,9 @@ export class UnsplashApi extends BaseWallpaperApi {
         }
     }
 
-    async deinit(): Promise<boolean> {
+    deinit(): Promise<boolean> {
         if (!this.initialized) {
-            return true;
+            return Promise.resolve(true);
         }
 
         // 清理缓存数据
@@ -257,7 +257,7 @@ export class UnsplashApi extends BaseWallpaperApi {
         this.currentPage = 1;
 
         this.initialized = false;
-        return true;
+        return Promise.resolve(true);
     }
 
     async updateImageCache(): Promise<boolean> {
