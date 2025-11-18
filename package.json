@@ -17,23 +17,23 @@
     "author": "sean2077",
     "license": "MIT",
     "devDependencies": {
-        "obsidian": "latest",
-        "esbuild": "latest",
-        "typescript": "latest",
-        "tslib": "latest",
         "@types/node": "latest",
-        "builtin-modules": "latest",
-        "eslint": "latest",
         "@typescript-eslint/eslint-plugin": "latest",
         "@typescript-eslint/parser": "latest",
+        "all-contributors-cli": "latest",
+        "builtin-modules": "latest",
+        "esbuild": "latest",
+        "eslint": "latest",
         "eslint-plugin-obsidianmd": "latest",
+        "obsidian": "latest",
         "prettier": "latest",
         "stylelint": "latest",
         "stylelint-config-idiomatic-order": "latest",
         "stylelint-config-recommended": "latest",
         "stylelint-config-standard": "latest",
         "stylelint-order": "latest",
-        "all-contributors-cli": "latest"
+        "tslib": "latest",
+        "typescript": "latest"
     },
     "dependencies": {
         "jsonpath-plus": "^10.3.0"
