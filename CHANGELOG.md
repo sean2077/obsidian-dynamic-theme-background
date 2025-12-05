@@ -1,3 +1,9 @@
+## [2.8.5](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.4...2.8.5) (2025-12-05)
+
+### Fixes
+
+* resolve all Required issues from official plugin review (PR [#7359](https://github.com/sean2077/obsidian-dynamic-theme-background/issues/7359)) ([fd83d70](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/fd83d705196df384de8893e6adc9e1a4e3c115af))
+
 ## [2.8.4](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.3...2.8.4) (2025-11-05)
 
 ### Fixes
