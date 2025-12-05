@@ -2,6 +2,8 @@
 .serena
 .claude
 
+.internal/
+
 # vscode
 .vscode 
 
