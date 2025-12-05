@@ -15,7 +15,6 @@
         "quickstart": "快速开始",
         "features": "特性",
         "install": "安装",
-        "commands": "命令",
         "sources": "图源",
         "faq": "常见问题",
         "github": "GitHub 仓库",
@@ -28,11 +27,15 @@
         "openRelease": "打开发行版"
     },
     "hero": {
-        "tagline": "Obsidian 多源动态壁纸插件",
-        "bgHint": "↓ 此背景会随时间变化 ↓",
-        "trySwitch": "试试切换 →",
+        "badge": "Obsidian 插件",
+        "tagline": "多源动态壁纸插件 ·",
+        "statSources": "壁纸图源",
+        "statImages": "高清壁纸",
+        "statFree": "免费开源",
         "installBtn": "立即安装",
-        "sourceBtn": "源代码",
+        "watchDemo": "观看演示",
+        "scrollHint": "下滑探索更多",
+        "trySwitch": "试试切换 →",
         "actions": {
             "leftClick": "<strong>左键点击</strong> 随机壁纸",
             "middleClick": "<strong>中键点击</strong> 打开设置",
@@ -172,40 +175,6 @@
             "tip": "提示：可为命令设置快捷键"
         },
         "done": "完成：源 + 轮换 + 控制均已就绪。"
-    },
-    "commands": {
-        "title": "命令",
-        "subtitle": "在命令面板输入 <code>dtb</code> 查找全部命令，可绑定快捷键提升效率。",
-        "toggle": {
-            "title": "切换背景",
-            "tag": "core",
-            "desc": "启用 / 禁用当前背景层，不丢失状态。"
-        },
-        "next": {
-            "title": "下一张背景",
-            "tag": "rotation",
-            "desc": "立即抓取或前进到下一张图片。"
-        },
-        "fetch": {
-            "title": "获取壁纸",
-            "tag": "network",
-            "desc": "强制刷新当前启用源池。"
-        },
-        "save": {
-            "title": "保存当前背景",
-            "tag": "utility",
-            "desc": "将当前显示图片保存到库中复用。"
-        },
-        "settings": {
-            "title": "打开设置",
-            "tag": "ui",
-            "desc": "直接跳转到插件设置面板。"
-        },
-        "test": {
-            "title": "测试背景",
-            "tag": "debug",
-            "desc": "调试抓取与渲染流程。"
-        }
     },
     "sources": {
         "title": "支持的源",

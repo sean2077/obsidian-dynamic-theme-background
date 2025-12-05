@@ -18,6 +18,10 @@
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     line-height: 1.6;
@@ -25,6 +29,8 @@ body {
     background: var(--dtb-bg-dark);
     min-height: 100vh;
     overflow-x: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* Skip link for accessibility */
@@ -153,10 +159,9 @@ body {
     z-index: 1;
     width: 100%;
 }
-main > section {
-    content-visibility: auto;
-    contain-intrinsic-size: 1000px;
-}
+
+/* Note: content-visibility removed for iOS Safari compatibility */
+
 .full-section {
     min-height: 100vh;
     display: flex;
@@ -308,69 +313,212 @@ a code {
 .hero {
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 0 2rem;
+    padding: 60px 0 80px;
     color: white;
     position: relative;
 }
 
-.hero-centered {
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.2) 100%);
+    pointer-events: none;
+}
+
+.hero-container {
+    position: relative;
+    z-index: 1;
     text-align: center;
-    max-width: 1000px;
+    max-width: 900px;
+    padding: 0 2rem;
 }
-.hero-title {
-    font-size: clamp(2.2rem, 5vw, 3.2rem);
-    margin-bottom: 0.75rem;
-    font-weight: 700;
-    opacity: 0;
-    animation: fadeInUp 0.8s 0.1s forwards;
-    line-height: 1.2;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-.hero-title-text {
+
+.hero-badge {
     display: inline-block;
-    background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #ffffff 100%);
+    padding: 0.4rem 1rem;
+    background: rgba(139, 92, 246, 0.3);
+    border: 1px solid rgba(139, 92, 246, 0.5);
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #c4b5fd;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeInUp 0.6s 0.1s forwards;
+}
+
+.hero-title {
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    margin-bottom: 1.25rem;
+    font-weight: 800;
+    opacity: 0;
+    animation: fadeInUp 0.6s 0.2s forwards;
+    line-height: 1.3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+}
+
+.hero-title-text {
+    display: block;
+    background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c4b5fd 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 20px rgba(255, 255, 255, 0.1);
+    text-shadow: none;
+    padding-bottom: 0.1em;
 }
+
+.hero-title-animated {
+    background: linear-gradient(90deg, #ffffff 0%, #c4b5fd 25%, #a78bfa 50%, #c4b5fd 75%, #ffffff 100%);
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation:
+        fadeInUp 0.6s 0.2s forwards,
+        titleShimmer 4s 1s ease-in-out infinite;
+}
+
+@keyframes titleShimmer {
+    0% {
+        background-position: 100% 50%;
+    }
+    50% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+.hero-tagline {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeInUp 0.6s 0.3s forwards;
+    letter-spacing: 0.02em;
+    text-align: center;
+}
+
+.hero-tagline .obsidian-link {
+    color: #a88beb;
+    text-decoration: none;
+    font-weight: 600;
+    transition:
+        color 0.2s,
+        text-shadow 0.2s;
+}
+
+.hero-tagline .obsidian-link:hover {
+    color: #c4b5fd;
+    text-shadow: 0 0 20px rgba(168, 139, 235, 0.6);
+}
+
+.hero-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeInUp 0.6s 0.4s forwards;
+}
+
+.hero-stat {
+    text-align: center;
+}
+
+.hero-stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.hero-stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.hero-stat-divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    opacity: 0;
+    animation: fadeInUp 0.6s 0.5s forwards;
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.hero-scroll-hint {
+    position: relative;
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    animation: fadeInUp 0.6s 0.7s forwards;
+}
+
+.hero-scroll-arrow {
+    width: 20px;
+    height: 20px;
+    border-right: 2px solid rgba(255, 255, 255, 0.5);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+    transform: rotate(45deg);
+    animation: scrollBounce 2s ease-in-out infinite;
+}
+
+@keyframes scrollBounce {
+    0%,
+    100% {
+        transform: rotate(45deg) translate(0, 0);
+    }
+    50% {
+        transform: rotate(45deg) translate(3px, 3px);
+    }
+}
+
 .emoji-isolate {
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
     line-height: 1;
     font-size: 0.9em;
 }
-.hero-tagline {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 1.5rem;
-    opacity: 0;
-    animation: fadeInUp 0.8s 0.2s forwards;
-    letter-spacing: 0.02em;
-    text-align: center;
-}
-.hero-hint {
-    display: inline-block;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 2rem;
-    padding: 0.5rem 1.2rem;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 50px;
-    opacity: 0;
-    animation:
-        fadeInUp 0.8s 0.35s forwards,
-        floatHint 4s 1.5s ease-in-out infinite;
-    letter-spacing: 0.03em;
-}
+
 @keyframes floatHint {
     0%,
     100% {
@@ -425,22 +573,12 @@ a code {
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.9);
     text-align: left;
-    white-space: nowrap;
 }
 .hero-action-item .action-ico {
     font-size: 1rem;
 }
 .hero-action-item strong {
     color: #fff;
-}
-
-.cta-buttons {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    opacity: 0;
-    animation: fadeInUp 0.8s 0.5s forwards;
 }
 
 .hero .subtitle {
@@ -462,13 +600,6 @@ a code {
     line-height: 1.7;
     color: rgba(255, 255, 255, 0.75);
     text-align: center;
-}
-.cta-buttons {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    opacity: 0;
-    animation: fadeInUp 1s 1s forwards;
 }
 
 /* Hero Visual */
@@ -573,7 +704,6 @@ a code {
 .installation h2 .heading-text,
 .faq h2 .heading-text,
 #roadmap h2 .heading-text,
-#commands h2 .heading-text,
 #quickstart h2 .heading-text {
     background: var(--dtb-gradient);
     background-clip: text;
@@ -608,13 +738,13 @@ a code {
 .quickstart-steps {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 2rem;
 }
 .quickstart-step {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
-    padding: 1.5rem;
+    padding: 1.75rem;
     text-align: left;
 }
 .step-number {
@@ -1280,7 +1410,7 @@ a code {
 .install-steps li:last-child {
     border-bottom: none;
 }
-.step-number {
+.install-step-number {
     width: 30px;
     height: 30px;
     background: linear-gradient(135deg, #667eea, #764ba2);
@@ -1305,6 +1435,7 @@ a code {
     border-radius: 6px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     letter-spacing: 0.3px;
+    word-break: break-all;
 }
 .install-note-small {
     font-size: 0.75rem;
@@ -1317,37 +1448,6 @@ a code {
     padding: 0.25rem 0.5rem;
     border-radius: 6px;
     font-size: 0.75rem;
-}
-
-/* ============================================
-   Commands Section
-   ============================================ */
-.commands-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1rem;
-}
-.command-card {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 1rem 1.25rem;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    font-size: 0.9rem;
-}
-.command-card h4 {
-    margin: 0 0 0.4rem;
-    font-size: 1rem;
-    color: #667eea;
-}
-.tag-pill {
-    display: inline-block;
-    padding: 0.2rem 0.55rem;
-    font-size: 0.65rem;
-    border-radius: 12px;
-    background: rgba(102, 126, 234, 0.2);
-    color: #cdd5ff;
-    margin-left: 0.4rem;
-    vertical-align: middle;
 }
 
 /* ============================================
@@ -1638,16 +1738,27 @@ a code {
 }
 
 /* ============================================
+   Fixed Bottom Right Buttons Container
+   ============================================ */
+.fixed-buttons {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 300;
+}
+
+/* ============================================
    Back to Top Button
    ============================================ */
 #back-to-top {
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    width: 48px;
-    height: 48px;
+    width: 3.25rem;
+    height: 3.25rem;
     border-radius: 50%;
-    background: var(--dtb-gradient);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     border: none;
     cursor: pointer;
@@ -1655,32 +1766,85 @@ a code {
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        0 4px 15px rgba(102, 126, 234, 0.4),
+        0 8px 30px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.3s;
-    z-index: 300;
+    transform: translateY(0.5rem);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    position: relative;
+    overflow: hidden;
+}
+#back-to-top::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+    border-radius: 50%;
+}
+#back-to-top .back-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+#back-to-top .back-arrow {
+    font-size: 0.9rem;
+    line-height: 1;
+    animation: floatUp 1.5s ease-in-out infinite;
+}
+#back-to-top .back-line {
+    width: 10px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+}
+@keyframes floatUp {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
 }
 #back-to-top.visible {
     opacity: 1;
     transform: translateY(0);
+    pointer-events: auto;
 }
 #back-to-top:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow:
+        0 6px 20px rgba(102, 126, 234, 0.5),
+        0 12px 40px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+#back-to-top:active {
+    transform: scale(0.92);
+}
+
+/* ============================================
+   DTB Button Wrapper
+   ============================================ */
+.dtb-btn-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
 /* ============================================
    DTB Switch Button (elegant design)
    ============================================ */
 #dtb-switch-btn {
-    position: fixed;
-    right: 84px;
-    bottom: 24px;
+    width: 3.25rem;
+    height: 3.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 52px;
-    height: 52px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     border-radius: 50%;
@@ -1737,15 +1901,15 @@ a code {
 
 /* Arrow hint pointing to DTB button */
 .dtb-arrow-hint {
-    position: fixed;
-    right: 145px;
-    bottom: 32px;
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    margin-right: 0.5rem;
     display: flex;
     align-items: center;
     gap: 0.3rem;
     color: rgba(255, 255, 255, 0.85);
     font-size: 0.85rem;
-    z-index: 299;
     opacity: 0;
     animation:
         arrowFadeIn 0.6s 1.5s forwards,
@@ -1757,29 +1921,23 @@ a code {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
     font-weight: 500;
 }
-.dtb-arrow-hint .arrow-svg {
-    width: 45px;
-    height: 30px;
-    color: rgba(255, 255, 255, 0.8);
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
-}
 @keyframes arrowFadeIn {
     from {
         opacity: 0;
-        transform: translateX(-10px);
+        transform: translateY(-50%) translateX(-10px);
     }
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(-50%) translateX(0);
     }
 }
 @keyframes arrowFloat {
     0%,
     100% {
-        transform: translateX(0);
+        transform: translateY(-50%) translateX(0);
     }
     50% {
-        transform: translateX(5px);
+        transform: translateY(-50%) translateX(5px);
     }
 }
 .dtb-arrow-hint.hidden {
@@ -1814,11 +1972,18 @@ a code {
     transform: translate3d(0, 0, 0);
 }
 
+/* Fallback for low-perf devices and iOS - show content immediately */
+.dtb-perf-low .fade-in,
+.dtb-ios .fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+}
+
 /* ============================================
-   Unified Card Effects (qs-step, command-card, roadmap-item, api-logo)
+   Unified Card Effects (qs-step, roadmap-item, api-logo)
    ============================================ */
 .qs-step,
-.command-card,
 .roadmap-item,
 .api-logo {
     --accent: var(--accent, #667eea);
@@ -1827,7 +1992,6 @@ a code {
     backdrop-filter: blur(14px) saturate(120%);
 }
 .qs-step,
-.command-card,
 .roadmap-item {
     background: linear-gradient(175deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035));
     border: 1px solid rgba(255, 255, 255, 0.09);
@@ -1838,7 +2002,6 @@ a code {
         border-color 0.45s;
 }
 .qs-step::before,
-.command-card::before,
 .roadmap-item::before {
     content: "";
     position: absolute;
@@ -1878,7 +2041,6 @@ a code {
     pointer-events: none;
 }
 .qs-step::after,
-.command-card::after,
 .roadmap-item::after {
     content: "";
     position: absolute;
@@ -1893,7 +2055,6 @@ a code {
     transition: opacity 0.6s;
 }
 .qs-step:hover,
-.command-card:hover,
 .roadmap-item:hover {
     transform: translateY(-6px) scale(1.012);
     box-shadow:
@@ -1904,17 +2065,14 @@ a code {
     background: linear-gradient(175deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.045));
 }
 .qs-step:hover::before,
-.command-card:hover::before,
 .roadmap-item:hover::before,
 .api-logo:hover::after {
     opacity: 1;
 }
 .qs-step:hover::after,
-.command-card:hover::after,
 .roadmap-item:hover::after {
     opacity: 0.32;
 }
-.command-card:hover h4,
 .roadmap-item:hover .ri-ico {
     filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--accent) 55%, transparent));
 }
@@ -1961,7 +2119,6 @@ html.dtb-perf-low .header,
 html.dtb-perf-low .install-method,
 html.dtb-perf-low .feature-card,
 html.dtb-perf-low .qs-step,
-html.dtb-perf-low .command-card,
 html.dtb-perf-low .roadmap-item,
 html.dtb-perf-low .api-logo {
     backdrop-filter: none !important;
@@ -1971,8 +2128,6 @@ html.dtb-perf-low .feature-card::before,
 html.dtb-perf-low .feature-card::after,
 html.dtb-perf-low .qs-step::before,
 html.dtb-perf-low .qs-step::after,
-html.dtb-perf-low .command-card::before,
-html.dtb-perf-low .command-card::after,
 html.dtb-perf-low .roadmap-item::before,
 html.dtb-perf-low .roadmap-item::after,
 html.dtb-perf-low .api-logo::after {
@@ -1980,7 +2135,6 @@ html.dtb-perf-low .api-logo::after {
 }
 html.dtb-perf-low .feature-card:hover,
 html.dtb-perf-low .qs-step:hover,
-html.dtb-perf-low .command-card:hover,
 html.dtb-perf-low .roadmap-item:hover,
 html.dtb-perf-low .api-logo:hover {
     transform: none !important;
@@ -1995,28 +2149,33 @@ html.dtb-perf-low .api-logo:hover {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
-    .hero-content {
-        text-align: center;
-        order: 1;
+    .hero-stats {
+        gap: 1.5rem;
     }
-    .hero-visual {
-        order: 0;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    .hero-title {
-        justify-content: center;
-    }
-    .hero-tagline {
-        text-align: center;
-    }
-    .cta-buttons {
-        justify-content: center;
+    .hero-stat-number {
+        font-size: 1.75rem;
     }
 }
 @media (max-width: 768px) {
     .hero {
-        padding: 4rem 0 2rem;
+        padding: 2rem 0;
+    }
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .hero-stat-divider {
+        width: 60px;
+        height: 1px;
+    }
+    .hero-title {
+        font-size: clamp(2rem, 10vw, 3rem);
+    }
+    .hero-tagline {
+        font-size: 1rem;
+    }
+    .hero-scroll-hint {
+        display: none;
     }
     .hero-showcase {
         flex-direction: column;
@@ -2033,12 +2192,6 @@ html.dtb-perf-low .api-logo:hover {
     .hero-grid {
         gap: 1.5rem;
     }
-    .hero-title {
-        font-size: 1.6rem;
-    }
-    .hero-tagline {
-        font-size: 0.95rem;
-    }
     .hero-action-item {
         font-size: 0.68rem;
         padding: 0.4rem 0.6rem;
@@ -2053,6 +2206,10 @@ html.dtb-perf-low .api-logo:hover {
         justify-content: flex-end;
     }
     .nav-links a:not(.icon-btn) {
+        display: none;
+    }
+    /* Hide arrow hint on tablet and below */
+    .dtb-arrow-hint {
         display: none;
     }
     .quickstart-steps {
@@ -2151,6 +2308,25 @@ html.dtb-perf-low .api-logo:hover {
     }
     .qs-step p {
         font-size: 0.75rem;
+    }
+    /* Hide arrow hint on small screens */
+    .dtb-arrow-hint {
+        display: none;
+    }
+    /* Adjust fixed buttons for small screens */
+    .fixed-buttons {
+        right: 1rem;
+        bottom: 1rem;
+        gap: 0.5rem;
+    }
+    #dtb-switch-btn {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+    #back-to-top {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1rem;
     }
 }
 
@@ -2281,14 +2457,6 @@ html.dtb-perf-low .api-logo:hover {
 }
 #quickstart .features-subtitle {
     margin-bottom: 3rem;
-}
-#commands {
-    background: rgba(0, 0, 0, 0.65);
-}
-#commands .commands-subtitle {
-    max-width: 700px;
-    margin: 0 auto 3rem;
-    opacity: 0.8;
 }
 #sources .sources-subtitle {
     margin-bottom: 2rem;

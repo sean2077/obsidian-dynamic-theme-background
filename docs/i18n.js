@@ -191,7 +191,7 @@
             const steps = t.installation?.[method]?.steps;
             if (steps && Array.isArray(steps)) {
                 ul.innerHTML = steps.map((step, i) =>
-                    `<li><span class="step-number">${i + 1}</span> <span>${step}</span></li>`
+                    `<li><span class="install-step-number">${i + 1}</span> <span>${step}</span></li>`
                 ).join('');
             }
         });

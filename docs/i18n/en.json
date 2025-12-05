@@ -15,7 +15,6 @@
         "quickstart": "Quick Start",
         "features": "Features",
         "install": "Install",
-        "commands": "Commands",
         "sources": "Sources",
         "faq": "FAQ",
         "github": "GitHub Repository",
@@ -28,11 +27,15 @@
         "openRelease": "Open release"
     },
     "hero": {
-        "tagline": "Multi-source dynamic wallpapers for Obsidian",
-        "bgHint": "↓ This background changes with time of day ↓",
-        "trySwitch": "Try switching →",
+        "badge": "Obsidian Plugin",
+        "tagline": "Multi-source dynamic wallpapers for",
+        "statSources": "Wallpaper Sources",
+        "statImages": "HD Wallpapers",
+        "statFree": "Free & Open Source",
         "installBtn": "Install Now",
-        "sourceBtn": "Source Code",
+        "watchDemo": "Watch Demo",
+        "scrollHint": "Scroll to explore",
+        "trySwitch": "Try switching →",
         "actions": {
             "leftClick": "<strong>Left Click</strong> Random wallpaper",
             "middleClick": "<strong>Middle Click</strong> Open settings",
@@ -172,40 +175,6 @@
             "tip": "Tip: assign hotkeys for even faster switching"
         },
         "done": "You're set: sources + rotation + controls active."
-    },
-    "commands": {
-        "title": "Commands",
-        "subtitle": "Access via Command Palette. Assign hotkeys for instant control.",
-        "toggle": {
-            "title": "Toggle Background",
-            "tag": "core",
-            "desc": "Enable/disable the current wallpaper layer without losing state."
-        },
-        "next": {
-            "title": "Next Background",
-            "tag": "rotation",
-            "desc": "Immediately fetch or advance to the next image."
-        },
-        "fetch": {
-            "title": "Fetch Wallpaper",
-            "tag": "network",
-            "desc": "Force-refresh from active provider pool."
-        },
-        "save": {
-            "title": "Save Current Background",
-            "tag": "utility",
-            "desc": "Persist the displayed image to your vault for reuse."
-        },
-        "settings": {
-            "title": "Open Settings",
-            "tag": "ui",
-            "desc": "Jump directly to DTB settings pane."
-        },
-        "test": {
-            "title": "Test Background",
-            "tag": "debug",
-            "desc": "Diagnostic fetch & render for troubleshooting."
-        }
     },
     "sources": {
         "title": "Supported Sources",

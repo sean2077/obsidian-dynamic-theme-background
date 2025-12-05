@@ -69,17 +69,20 @@
     }</script>
     <!-- External CSS -->
     <link rel="stylesheet" href="landing.css">
-    <!-- Early performance detection (must be inline for immediate execution) -->
+    <!-- Early performance & iOS detection (must be inline for immediate execution) -->
     <script>
         (function () {
+            var ua = navigator.userAgent;
+            var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             var isLowPerf = false;
             try {
                 isLowPerf = navigator.hardwareConcurrency <= 2 ||
                     navigator.deviceMemory <= 2 ||
-                    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                    /Android|iPhone|iPad|iPod/i.test(ua) ||
                     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             } catch (e) { }
             if (isLowPerf) document.documentElement.classList.add('dtb-perf-low');
+            if (isIOS) document.documentElement.classList.add('dtb-ios');
         })();
     </script>
 </head>
@@ -99,10 +102,9 @@
             </a>
             <div class="nav-links">
                 <a href="#demo" data-i18n="nav.preview">Preview</a>
-                <a href="#quickstart" data-i18n="nav.quickstart">Quick Start</a>
                 <a href="#features" data-i18n="nav.features">Features</a>
                 <a href="#installation" data-i18n="nav.install">Install</a>
-                <a href="#commands" data-i18n="nav.commands">Commands</a>
+                <a href="#quickstart" data-i18n="nav.quickstart">Quick Start</a>
                 <a href="#sources" data-i18n="nav.sources">Sources</a>
                 <a href="#faq" data-i18n="nav.faq">FAQ</a>
                 <a class="icon-btn" href="https://github.com/sean2077/obsidian-dynamic-theme-background" target="_blank"
@@ -124,19 +126,43 @@
     <main id="main" tabindex="-1">
         <!-- Hero Section -->
         <section class="hero" id="top">
-            <div class="container hero-centered">
+            <div class="hero-overlay"></div>
+            <div class="container hero-container">
+                <div class="hero-badge" data-i18n="hero.badge">Obsidian Plugin</div>
                 <h1 class="hero-title">
-                    <span class="emoji-isolate" aria-hidden="true">🌈</span>
-                    <span class="hero-title-text">Dynamic Theme Background</span>
+                    <span class="hero-title-text">Dynamic Theme</span>
+                    <span class="hero-title-text hero-title-animated">Background</span>
                 </h1>
-                <p class="hero-tagline" data-i18n="hero.tagline">Multi-source dynamic wallpapers for Obsidian</p>
-                <p class="hero-hint" data-i18n="hero.bgHint">↓ This background changes with time of day ↓</p>
+                <p class="hero-tagline"><span data-i18n="hero.tagline">Multi-source dynamic wallpapers for</span> <a
+                        href="https://obsidian.md" target="_blank" rel="noopener noreferrer"
+                        class="obsidian-link">Obsidian</a></p>
+
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">7+</span>
+                        <span class="hero-stat-label" data-i18n="hero.statSources">Wallpaper Sources</span>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">∞</span>
+                        <span class="hero-stat-label" data-i18n="hero.statImages">HD Wallpapers</span>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">100%</span>
+                        <span class="hero-stat-label" data-i18n="hero.statFree">Free & Open Source</span>
+                    </div>
+                </div>
+
                 <div class="cta-buttons">
                     <a href="#installation" class="btn btn-primary"><span>⚡</span><span
                             data-i18n="hero.installBtn">Install Now</span></a>
-                    <a href="https://github.com/sean2077/obsidian-dynamic-theme-background" class="btn btn-secondary"
-                        target="_blank" rel="noopener noreferrer"><span>📱</span><span data-i18n="hero.sourceBtn">Source
-                            Code</span></a>
+                    <a href="#demo" class="btn btn-ghost"><span>▶</span><span data-i18n="hero.watchDemo">Watch
+                            Demo</span></a>
+                </div>
+                <div class="hero-scroll-hint">
+                    <span data-i18n="hero.scrollHint">Scroll to explore</span>
+                    <div class="hero-scroll-arrow"></div>
                 </div>
             </div>
         </section>
@@ -186,72 +212,6 @@
                     <div class="summary-pill"><span class="ico">🔧</span><span data-i18n="demo.pills.customApi">Custom
                             API</span></div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Quick Start Section -->
-        <section class="quickstart full-section" id="quickstart">
-            <div class="container">
-                <h2 class="fade-in section-title">🚀 <span class="heading-text" data-i18n="quickstart.title">Quick
-                        Start</span></h2>
-                <p class="section-subtitle fade-in" data-i18n="quickstart.subtitle">Already installed? In three short
-                    steps you'll have smart rotation running.</p>
-
-                <div class="quickstart-content fade-in">
-                    <div class="quickstart-steps">
-                        <div class="quickstart-step">
-                            <span class="step-number" data-i18n="quickstart.step1.label">STEP 1</span>
-                            <h3 data-i18n="quickstart.step1.title">Add Sources</h3>
-                            <p data-i18n="quickstart.step1.desc">Add local images or enable API providers (Unsplash /
-                                Pixabay / Pexels / Wallhaven / Custom).</p>
-                        </div>
-                        <div class="quickstart-step">
-                            <span class="step-number" data-i18n="quickstart.step2.label">STEP 2</span>
-                            <h3 data-i18n="quickstart.step2.title">Set Rotation</h3>
-                            <p data-i18n="quickstart.step2.desc">Choose interval + optional time windows (morning / day
-                                / night) for contextual change.</p>
-                        </div>
-                        <div class="quickstart-step">
-                            <span class="step-number" data-i18n="quickstart.step3.label">STEP 3</span>
-                            <h3 data-i18n="quickstart.step3.title">Control & Enjoy</h3>
-                            <p data-i18n="quickstart.step3.desc">Use status bar clicks or Command Palette
-                                (<code>dtb</code>) to switch, save & fetch.</p>
-                        </div>
-                    </div>
-
-                    <div class="statusbar-demo">
-                        <figure class="statusbar-figure">
-                            <img src="assets/dtb-status-bar.jpg" alt="Status bar controls" width="800" height="450"
-                                loading="lazy" decoding="async" />
-                            <figcaption data-i18n="quickstart.statusbar.caption">Status Bar Snapshot</figcaption>
-                        </figure>
-                        <div class="statusbar-actions">
-                            <h4 data-i18n="quickstart.statusbar.title">Status Bar Quick Control</h4>
-                            <div class="statusbar-action">
-                                <span class="action-ico">🖱️</span>
-                                <span data-i18n="quickstart.statusbar.leftClick"><strong>Left Click</strong> Random
-                                    wallpaper</span>
-                            </div>
-                            <div class="statusbar-action">
-                                <span class="action-ico">🖱️</span>
-                                <span data-i18n="quickstart.statusbar.middleClick"><strong>Middle Click</strong> Open
-                                    settings tab</span>
-                            </div>
-                            <div class="statusbar-action">
-                                <span class="action-ico">🖱️</span>
-                                <span data-i18n="quickstart.statusbar.rightClick"><strong>Right Click</strong> Save
-                                    current background</span>
-                            </div>
-                            <p class="statusbar-hint" data-i18n="quickstart.statusbar.hint">Daily interaction happens
-                                here or via the command palette.</p>
-                            <p class="statusbar-tip" data-i18n="quickstart.statusbar.tip">Tip: assign hotkeys for even
-                                faster switching</p>
-                        </div>
-                    </div>
-                </div>
-
-                <p class="quickstart-done fade-in" data-i18n="quickstart.done">You're set: sources + rotation + controls
-                    active.</p>
             </div>
         </section>
 
@@ -370,44 +330,64 @@
             </div>
         </section>
 
-        <!-- Commands Section -->
-        <section class="demo full-section" id="commands">
+        <!-- Quick Start Section -->
+        <section class="quickstart full-section" id="quickstart">
             <div class="container">
-                <h2 class="fade-in section-title">⌨️ <span class="heading-text"
-                        data-i18n="commands.title">Commands</span></h2>
-                <p class="fade-in commands-subtitle" data-i18n="commands.subtitle">
-                    Access via Command Palette. Assign hotkeys for instant control.</p>
-                <div class="commands-grid">
-                    <div class="command-card fade-in">
-                        <h4><span data-i18n="commands.toggle.title">Toggle Background</span><span class="tag-pill"
-                                data-i18n="commands.toggle.tag">core</span></h4>
-                        <span data-i18n="commands.toggle.desc">Enable/disable the current wallpaper layer without losing
-                            state.</span>
+                <h2 class="fade-in section-title">🚀 <span class="heading-text" data-i18n="quickstart.title">Quick
+                        Start</span></h2>
+                <p class="section-subtitle fade-in" data-i18n="quickstart.subtitle">Already installed? In three short
+                    steps you'll have smart rotation running.</p>
+
+                <div class="quickstart-content fade-in">
+                    <div class="quickstart-steps">
+                        <div class="quickstart-step">
+                            <span class="step-number" data-i18n="quickstart.step1.label">STEP 1</span>
+                            <h3 data-i18n="quickstart.step1.title">Add Sources</h3>
+                            <p data-i18n="quickstart.step1.desc">Add local images or enable API providers (Unsplash /
+                                Pixabay / Pexels / Wallhaven / Custom).</p>
+                        </div>
+                        <div class="quickstart-step">
+                            <span class="step-number" data-i18n="quickstart.step2.label">STEP 2</span>
+                            <h3 data-i18n="quickstart.step2.title">Set Rotation</h3>
+                            <p data-i18n="quickstart.step2.desc">Choose interval + optional time windows (morning / day
+                                / night) for contextual change.</p>
+                        </div>
+                        <div class="quickstart-step">
+                            <span class="step-number" data-i18n="quickstart.step3.label">STEP 3</span>
+                            <h3 data-i18n="quickstart.step3.title">Control & Enjoy</h3>
+                            <p data-i18n="quickstart.step3.desc">Use status bar clicks or Command Palette
+                                (<code>dtb</code>) to switch, save & fetch.</p>
+                        </div>
                     </div>
-                    <div class="command-card fade-in">
-                        <h4><span data-i18n="commands.next.title">Next Background</span><span class="tag-pill"
-                                data-i18n="commands.next.tag">rotation</span></h4>
-                        <span data-i18n="commands.next.desc">Immediately fetch or advance to the next image.</span>
-                    </div>
-                    <div class="command-card fade-in">
-                        <h4><span data-i18n="commands.fetch.title">Fetch Wallpaper</span><span class="tag-pill"
-                                data-i18n="commands.fetch.tag">network</span></h4>
-                        <span data-i18n="commands.fetch.desc">Force-refresh from active provider pool.</span>
-                    </div>
-                    <div class="command-card fade-in">
-                        <h4><span data-i18n="commands.save.title">Save Current Background</span><span class="tag-pill"
-                                data-i18n="commands.save.tag">utility</span></h4>
-                        <span data-i18n="commands.save.desc">Persist the displayed image to your vault for reuse.</span>
-                    </div>
-                    <div class="command-card fade-in">
-                        <h4><span data-i18n="commands.settings.title">Open Settings</span><span class="tag-pill"
-                                data-i18n="commands.settings.tag">ui</span></h4>
-                        <span data-i18n="commands.settings.desc">Jump directly to DTB settings pane.</span>
-                    </div>
-                    <div class="command-card fade-in">
-                        <h4><span data-i18n="commands.test.title">Test Background</span><span class="tag-pill"
-                                data-i18n="commands.test.tag">debug</span></h4>
-                        <span data-i18n="commands.test.desc">Diagnostic fetch & render for troubleshooting.</span>
+
+                    <div class="statusbar-demo">
+                        <figure class="statusbar-figure">
+                            <img src="assets/dtb-status-bar.jpg" alt="Status bar controls" width="800" height="450"
+                                loading="lazy" decoding="async" />
+                            <figcaption data-i18n="quickstart.statusbar.caption">Status Bar Snapshot</figcaption>
+                        </figure>
+                        <div class="statusbar-actions">
+                            <h4 data-i18n="quickstart.statusbar.title">Status Bar Quick Control</h4>
+                            <div class="statusbar-action">
+                                <span class="action-ico">🖱️</span>
+                                <span data-i18n="quickstart.statusbar.leftClick"><strong>Left Click</strong> Random
+                                    wallpaper</span>
+                            </div>
+                            <div class="statusbar-action">
+                                <span class="action-ico">🖱️</span>
+                                <span data-i18n="quickstart.statusbar.middleClick"><strong>Middle Click</strong> Open
+                                    settings tab</span>
+                            </div>
+                            <div class="statusbar-action">
+                                <span class="action-ico">🖱️</span>
+                                <span data-i18n="quickstart.statusbar.rightClick"><strong>Right Click</strong> Save
+                                    current background</span>
+                            </div>
+                            <p class="statusbar-hint" data-i18n="quickstart.statusbar.hint">Daily interaction happens
+                                here or via the command palette.</p>
+                            <p class="statusbar-tip" data-i18n="quickstart.statusbar.tip">Tip: assign hotkeys for even
+                                faster switching</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -493,11 +473,6 @@
                                 target="_blank" rel="noopener noreferrer">Feature Request</a>.</div>
                     </div>
                     <div class="faq-item fade-in">
-                        <div class="faq-question">Can I disable animations?</div>
-                        <div class="faq-answer">Yes—enable your OS reduced motion preference or toggle plugin animation
-                            settings (coming soon).</div>
-                    </div>
-                    <div class="faq-item fade-in">
                         <div class="faq-question">Where is configuration stored?</div>
                         <div class="faq-answer">Inside your vault
                             <code>.obsidian/plugins/obsidian-dynamic-theme-background/</code> folder (standard Obsidian
@@ -548,23 +523,22 @@
         </div>
     </footer>
 
-    <button id="back-to-top" data-i18n-aria-label="nav.backToTop" data-i18n-title="nav.backToTop">↑</button>
-
-    <!-- DTB Interactive Button -->
-    <button id="dtb-switch-btn" title="Click to switch background" aria-label="Switch background">
-        <span class="dtb-icon">🌈</span>
-        <span class="dtb-label">DTB</span>
-    </button>
-
-    <!-- Arrow hint pointing to DTB button -->
-    <div class="dtb-arrow-hint" id="dtb-arrow-hint">
-        <span class="arrow-text" data-i18n="hero.trySwitch">Try switching →</span>
-        <svg class="arrow-svg" viewBox="0 0 60 40" fill="none">
-            <path d="M5 20 Q30 5 50 25" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-dasharray="4 3" fill="none" />
-            <path d="M45 20 L52 26 L48 32" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" fill="none" />
-        </svg>
+    <!-- Fixed Bottom Right Buttons -->
+    <div class="fixed-buttons">
+        <button id="back-to-top" data-i18n-aria-label="nav.backToTop" data-i18n-title="nav.backToTop">
+            <span class="back-icon">
+                <span class="back-arrow">▲</span>
+                <span class="back-line"></span>
+            </span>
+        </button>
+        <div class="dtb-btn-wrapper">
+            <div class="dtb-arrow-hint" id="dtb-arrow-hint">
+                <span class="arrow-text" data-i18n="hero.trySwitch">Try switching →</span>
+            </div>
+            <button id="dtb-switch-btn" title="Click to switch background" aria-label="Switch background">
+                <span class="dtb-icon">🌈</span>
+            </button>
+        </div>
     </div>
 
     <script>
@@ -677,8 +651,10 @@
             window.addEventListener('scroll', spawnParticles, { once: true, passive: true });
             setTimeout(spawnParticles, 1500);
 
-            // IntersectionObserver fade-in
-            var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+            // IntersectionObserver fade-in (skip on iOS/low-perf for immediate visibility)
+            var skipFadeIn = document.documentElement.classList.contains('dtb-ios') ||
+                document.documentElement.classList.contains('dtb-perf-low');
+            var io = (!skipFadeIn && 'IntersectionObserver' in window) ? new IntersectionObserver(function (es) {
                 es.forEach(function (e) {
                     if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
                 });
@@ -775,7 +751,7 @@
                     b.setAttribute('tabindex', i === 0 ? '0' : '-1');
                 });
 
-                function activate(id, focus) {
+                function activate(id, focus, updateHash) {
                     buttons.forEach(function (b) {
                         var sel = b.dataset.tab === id;
                         b.classList.toggle('is-active', sel);
@@ -788,11 +764,11 @@
                         p.classList.toggle('is-active', show);
                         if (show) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
                     });
-                    history.replaceState(null, '', '#install-' + id);
+                    if (updateHash) history.replaceState(null, '', '#install-' + id);
                 }
 
                 buttons.forEach(function (btn) {
-                    btn.addEventListener('click', function () { activate(btn.dataset.tab, true); });
+                    btn.addEventListener('click', function () { activate(btn.dataset.tab, true, true); });
                 });
 
                 container.addEventListener('keydown', function (e) {
@@ -804,12 +780,12 @@
                         else if (e.key === 'ArrowLeft') ni = (current - 1 + buttons.length) % buttons.length;
                         else if (e.key === 'Home') ni = 0;
                         else if (e.key === 'End') ni = buttons.length - 1;
-                        activate(buttons[ni].dataset.tab, true);
+                        activate(buttons[ni].dataset.tab, true, true);
                     }
                 });
 
                 var match = location.hash.match(/^#install-(market|brat|manual)$/);
-                if (match) activate(match[1], false); else activate(buttons[0].dataset.tab, false);
+                if (match) activate(match[1], false, false); else activate(buttons[0].dataset.tab, false, false);
             })();
         })();
     </script>
