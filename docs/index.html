@@ -13,7 +13,6 @@
     <meta name="robots" content="index,follow">
     <meta name="theme-color" content="#0a0a0a">
     <link rel="canonical" href="https://obsidian-dynamic-theme-background.pages.dev">
-    <link rel="alternate" hreflang="x-default" href="https://obsidian-dynamic-theme-background.pages.dev">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Dynamic Theme Background - Obsidian Plugin">
     <meta property="og:description"
@@ -26,12 +25,10 @@
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Dynamic Theme Background">
     <meta property="og:locale" content="en_US">
-    <link rel="alternate" hreflang="en" href="index.html">
-    <link rel="alternate" hreflang="zh-CN" href="index.zh.html">
     <meta name="msapplication-TileColor" content="#667eea">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="manifest.json">
-    <!-- Preconnect for faster image fetch (OG / demo) -->
+    <!-- Preconnect for faster image fetch -->
     <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
     <link rel="preconnect" href="https://api.github.com" crossorigin>
     <link rel="dns-prefetch" href="https://github.com">
@@ -41,2741 +38,432 @@
     <link rel="mask-icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>"
         color="#667eea">
-    <!-- Structured Data (initial, version will be injected dynamically) -->
+    <!-- Structured Data -->
     <script type="application/ld+json" id="schema-dtb">{
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": "Dynamic Theme Background",
-            "applicationCategory": "ProductivityApplication",
-            "operatingSystem": "Windows, macOS, Linux, iOS, Android",
-            "abstract": "Dynamic multi-source wallpaper management for Obsidian.",
-            "description": "Obsidian plugin providing dynamic multi-source wallpapers with smart scheduling, visual tuning, caching, time-based rotation and custom sources.",
-            "author": {"@type": "Person", "name": "sean2077"},
-            "publisher": {"@type": "Organization", "name": "Obsidian Community"},
-            "license": "https://opensource.org/licenses/MIT",
-            "keywords": ["Obsidian","wallpaper","background","unsplash","pexels","pixabay","wallhaven","dynamic","plugin"],
-            "url": "https://github.com/sean2077/obsidian-dynamic-theme-background",
-            "sourceCode": "https://github.com/sean2077/obsidian-dynamic-theme-background",
-            "downloadUrl": "https://github.com/sean2077/obsidian-dynamic-theme-background/releases",
-            "image": "https://raw.githubusercontent.com/sean2077/obsidian-dynamic-theme-background/master/docs/assets/dtb-status-bar.jpg",
-            "featureList": [
-                "Multiple providers (Unsplash, Pexels, Pixabay, Wallhaven, custom)",
-                "Local + remote mixing",
-                "Time-based rotation & interval scheduling",
-                "Visual adjustments (blur, brightness, saturation, hue)",
-                "Caching & performance optimization",
-                "Command palette quick actions",
-                "Custom API support"
-            ],
-            "sameAs": ["https://obsidian.md/plugins","https://github.com/sean2077"],
-            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
-        }</script>
-    <style>
-        /* Utility / Base additions */
-        :root {
-            scroll-behavior: smooth;
-            --dtb-gradient: linear-gradient(135deg, #667eea, #764ba2);
-            --dtb-bg-dark: #0a0a0a;
-        }
-    </style>
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Dynamic Theme Background",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "Windows, macOS, Linux, iOS, Android",
+        "abstract": "Dynamic multi-source wallpaper management for Obsidian.",
+        "description": "Obsidian plugin providing dynamic multi-source wallpapers with smart scheduling, visual tuning, caching, time-based rotation and custom sources.",
+        "author": {"@type": "Person", "name": "sean2077"},
+        "publisher": {"@type": "Organization", "name": "Obsidian Community"},
+        "license": "https://opensource.org/licenses/MIT",
+        "keywords": ["Obsidian","wallpaper","background","unsplash","pexels","pixabay","wallhaven","dynamic","plugin"],
+        "url": "https://github.com/sean2077/obsidian-dynamic-theme-background",
+        "sourceCode": "https://github.com/sean2077/obsidian-dynamic-theme-background",
+        "downloadUrl": "https://github.com/sean2077/obsidian-dynamic-theme-background/releases",
+        "image": "https://raw.githubusercontent.com/sean2077/obsidian-dynamic-theme-background/master/docs/assets/dtb-status-bar.jpg",
+        "featureList": [
+            "Multiple providers (Unsplash, Pexels, Pixabay, Wallhaven, custom)",
+            "Local + remote mixing",
+            "Time-based rotation & interval scheduling",
+            "Visual adjustments (blur, brightness, saturation, hue)",
+            "Caching & performance optimization",
+            "Command palette quick actions",
+            "Custom API support"
+        ],
+        "sameAs": ["https://obsidian.md/plugins","https://github.com/sean2077"],
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
+    }</script>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="landing.css">
+    <!-- Early performance detection (must be inline for immediate execution) -->
     <script>
-        // 提前判定性能并降级视觉效果（尽量早于主体渲染）
         (function () {
+            var isLowPerf = false;
             try {
-                var nav = navigator;
-                var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
-                var saveData = !!(conn && conn.saveData);
-                var lowCPU = (nav.hardwareConcurrency && nav.hardwareConcurrency <= 4);
-                var lowMem = (nav.deviceMemory && nav.deviceMemory <= 4);
-                var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-                if (saveData || lowCPU || lowMem || reduceMotion) {
-                    document.documentElement.classList.add('dtb-perf-low');
-                }
+                isLowPerf = navigator.hardwareConcurrency <= 2 ||
+                    navigator.deviceMemory <= 2 ||
+                    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             } catch (e) { }
+            if (isLowPerf) document.documentElement.classList.add('dtb-perf-low');
         })();
     </script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: var(--dtb-bg-dark);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .skip-link {
-            position: absolute;
-            left: -999px;
-            top: auto;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-        }
-
-        .skip-link:focus {
-            left: 8px;
-            top: 8px;
-            width: auto;
-            height: auto;
-            padding: .6rem 1rem;
-            border-radius: 6px;
-            background: #111;
-            color: #fff;
-            z-index: 999;
-        }
-
-        /* 动态背景效果 */
-        .dynamic-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            background: var(--dtb-gradient);
-            background-size: 400% 400%;
-            animation: gradientShift 20s ease infinite;
-            will-change: background-position;
-        }
-
-        .wallpaper-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(1px);
-        }
-
-        @keyframes gradientShift {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .floating-particles {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1;
-        }
-
-        .particle {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: float 25s infinite linear;
-            will-change: transform, opacity;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 1;
-            }
-
-            90% {
-                opacity: 1;
-            }
-
-            100% {
-                transform: translateY(-100px) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 clamp(15px, 4vw, 40px);
-            position: relative;
-            z-index: 1;
-            width: 100%;
-        }
-
-        /* 懒渲染主内容区，降低初始渲染成本 */
-        main>section {
-            content-visibility: auto;
-            contain-intrinsic-size: 1000px;
-        }
-
-        /* Header */
-        .header {
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .logo:focus-visible {
-            outline: 2px solid #667eea;
-            outline-offset: 4px;
-            border-radius: 8px;
-        }
-
-        .logo:hover {
-            opacity: .9;
-        }
-
-        /* Global link style (improve contrast vs default blue) */
-        a:not(.btn):not(.icon-btn):not(.nav-links a):not(.logo) {
-            color: rgb(230 235 255 / 86%);
-            text-decoration: underline;
-            text-decoration-color: rgba(255, 255, 255, .25);
-            text-underline-offset: 3px;
-            transition: color .3s, text-decoration-color .35s;
-        }
-
-        a:not(.btn):not(.icon-btn):not(.nav-links a):not(.logo):hover,
-        a:not(.btn):not(.icon-btn):not(.nav-links a):not(.logo):focus-visible {
-            color: #ffffff;
-            text-decoration-color: #889dff;
-        }
-
-        /* Logo brand 不需要下划线 */
-        .logo {
-            text-decoration: none !important;
-        }
-
-        .logo:hover {
-            text-decoration: none;
-        }
-
-        /* Inline code inside links keeps color */
-        a code {
-            color: inherit;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-            font-weight: 500;
-        }
-
-        .nav-links a.icon-btn {
-            width: 2.1rem;
-            height: 2.1rem;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, .08);
-            border: 1px solid rgba(255, 255, 255, .15);
-            opacity: 0.85;
-            font-size: 0;
-            position: relative;
-        }
-
-        .nav-links a.icon-btn span.ico {
-            font-size: 1.05rem;
-            line-height: 1;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35));
-        }
-
-        .nav-links a.icon-btn svg {
-            width: 1.1rem;
-            height: 1.1rem;
-            display: block;
-            fill: #fff;
-        }
-
-        .nav-links a.icon-btn:hover svg,
-        .nav-links a.icon-btn:focus-visible svg {
-            fill: #ffffff;
-            filter: drop-shadow(0 0 6px rgba(255, 255, 255, .4));
-        }
-
-        .nav-links a.icon-btn:hover,
-        .nav-links a.icon-btn:focus-visible {
-            opacity: 1;
-            background: linear-gradient(145deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .07));
-            box-shadow: 0 4px 14px -6px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .25) inset;
-        }
-
-        .nav-links a.icon-btn:focus-visible {
-            outline: 2px solid #667eea;
-            outline-offset: 3px;
-        }
-
-        /* Language toggle explicit label */
-        .lang-toggle {
-            position: relative;
-        }
-
-        .lang-toggle .lang-text {
-            position: absolute;
-            bottom: -4px;
-            right: -4px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: #fff;
-            font-size: .55rem;
-            line-height: 1;
-            padding: .2rem .35rem .28rem;
-            border-radius: 8px;
-            letter-spacing: .5px;
-            font-weight: 600;
-            box-shadow: 0 2px 6px -2px rgba(0, 0, 0, .5);
-            pointer-events: none;
-        }
-
-        .lang-toggle:hover .lang-text,
-        .lang-toggle:focus-visible .lang-text {
-            filter: brightness(1.1);
-        }
-
-        .nav-links a:hover {
-            opacity: 1;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-
-        .lang-switch {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .lang-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.3s;
-        }
-
-        .lang-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .lang-btn.active {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            /* 调整首页内容位置，避免过分偏下 */
-            min-height: 100vh;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: clamp(8vh, 12vh, 15vh) 0 clamp(4rem, 8vh, 6rem);
-            color: white;
-            position: relative;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: pulse 6s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: translate(-50%, -50%) scale(0.8);
-                opacity: 0.3;
-            }
-
-            50% {
-                transform: translate(-50%, -50%) scale(1.2);
-                opacity: 0.6;
-            }
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 2rem;
-            opacity: 0;
-            animation: fadeInUp 1s 0.2s forwards;
-        }
-
-        .hero-title {
-            font-size: clamp(2.6rem, 6.8vw, 4.2rem);
-            margin-bottom: 1rem;
-            font-weight: 700;
-            opacity: 0;
-            animation: fadeInUp 1s 0.4s forwards;
-            line-height: 1.1;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: .6rem;
-        }
-
-        .hero-title-text {
-            display: inline-block;
-            background: linear-gradient(135deg, #ffffff, #e9e9e9, #ffffff);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-size: 200% 200%;
-            animation: textShine 3s ease infinite;
-        }
-
-        .emoji-isolate {
-            filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .35));
-            line-height: 1;
-        }
-
-        @keyframes textShine {
-
-            0%,
-            100% {
-                background-position: 200% center;
-            }
-
-            50% {
-                background-position: 0% center;
-            }
-        }
-
-        .hero .subtitle {
-            font-size: 1.8rem;
-            margin-bottom: 2rem;
-            opacity: 0;
-            animation: fadeInUp 1s 0.6s forwards;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 3rem;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            opacity: 0;
-            animation: fadeInUp 1s 0.8s forwards;
-            line-height: 1.8;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            opacity: 0;
-            animation: fadeInUp 1s 1s forwards;
-        }
-
-        .btn {
-            padding: 1.2rem 2.5rem;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-            font-weight: 600;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary {
-            background: var(--dtb-gradient);
-            color: white;
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 25px 50px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(255, 255, 255, 0.1);
-        }
-
-        /* Features Section */
-        .features {
-            /* 确保特性区域能够充满整个视口 */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: clamp(2rem, 5vh, 4rem) 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            color: white;
-        }
-
-        .features h2 {
-            text-align: center;
-            font-size: 3.5rem;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: center;
-            gap: .6rem;
-            align-items: center;
-        }
-
-        .features-subtitle {
-            text-align: center;
-            font-size: 1.2rem;
-            margin-bottom: 4rem;
-            opacity: 0.8;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem 1.75rem;
-            /* 行间距 2rem，列间距 1.75rem */
-            margin-bottom: 3rem;
-        }
-
-        .feature-card {
-            /* 更柔和的磨砂背景 + 轻微纵向渐变 */
-            background: linear-gradient(175deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035));
-            padding: 1.75rem 1.55rem 1.55rem;
-            border-radius: 20px;
-            backdrop-filter: blur(16px) saturate(120%);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            transition: background .45s, transform .45s cubic-bezier(.4, .2, .2, 1), box-shadow .45s, border-color .45s;
-            position: relative;
-            overflow: hidden;
-            line-height: 1.55;
-            display: grid;
-            /* 改为网格用于段落垂直居中 */
-            grid-template-rows: auto 1fr;
-            min-height: 200px;
-            row-gap: .55rem;
-            --accent: #667eea;
-            --accent-fade: color-mix(in srgb, var(--accent) 25%, transparent);
-        }
-
-        /* feature accent moved inline */
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: 1px;
-            /* 渐变描边 */
-            background: linear-gradient(140deg, var(--accent) 0%, rgba(255, 255, 255, .25) 55%, var(--accent) 110%);
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-            /* Safari */
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity .55s;
-            pointer-events: none;
-        }
-
-        .feature-card::after {
-            /* 内部柔和光斑 */
-            content: '';
-            position: absolute;
-            top: -10%;
-            left: -5%;
-            width: 140%;
-            height: 140%;
-            background: radial-gradient(circle at 30% 25%, var(--accent-fade), transparent 60%);
-            opacity: .22;
-            mix-blend-mode: plus-lighter;
-            pointer-events: none;
-            transition: opacity .6s;
-        }
-
-        .feature-card:hover::before {
-            opacity: 1;
-        }
-
-        .feature-card:hover::after {
-            opacity: .35;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-6px) scale(1.012);
-            box-shadow: 0 16px 38px -10px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .14) inset, 0 0 0 1px var(--accent-fade);
-            border-color: rgba(255, 255, 255, .18);
-            background: linear-gradient(175deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .045));
-        }
-
-        /* 图标与标题同行（放入 h3 内部） */
-        .feature-icon {
-            font-size: 1.65rem;
-            display: inline-flex;
-            margin: 0 .55rem 0 0;
-            line-height: 1;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35));
-        }
-
-        .feature-icon:after {
-            /* 背景淡色圆形衬底 */
-            content: '';
-            position: absolute;
-            inset: -4px -4px -4px -4px;
-            background: radial-gradient(circle at 45% 35%, var(--accent-fade), transparent 70%);
-            border-radius: 14px;
-            z-index: -1;
-            opacity: .65;
-            filter: blur(2px) saturate(140%);
-            transition: opacity .5s, transform .6s;
-        }
-
-        .feature-card:hover .feature-icon:after {
-            opacity: .95;
-            transform: scale(1.08);
-        }
-
-        .feature-card h3 {
-            font-size: 1.32rem;
-            margin: 0;
-            color: #fff;
-            line-height: 1.18;
-            display: flex;
-            align-items: center;
-            font-weight: 600;
-            letter-spacing: .3px;
-            background: linear-gradient(90deg, #fff, rgba(255, 255, 255, .85));
-            -webkit-background-clip: text;
-            background-clip: text;
-        }
-
-        .feature-card p {
-            opacity: 0.9;
-            line-height: 1.55;
-            font-size: .92rem;
-            /* 略微增大 */
-            margin: .15rem 0 0;
-            letter-spacing: .25px;
-            align-self: center;
-            /* 垂直居中第二行 */
-        }
-
-        /* 紧凑模式：在较矮视口或较低高度下进一步压缩 */
-        @media (max-height: 800px) {
-            .features {
-                padding: 2.6rem 0 3rem;
-            }
-
-            .features-grid {
-                gap: 1.6rem 1.4rem;
-                margin-bottom: 2.4rem;
-            }
-
-            .feature-card {
-                padding: 1.55rem 1.35rem 1.4rem;
-                min-height: 205px;
-            }
-
-            .feature-icon {
-                font-size: 1.5rem;
-            }
-
-            .feature-card h3 {
-                font-size: 1.24rem;
-            }
-
-            .feature-card p {
-                font-size: .88rem;
-            }
-        }
-
-        @media (max-width: 1100px) and (max-height: 900px) {
-            .features-grid {
-                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            }
-        }
-
-        .feature-highlight {
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        /* Quick Start 横向步骤条 */
-        .qs-steps-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.4rem;
-            margin-bottom: 2.2rem;
-        }
-
-        /* 3 步版本专用布局（更宽更居中） */
-        .qs-steps-row.three {
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            max-width: 1100px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .qs-step {
-            background: linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .04));
-            border: 1px solid rgba(255, 255, 255, .16);
-            border-radius: 20px;
-            padding: 1.55rem 1.35rem 1.3rem;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            min-height: 150px;
-            overflow: hidden;
-            transition: background .35s, transform .4s, box-shadow .4s;
-        }
-
-        /* 渐变描边 */
-        .qs-step:before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            padding: 1px;
-            /* border thickness */
-            border-radius: inherit;
-            background: linear-gradient(130deg, #667eea66, #764ba266, #667eea33);
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-
-        .qs-step:hover {
-            background: linear-gradient(145deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .05));
-            transform: translateY(-6px) scale(1.015);
-            box-shadow: 0 12px 28px -10px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .15) inset;
-        }
-
-        .qs-step h3 {
-            margin: 0 0 .65rem;
-            font-size: 1.05rem;
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-            font-weight: 600;
-        }
-
-        .qs-step h3 .feature-icon {
-            font-size: 1.45rem;
-            margin: 0;
-            filter: none;
-            transform: none;
-        }
-
-        .qs-step p {
-            margin: 0;
-            font-size: .8rem;
-            line-height: 1.45;
-            opacity: .85;
-        }
-
-        .qs-step-number {
-            position: absolute;
-            top: .55rem;
-            right: .7rem;
-            font-size: .65rem;
-            letter-spacing: .5px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: #fff;
-            padding: .25rem .5rem;
-            border-radius: 999px;
-            font-weight: 600;
-        }
-
-        @media (min-width:1100px) {
-            .qs-steps-row.three {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width:640px) {
-            .qs-step {
-                min-height: auto;
-                padding: 1.15rem 1rem 1rem;
-            }
-
-            .qs-step p {
-                font-size: .75rem;
-            }
-        }
-
-        /* 状态栏说明优化 */
-        .statusbar-preview {
-            --sb-gap: 1.8rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--sb-gap);
-            align-items: flex-start;
-            max-width: 1080px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .statusbar-preview figure {
-            margin: 0;
-            max-width: 640px;
-            flex: 1 1 580px;
-        }
-
-        /* Responsive constraints to prevent overflow */
-        @media (max-width:1250px) {
-            .statusbar-preview figure {
-                max-width: 600px;
-                flex: 1 1 560px;
-            }
-
-            .statusbar-details {
-                max-width: 380px !important;
-            }
-        }
-
-        @media (max-width:1080px) {
-            .statusbar-preview {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .statusbar-preview figure {
-                max-width: 640px;
-                flex: 1 1 auto;
-            }
-
-            .statusbar-details {
-                max-width: 600px !important;
-                text-align: center;
-            }
-
-            .statusbar-actions {
-                text-align: center !important;
-            }
-        }
-
-        .statusbar-preview img {
-            width: 100%;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px -8px rgba(0, 0, 0, .55);
-            border: 1px solid rgba(255, 255, 255, .14);
-        }
-
-        .statusbar-preview figcaption {
-            font-size: .74rem;
-            opacity: .62;
-            margin-top: .55rem;
-            line-height: 1.35;
-            text-align: center;
-        }
-
-        .statusbar-details {
-            flex: 1 1 300px;
-            max-width: 480px;
-            font-size: .9rem;
-            line-height: 1.55;
-            position: relative;
-        }
-
-        .statusbar-details h4 {
-            margin: .15rem 0 .75rem;
-            font-size: 1.05rem;
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-            font-weight: 600;
-        }
-
-        .statusbar-actions {
-            list-style: none;
-            margin: 0 0 1.15rem;
-            padding: 0;
-            display: grid;
-            gap: .55rem;
-        }
-
-        .statusbar-actions li {
-            background: rgba(255, 255, 255, .06);
-            padding: .55rem .75rem;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, .1);
-            font-size: .78rem;
-            display: flex;
-            align-items: center;
-            gap: .55rem;
-        }
-
-        .statusbar-actions li span.action-ico {
-            font-size: 1.05rem;
-            line-height: 1;
-        }
-
-        .statusbar-tip {
-            font-size: .66rem;
-            letter-spacing: .5px;
-            text-transform: uppercase;
-            opacity: .5;
-            margin-top: .3rem;
-        }
-
-        @media (max-width:850px) {
-            .statusbar-preview {
-                --sb-gap: 1.6rem;
-            }
-        }
-
-        /* API Sources Section */
-        .api-sources {
-            /* 确保API源区域能够充满整个视口 */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: clamp(2rem, 5vh, 4rem) 0;
-            background: rgba(0, 0, 0, 0.4);
-            color: white;
-            text-align: center;
-        }
-
-        .api-sources h2 {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: center;
-            gap: .6rem;
-            align-items: center;
-        }
-
-        .api-logos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 1.4rem 1.6rem;
-            margin: 3rem 0 2.5rem;
-            align-items: stretch;
-        }
-
-        .api-logo {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            background: linear-gradient(180deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .025));
-            padding: 1.55rem 1.3rem 1.35rem;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, .10);
-            transition: background .35s, transform .4s, box-shadow .4s, border-color .4s;
-            text-decoration: none !important;
-        }
-
-        .api-logo:before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, .25), transparent 60%);
-            opacity: .18;
-            pointer-events: none;
-        }
-
-        .api-logo:hover,
-        .api-logo:focus-visible {
-            transform: translateY(-6px);
-            background: linear-gradient(185deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .04));
-            border-color: rgba(255, 255, 255, .22);
-            box-shadow: 0 10px 28px -10px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .15) inset;
-        }
-
-        .api-logo-name {
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin: .9rem 0 .35rem;
-            letter-spacing: .4px;
-            color: #f5f7fa;
-            text-decoration: none;
-        }
-
-        .api-logo p {
-            /* subtitle pill */
-            --pill-bg: rgba(255, 255, 255, .04);
-            --pill-border: rgba(255, 255, 255, .18);
-            font-size: .63rem;
-            letter-spacing: .65px;
-            text-transform: uppercase;
-            margin: .1rem 0 .55rem;
-            font-weight: 500;
-            color: rgba(255, 255, 255, .78);
-            padding: .32rem .6rem .34rem;
-            border-radius: 999px;
-            border: 1px solid var(--pill-border);
-            background: var(--pill-bg);
-            display: inline-flex;
-            align-items: center;
-            gap: .4ch;
-            position: relative;
-            line-height: 1;
-            transition: background .45s, color .4s, border-color .45s, box-shadow .45s;
-        }
-
-        /* provider accent moved inline */
-
-        .api-logo p:before {
-            /* tiny accent dot */
-            content: "";
-            width: .5rem;
-            height: .5rem;
-            border-radius: 50%;
-            background: var(--accent, #667eea);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, .06);
-        }
-
-        .api-logo:hover p,
-        .api-logo:focus-visible p {
-            --pill-bg: linear-gradient(120deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .06));
-            color: #fff;
-            border-color: var(--accent, #667eea);
-            box-shadow: 0 4px 14px -6px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .18) inset;
-        }
-
-        /* Optional subtle glow on accent when hovered */
-        .api-logo:hover p:before,
-        .api-logo:focus-visible p:before {
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, .12), 0 0 0 6px color-mix(in srgb, var(--accent) 40%, transparent);
-        }
-
-        .api-logo>div:first-child {
-            /* emoji icon */
-            font-size: 2.4rem !important;
-            line-height: 1;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .35));
-        }
-
-        .api-logo:focus-visible {
-            outline: 2px solid #667eea;
-            outline-offset: 3px;
-        }
-
-        @media (max-width:680px) {
-            .api-logos {
-                gap: 1.15rem;
-            }
-
-            .api-logo {
-                padding: 1.4rem 1.15rem 1.2rem;
-                border-radius: 17px;
-            }
-
-            .api-logo-name {
-                font-size: 1.05rem;
-            }
-
-            .api-logo>div:first-child {
-                font-size: 2.1rem !important;
-            }
-        }
-
-        /* Demo Section */
-        .demo {
-            /* 确保演示区域能够充满整个视口 */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: clamp(2rem, 5vh, 4rem) 0;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            text-align: center;
-        }
-
-        .demo h2 {
-            font-size: 3rem;
-            margin-bottom: 3rem;
-            display: flex;
-            justify-content: center;
-            gap: .6rem;
-            align-items: center;
-        }
-
-        .demo-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            justify-content: center;
-            align-items: flex-start;
-        }
-
-        .demo-item {
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-            padding: 2rem;
-            max-width: 420px;
-            flex: 1 1 320px;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            /* 使内部列表宽度拉伸，文本左对齐 */
-        }
-
-        .demo-item h3,
-        .demo-item .demo-img-wrap {
-            /* 保持标题与图居中 */
-            align-self: center;
-            text-align: center;
-        }
-
-        .demo-item ul {
-            /* 强制列表占满宽度并左对齐 */
-            width: 100%;
-            align-self: stretch;
-            text-align: left;
-        }
-
-        /* Preview placeholders (when no GIF/image yet) */
-        .demo-placeholder {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            font-size: 1.05rem;
-            letter-spacing: .5px;
-            background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0 12px, rgba(255, 255, 255, 0.03) 12px 24px);
-            border: 1px dashed rgba(255, 255, 255, 0.18);
-            color: #b9c2ff;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .demo-placeholder small {
-            opacity: .6;
-            font-size: .75rem;
-            position: absolute;
-            right: 8px;
-            bottom: 6px;
-            letter-spacing: .5px;
-        }
-
-        .skeleton-shimmer {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.12) 45%, transparent 60%);
-            animation: shimmer 2.4s linear infinite;
-            mix-blend-mode: overlay;
-            pointer-events: none;
-        }
-
-        @keyframes shimmer {
-            from {
-                transform: translateX(-60%);
-            }
-
-            to {
-                transform: translateX(60%);
-            }
-        }
-
-        .demo-img-wrap {
-            width: 100%;
-            position: relative;
-        }
-
-        .demo-img {
-            width: 100%;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 12px rgba(102, 126, 234, 0.12);
-        }
-
-        /* 为预览图固定纵横比，减少布局抖动（CLS） */
-        .demo-img-wrap,
-        .demo-img {
-            aspect-ratio: 16 / 9;
-        }
-
-        .demo-img-label {
-            position: absolute;
-            left: 12px;
-            bottom: 12px;
-            background: rgba(102, 126, 234, 0.8);
-            color: #fff;
-            font-size: 0.95rem;
-            padding: 0.2rem 0.8rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .demo-item h3 {
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-            color: #667eea;
-        }
-
-        .demo-item ul {
-            padding-left: 1.2rem;
-            color: #eee;
-            font-size: 1rem;
-            line-height: 1.7;
-            margin-bottom: 0;
-        }
-
-        .demo-summary {
-            text-align: center;
-            margin-top: 2rem;
-            opacity: 0.85;
-            font-size: .95rem;
-        }
-
-        .summary-pills {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: .6rem;
-            margin-top: .65rem;
-            max-width: 820px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .summary-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: .35rem;
-            padding: .4rem .9rem .42rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 40px;
-            font-size: .72rem;
-            letter-spacing: .4px;
-            font-weight: 500;
-            backdrop-filter: blur(6px);
-            position: relative;
-        }
-
-        .summary-pill .ico {
-            font-size: .95rem;
-            line-height: 1;
-        }
-
-        /* Installation Section */
-        .installation {
-            /* 确保安装区域能够充满整个视口 */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: clamp(2rem, 5vh, 4rem) 0;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-        }
-
-        .installation h2 {
-            text-align: center;
-            font-size: 3rem;
-            margin-bottom: 4rem;
-            display: flex;
-            justify-content: center;
-            gap: .6rem;
-            align-items: center;
-        }
-
-        .install-methods {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 3rem;
-            margin-bottom: 4rem;
-        }
-
-        /* Installation Tabs */
-        .install-tabs {
-            margin-bottom: 3rem;
-        }
-
-        .install-tabs .tab-list {
-            display: flex;
-            gap: .75rem;
-            flex-wrap: wrap;
-            margin: 0 0 1.5rem;
-            list-style: none;
-            padding: 0;
-        }
-
-        .install-tabs .tab-btn {
-            background: rgba(255, 255, 255, .07);
-            border: 1px solid rgba(255, 255, 255, .18);
-            color: #fff;
-            padding: .65rem 1.1rem;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: .85rem;
-            letter-spacing: .4px;
-            display: inline-flex;
-            align-items: center;
-            gap: .45rem;
-            position: relative;
-            transition: background .25s, border-color .25s;
-        }
-
-        .install-tabs .tab-btn[aria-selected="true"],
-        .install-tabs .tab-btn.is-active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-color: #889dff;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, .35);
-        }
-
-        .install-tabs .tab-btn:focus-visible {
-            outline: 2px solid #889dff;
-            outline-offset: 2px;
-        }
-
-        .install-tabs .tab-panels {
-            position: relative;
-        }
-
-        .install-tabs .tab-panel {
-            display: none;
-            animation: fadeInUp .5s;
-        }
-
-        .install-tabs .tab-panel.is-active {
-            display: block;
-        }
-
-        .install-panels-grid {
-            display: grid;
-            gap: 2.5rem;
-        }
-
-        .install-panels-grid .install-method {
-            margin: 0;
-        }
-
-        .install-note-small {
-            font-size: .75rem;
-            opacity: .6;
-            margin-top: .75rem;
-            line-height: 1.4;
-        }
-
-        .install-method h3 code {
-            font-size: .7rem;
-            opacity: .75;
-        }
-
-        .repo-inline-code {
-            background: rgba(255, 255, 255, .08);
-            padding: .25rem .5rem;
-            border-radius: 6px;
-            font-size: .75rem;
-        }
-
-        .install-method {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 3rem;
-            border-radius: 25px;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.3s;
-        }
-
-        .install-method:hover {
-            transform: translateY(-5px);
-        }
-
-        .install-method h3 {
-            font-size: 1.8rem;
-            margin-bottom: 2rem;
-            color: #667eea;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .install-status {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin-left: 0.5rem;
-        }
-
-        .status-pending {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
-            border: 1px solid rgba(255, 193, 7, 0.3);
-        }
-
-        .status-available {
-            background: rgba(40, 167, 69, 0.2);
-            color: #28a745;
-            border: 1px solid rgba(40, 167, 69, 0.3);
-        }
-
-        .status-beta {
-            background: rgba(102, 126, 234, 0.18);
-            color: #889dff;
-            border: 1px solid rgba(102, 126, 234, 0.35);
-        }
-
-        .install-steps {
-            list-style: none;
-        }
-
-        .install-steps li {
-            padding: .9rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex;
-            align-items: flex-start;
-            gap: .85rem;
-            line-height: 1.5;
-        }
-
-        .install-steps li:last-child {
-            border-bottom: none;
-        }
-
-        .step-number {
-            width: 30px;
-            height: 30px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            flex-shrink: 0;
-            line-height: 1;
-            margin-top: .15rem;
-            box-shadow: 0 4px 10px -4px rgba(0, 0, 0, .5);
-        }
-
-        /* Install step inline code / paths baseline fix */
-        .install-steps code {
-            position: relative;
-            top: 1px;
-            /* optical baseline correction */
-            font-size: .78rem;
-            padding: .15rem .45rem .18rem;
-            background: rgba(255, 255, 255, .08);
-            border: 1px solid rgba(255, 255, 255, .15);
-            border-radius: 6px;
-            font-family: var(--code-font, ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace);
-            letter-spacing: .3px;
-        }
-
-        .install-steps li br+code {
-            top: 0;
-        }
-
-        /* FAQ Section */
-        .faq {
-            /* 确保FAQ区域能够充满整个视口 */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: clamp(2rem, 5vh, 4rem) 0;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-        }
-
-        .faq h2 {
-            text-align: center;
-            font-size: 3rem;
-            margin-bottom: 4rem;
-            display: flex;
-            justify-content: center;
-            gap: .6rem;
-            align-items: center;
-        }
-
-        .section-heading .heading-text,
-        .features h2 .heading-text,
-        .api-sources h2 .heading-text,
-        .demo h2 .heading-text,
-        .installation h2 .heading-text,
-        .faq h2 .heading-text,
-        #roadmap h2 .heading-text,
-        #commands h2 .heading-text,
-        #quickstart h2 .heading-text {
-            background: var(--dtb-gradient);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: inline-block;
-        }
-
-        .emoji-isolate {
-            font-size: 1em;
-            line-height: 1;
-        }
-
-        /* Code blocks */
-        pre.code-block {
-            position: relative;
-            background: #111;
-            border: 1px solid rgba(255, 255, 255, .1);
-            padding: 1.2rem 1.2rem 1.2rem 1.2rem;
-            border-radius: 14px;
-            overflow: auto;
-            font-size: .9rem;
-            line-height: 1.5;
-            color: #eee;
-            font-family: SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
-        }
-
-        pre.code-block code {
-            white-space: pre;
-            display: block;
-        }
-
-        .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--dtb-gradient);
-            border: none;
-            color: #fff;
-            font-size: .75rem;
-            padding: .45rem .8rem;
-            border-radius: 40px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: .35rem;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, .4);
-        }
-
-        .copy-btn:hover {
-            filter: brightness(1.1);
-        }
-
-        .version-badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, .12);
-            border: 1px solid rgba(255, 255, 255, .25);
-            padding: .35rem .75rem;
-            font-size: .75rem;
-            border-radius: 30px;
-            margin-left: .75rem;
-            backdrop-filter: blur(6px);
-        }
-
-        .roadmap-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: grid;
-            gap: 1rem;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
-
-        .roadmap-item {
-            background: rgba(255, 255, 255, .05);
-            padding: 1rem 1.25rem;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, .08);
-            display: flex;
-            gap: .65rem;
-            align-items: flex-start;
-        }
-
-        .roadmap-item span.ri-ico {
-            font-size: 1.2rem;
-        }
-
-        .section-note {
-            font-size: .85rem;
-            opacity: .65;
-            margin-top: 1rem;
-        }
-
-        .commands-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1rem;
-        }
-
-        .command-card {
-            background: rgba(255, 255, 255, .05);
-            padding: 1rem 1.25rem;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, .08);
-            font-size: .9rem;
-        }
-
-        .command-card h4 {
-            margin: 0 0 .4rem;
-            font-size: 1rem;
-            color: #667eea;
-        }
-
-        /* --------------------------------------------- */
-        /* Unified Accent Card Effect (reused styling)   */
-        /* Applies feature-card gradient border + glow  */
-        /* --------------------------------------------- */
-        .qs-step,
-        .command-card,
-        .roadmap-item,
-        .api-logo {
-            --accent: var(--accent, #667eea);
-            --accent-fade: color-mix(in srgb, var(--accent) 25%, transparent);
-            position: relative;
-            backdrop-filter: blur(14px) saturate(120%);
-        }
-
-        /* Base surface adjustments (override previous simple backgrounds) */
-        .qs-step,
-        .command-card,
-        .roadmap-item {
-            background: linear-gradient(175deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035));
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            transition: background .45s, transform .45s cubic-bezier(.4, .2, .2, 1), box-shadow .45s, border-color .45s;
-        }
-
-        /* api-logo keeps its existing radial ::before highlight; we add border via ::after */
-        .api-logo {
-            --api-original-border: rgba(255, 255, 255, .10);
-            border: 1px solid var(--api-original-border);
-        }
-
-        /* Gradient outline using mask technique */
-        .qs-step::before,
-        .command-card::before,
-        .roadmap-item::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: 1px;
-            background: linear-gradient(140deg, var(--accent) 0%, rgba(255, 255, 255, .25) 55%, var(--accent) 110%);
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity .55s;
-            pointer-events: none;
-        }
-
-        /* api-logo border layer (uses ::after because ::before already used) */
-        .api-logo::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: 1px;
-            background: linear-gradient(140deg, var(--accent) 0%, rgba(255, 255, 255, .25) 55%, var(--accent) 110%);
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity .55s;
-            pointer-events: none;
-        }
-
-        /* Internal soft glow */
-        .qs-step::after,
-        .command-card::after,
-        .roadmap-item::after {
-            content: '';
-            position: absolute;
-            top: -10%;
-            left: -5%;
-            width: 140%;
-            height: 140%;
-            background: radial-gradient(circle at 30% 25%, var(--accent-fade), transparent 60%);
-            opacity: .18;
-            mix-blend-mode: plus-lighter;
-            pointer-events: none;
-            transition: opacity .6s;
-        }
-
-        /* Hover / focus states */
-        .qs-step:hover,
-        .command-card:hover,
-        .roadmap-item:hover {
-            transform: translateY(-6px) scale(1.012);
-            box-shadow: 0 16px 34px -10px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .14) inset, 0 0 0 1px var(--accent-fade);
-            border-color: rgba(255, 255, 255, .18);
-            background: linear-gradient(175deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .045));
-        }
-
-        .command-card:hover h4,
-        .roadmap-item:hover .ri-ico {
-            filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--accent) 55%, transparent));
-        }
-
-        .qs-step:hover::before,
-        .command-card:hover::before,
-        .roadmap-item:hover::before,
-        .api-logo:hover::after,
-        .api-logo:focus-visible::after {
-            opacity: 1;
-        }
-
-        .qs-step:hover::after,
-        .command-card:hover::after,
-        .roadmap-item:hover::after {
-            opacity: .32;
-        }
-
-        /* Enhance api-logo existing hover to include slight scale & consistent glow */
-        .api-logo:hover,
-        .api-logo:focus-visible {
-            transform: translateY(-6px) scale(1.012);
-            box-shadow: 0 14px 30px -10px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .16) inset, 0 0 0 1px var(--accent-fade);
-            border-color: rgba(255, 255, 255, .18);
-        }
-
-        /* Roadmap icon emphasis */
-        .roadmap-item .ri-ico {
-            transition: filter .5s, transform .5s;
-        }
-
-        .roadmap-item:hover .ri-ico {
-            transform: scale(1.12) rotate(-3deg);
-        }
-
-        .tag-pill {
-            display: inline-block;
-            padding: .2rem .55rem;
-            font-size: .65rem;
-            border-radius: 12px;
-            background: rgba(102, 126, 234, .2);
-            color: #cdd5ff;
-            margin-left: .4rem;
-            vertical-align: middle;
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-
-            .dynamic-bg,
-            .particle,
-            .hero::before,
-            .hero h1 {
-                animation: none !important;
-            }
-
-            .floating-particles {
-                display: none;
-            }
-        }
-
-        /* 低性能模式：自动降级耗时效果（动画、毛玻璃、发光描边） */
-        html.dtb-perf-low .dynamic-bg {
-            animation: none !important;
-            background-size: 200% 200%;
-        }
-
-        html.dtb-perf-low .floating-particles {
-            display: none !important;
-        }
-
-        html.dtb-perf-low .wallpaper-overlay,
-        html.dtb-perf-low .header,
-        html.dtb-perf-low .install-method,
-        html.dtb-perf-low .feature-card,
-        html.dtb-perf-low .qs-step,
-        html.dtb-perf-low .command-card,
-        html.dtb-perf-low .roadmap-item,
-        html.dtb-perf-low .api-logo {
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-        }
-
-        html.dtb-perf-low .feature-card::before,
-        html.dtb-perf-low .feature-card::after,
-        html.dtb-perf-low .qs-step::before,
-        html.dtb-perf-low .qs-step::after,
-        html.dtb-perf-low .command-card::before,
-        html.dtb-perf-low .command-card::after,
-        html.dtb-perf-low .roadmap-item::before,
-        html.dtb-perf-low .roadmap-item::after,
-        html.dtb-perf-low .api-logo::after {
-            display: none !important;
-        }
-
-        html.dtb-perf-low .feature-card:hover,
-        html.dtb-perf-low .qs-step:hover,
-        html.dtb-perf-low .command-card:hover,
-        html.dtb-perf-low .roadmap-item:hover,
-        html.dtb-perf-low .api-logo:hover {
-            transform: none !important;
-            box-shadow: 0 6px 16px -8px rgba(0, 0, 0, .45);
-        }
-
-        .faq-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 2rem;
-        }
-
-        .faq-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 2rem;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .faq-question {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #667eea;
-        }
-
-        .faq-answer {
-            opacity: 0.9;
-            line-height: 1.6;
-        }
-
-        /* Footer */
-        .footer {
-            background: #000;
-            color: white;
-            text-align: center;
-            /* Reduce vertical padding; smaller bottom to finish page tighter */
-            padding: 3.2rem 0 2.2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2.4rem;
-            margin-bottom: 2rem;
-            /* was 3rem */
-            text-align: left;
-        }
-
-        .footer-section h3 {
-            margin-bottom: 1rem;
-            font-weight: 600;
-            background: linear-gradient(90deg, #ffffff, #cfd8ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: #eef2ff;
-            letter-spacing: .5px;
-        }
-
-        .footer-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .footer-links a {
-            position: relative;
-            color: rgba(255, 255, 255, .78);
-            text-decoration: none;
-            font-size: .88rem;
-            letter-spacing: .3px;
-            padding: .35rem .75rem .4rem;
-            border-radius: 10px;
-            line-height: 1.2;
-            transition: background .35s, color .35s;
-        }
-
-        .footer-links a:before {
-            content: "";
-            position: absolute;
-            left: .75rem;
-            right: .75rem;
-            bottom: .3rem;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #6d79ff, transparent);
-            opacity: 0;
-            transform: scaleX(.4);
-            transition: opacity .4s, transform .45s;
-            pointer-events: none;
-        }
-
-        .footer-links a:hover,
-        .footer-links a:focus-visible {
-            background: rgba(255, 255, 255, .06);
-            color: #f7f9ff;
-        }
-
-        .footer-links a:hover:before,
-        .footer-links a:focus-visible:before {
-            opacity: .9;
-            transform: scaleX(1);
-        }
-
-        .badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            justify-content: center;
-            margin-bottom: 1.1rem;
-            /* tighter */
-        }
-
-        .badge {
-            display: inline-block;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Responsive */
-        #back-to-top {
-            position: fixed;
-            right: 24px;
-            bottom: 24px;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--dtb-gradient);
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all .3s;
-            z-index: 300
-        }
-
-        #back-to-top.visible {
-            opacity: 1;
-            transform: translateY(0)
-        }
-
-        #back-to-top:hover {
-            transform: translateY(-4px)
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 3rem;
-            }
-
-            .hero .subtitle {
-                font-size: 1.4rem;
-            }
-
-            .cta-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .features-grid,
-            .install-methods,
-            .faq-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .features h2 {
-                font-size: 2.4rem;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .api-logos {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* 纵向较矮视口进一步压缩 hero 留白 */
-        @media (max-height: 750px) {
-            .hero {
-                padding: 3.2rem 0 4.2rem;
-            }
-        }
-
-        @media (max-height: 600px) {
-            .hero {
-                padding: 2.6rem 0 3.2rem;
-            }
-
-            .hero-title {
-                font-size: clamp(2.2rem, 6.5vw, 3.2rem);
-            }
-
-            .hero .subtitle {
-                font-size: 1.4rem;
-            }
-
-            .hero p {
-                font-size: 1.05rem;
-            }
-        }
-
-        /* Enhanced Mobile Responsiveness */
-        @media (max-width: 768px) {
-            body {
-                overflow-x: hidden;
-            }
-
-            .container {
-                padding: 0 clamp(12px, 3.5vw, 20px);
-            }
-
-            /* 在移动设备上调整视口高度，避免过高 */
-            .hero,
-            .features,
-            .demo,
-            .api-sources,
-            .installation,
-            .faq {
-                min-height: 90vh;
-            }
-
-            .nav {
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
-
-            .nav-links {
-                gap: 1rem;
-                flex-wrap: wrap;
-            }
-
-            .nav-links a:not(.icon-btn) {
-                font-size: 0.9rem;
-            }
-
-            .hero {
-                padding: clamp(6vh, 10vh, 12vh) 0 clamp(3rem, 8vh, 5rem);
-            }
-
-            .hero-title {
-                font-size: clamp(2.2rem, 8vw, 3.2rem);
-                line-height: 1.1;
-            }
-
-            .hero .subtitle {
-                font-size: clamp(1.3rem, 4vw, 1.6rem);
-            }
-
-            .hero p {
-                font-size: clamp(1rem, 3.5vw, 1.2rem);
-                padding: 0 10px;
-            }
-
-            .cta-buttons {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: center;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: 280px;
-                padding: 1rem 1.5rem;
-                font-size: 1rem;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            .feature-card {
-                padding: 1.5rem 1.2rem;
-                min-height: auto;
-            }
-
-            .api-logos {
-                grid-template-columns: 1fr;
-                gap: 1.2rem;
-            }
-
-            .demo-gallery {
-                flex-direction: column;
-                gap: 2rem;
-            }
-
-            .demo-item {
-                max-width: 100%;
-                flex: 1 1 auto;
-            }
-
-            .install-methods {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-
-            .install-method {
-                padding: 2rem 1.5rem;
-            }
-
-            .faq-item {
-                padding: 1.5rem 1.2rem;
-            }
-
-            h2 {
-                font-size: clamp(2rem, 6vw, 2.5rem) !important;
-            }
-
-            h3 {
-                font-size: clamp(1.2rem, 4vw, 1.4rem) !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 clamp(10px, 3vw, 15px);
-            }
-
-            /* 在小屏幕设备上进一步减少视口高度 */
-            .hero,
-            .features,
-            .demo,
-            .api-sources,
-            .installation,
-            .faq {
-                min-height: 85vh;
-            }
-
-            .nav-links {
-                gap: 0.5rem;
-            }
-
-            .nav-links a:not(.icon-btn) {
-                font-size: 0.85rem;
-                padding: 0.3rem 0.6rem;
-            }
-
-            .hero-badge {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .hero-title {
-                font-size: clamp(1.8rem, 9vw, 2.8rem);
-                gap: 0.4rem;
-            }
-
-            .hero .subtitle {
-                font-size: clamp(1.1rem, 4.5vw, 1.4rem);
-                margin-bottom: 1.5rem;
-            }
-
-            .hero p {
-                font-size: clamp(0.9rem, 3.8vw, 1.1rem);
-                margin-bottom: 2rem;
-                padding: 0 5px;
-            }
-
-            .btn {
-                padding: 0.9rem 1.2rem;
-                font-size: 0.9rem;
-            }
-
-            .feature-card {
-                padding: 1.2rem 1rem;
-            }
-
-            .feature-icon {
-                font-size: 1.8rem;
-            }
-
-            .feature-card h3 {
-                font-size: 1.1rem;
-            }
-
-            .feature-card p {
-                font-size: 0.85rem;
-            }
-
-            .api-logo {
-                padding: 1.2rem 1rem;
-            }
-
-            .install-method {
-                padding: 1.5rem 1rem;
-            }
-
-            .install-method h3 {
-                font-size: 1.4rem;
-            }
-        }
-
-        /* Ultra-small screens */
-        @media (max-width: 360px) {
-            .container {
-                padding: 0 8px;
-            }
-
-            .hero-title {
-                font-size: clamp(1.6rem, 10vw, 2.4rem);
-            }
-
-            .nav-links a:not(.icon-btn) {
-                font-size: 0.8rem;
-                padding: 0.25rem 0.5rem;
-            }
-
-            .btn {
-                padding: 0.8rem 1rem;
-                font-size: 0.85rem;
-            }
-        }
-
-        /* Landscape orientation on mobile */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .hero {
-                padding: 1.5rem 0 2rem;
-            }
-
-            .hero-title {
-                font-size: clamp(1.8rem, 6vw, 2.4rem);
-            }
-
-            .hero .subtitle {
-                font-size: 1.2rem;
-                margin-bottom: 1rem;
-            }
-
-            .hero p {
-                font-size: 0.95rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .cta-buttons {
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 0.8rem;
-            }
-
-            .btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.85rem;
-            }
-        }
-    </style>
 </head>
 
 <body>
-    <a href="#main" class="skip-link">Skip to content</a>
+    <a href="#main" class="skip-link" data-i18n="accessibility.skipToContent">Skip to content</a>
     <div class="dynamic-bg" aria-hidden="true"></div>
     <div class="wallpaper-overlay"></div>
     <div class="floating-particles" aria-hidden="true"></div>
+
     <header class="header">
         <nav class="nav container">
-            <a href="#top" class="logo" aria-label="Back to top / Home" title="Back to top">🌈 Obsidian DTB <span
-                    class="version-badge" id="dtb-version-header" title="Current version"
-                    data-fallback="v?">loading…</span></a>
+            <a href="#top" class="logo" aria-label="Back to top / Home" data-i18n-title="nav.backToTop">
+                <span aria-hidden="true">🌈</span> <span data-i18n="nav.brandName">Obsidian DTB</span>
+                <span class="version-badge" id="dtb-version-header" data-i18n-title="nav.currentVersion"
+                    data-fallback="v?" data-i18n="nav.versionLoading">loading…</span>
+            </a>
             <div class="nav-links">
-                <a href="#demo">Preview</a>
-                <a href="#features">Features</a>
-                <a href="#installation">Install</a>
-                <a href="#quickstart">Quick&nbsp;Start</a>
-                <a href="#commands">Commands</a>
-                <a href="#sources">Sources</a>
-                <a href="#roadmap">Roadmap</a>
-                <a href="#faq">FAQ</a>
+                <a href="#demo" data-i18n="nav.preview">Preview</a>
+                <a href="#quickstart" data-i18n="nav.quickstart">Quick Start</a>
+                <a href="#features" data-i18n="nav.features">Features</a>
+                <a href="#installation" data-i18n="nav.install">Install</a>
+                <a href="#commands" data-i18n="nav.commands">Commands</a>
+                <a href="#sources" data-i18n="nav.sources">Sources</a>
+                <a href="#faq" data-i18n="nav.faq">FAQ</a>
                 <a class="icon-btn" href="https://github.com/sean2077/obsidian-dynamic-theme-background" target="_blank"
-                    rel="noopener noreferrer" aria-label="GitHub Repository" title="GitHub Repository">
+                    rel="noopener noreferrer" data-i18n-aria-label="nav.github" data-i18n-title="nav.github">
                     <svg viewBox="0 0 16 16" aria-hidden="true" role="img" focusable="false">
                         <path
                             d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8Z" />
                     </svg>
                 </a>
-                <a class="icon-btn lang-toggle" href="index.zh.html" aria-label="EN ⇄ 中文 (切换到中文)"
-                    title="EN ⇄ 中文 | 切换到中文">
+                <button class="icon-btn lang-toggle" id="lang-toggle-btn" data-i18n-aria-label="nav.langSwitch"
+                    data-i18n-title="nav.langSwitchTitle">
                     <span class="ico" aria-hidden="true">🌐</span>
                     <span class="lang-text" aria-hidden="true">中</span>
-                </a>
+                </button>
             </div>
         </nav>
     </header>
+
     <main id="main" tabindex="-1">
+        <!-- Hero Section -->
         <section class="hero" id="top">
-            <div class="container">
-                <div class="hero-badge"><span>✨</span><span>Build Your Own Wallpaper Library in Obsidian</span></div>
-                <h1 class="hero-title"><span class="emoji-isolate" aria-hidden="true">🌈</span><span
-                        class="hero-title-text">Dynamic Theme Background</span></h1>
-                <div class="subtitle">Make every note-taking experience visually inspiring</div>
-                <p>A highly customizable and intelligent wallpaper management solution. Integrates multiple popular
-                    sources
-                    (Unsplash, Pixabay, Pexels, Wallhaven & custom). Supports local + remote image mixing so your
-                    knowledge
-                    space stays fresh and motivating.</p>
+            <div class="container hero-centered">
+                <h1 class="hero-title">
+                    <span class="emoji-isolate" aria-hidden="true">🌈</span>
+                    <span class="hero-title-text">Dynamic Theme Background</span>
+                </h1>
+                <p class="hero-tagline" data-i18n="hero.tagline">Multi-source dynamic wallpapers for Obsidian</p>
+                <p class="hero-hint" data-i18n="hero.bgHint">↓ This background changes with time of day ↓</p>
                 <div class="cta-buttons">
-                    <a href="#installation" class="btn btn-primary"><span>⚡</span><span>Install Now</span></a>
+                    <a href="#installation" class="btn btn-primary"><span>⚡</span><span
+                            data-i18n="hero.installBtn">Install Now</span></a>
                     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background" class="btn btn-secondary"
-                        target="_blank" rel="noopener noreferrer"><span>📱</span><span>Source Code</span></a>
-                    <a href="#quickstart" class="btn btn-secondary"
-                        style="border:none;background:rgba(255,255,255,.15);"><span>🚀</span><span>Quick
-                            Start</span></a>
+                        target="_blank" rel="noopener noreferrer"><span>📱</span><span data-i18n="hero.sourceBtn">Source
+                            Code</span></a>
                 </div>
             </div>
         </section>
-        <section class="demo" id="demo">
+
+        <!-- Demo Section -->
+        <section class="demo full-section" id="demo">
             <div class="container">
-                <h2 class="fade-in">🎬 <span class="heading-text">Preview</span></h2>
+                <h2 class="fade-in">🎬 <span class="heading-text" data-i18n="demo.title">Preview</span></h2>
                 <div class="demo-gallery fade-in">
                     <div class="demo-item">
-                        <div class="demo-img-wrap" style="position:relative;">
+                        <div class="demo-img-wrap">
                             <img src="assets/dtb-demo2.gif" alt="Wallpaper switching preview" class="demo-img"
-                                loading="lazy" decoding="async">
-                            <span class="demo-img-label">Switching</span>
+                                width="800" height="450" loading="lazy" decoding="async">
+                            <span class="demo-img-label" data-i18n="demo.switchingLabel">Switching</span>
                         </div>
-                        <h3>Multi‑source Library</h3>
-                        <ul>
-                            <li>Unsplash / Pixabay / Pexels / Wallhaven</li>
-                            <li>Local & remote images combined</li>
-                            <li>Custom API extensibility</li>
-                        </ul>
+                        <h3 data-i18n="demo.switchingTitle">Multi‑source Library</h3>
+                        <ul class="demo-list" data-demo-list="switching"></ul>
                     </div>
                     <div class="demo-item">
-                        <div class="demo-img-wrap" style="position:relative;">
+                        <div class="demo-img-wrap">
                             <img src="assets/dtb-demo.gif" alt="Image backgrounds and gradient backgrounds"
-                                class="demo-img" loading="lazy" decoding="async">
-                            <span class="demo-img-label">Backgrounds</span>
+                                class="demo-img" width="800" height="450" loading="lazy" decoding="async">
+                            <span class="demo-img-label" data-i18n="demo.backgroundsLabel">Backgrounds</span>
                         </div>
-                        <h3>Image & Gradient Backgrounds</h3>
-                        <ul>
-                            <li>Rich image backgrounds support</li>
-                            <li>Beautiful gradient backgrounds</li>
-                            <li>Visual parameter adjustments</li>
-                        </ul>
+                        <h3 data-i18n="demo.backgroundsTitle">Image & Gradient Backgrounds</h3>
+                        <ul class="demo-list" data-demo-list="backgrounds"></ul>
                     </div>
                     <div class="demo-item">
-                        <div class="demo-img-wrap" style="position:relative;">
-                            <img src="assets/dtb-demo3.gif" alt="Theme compatibility showcase" class="demo-img"
-                                loading="lazy" decoding="async">
-                            <span class="demo-img-label">Themes</span>
+                        <div class="demo-img-wrap">
+                            <img src="assets/dtb-demo3.gif" alt="Feature-rich settings panel" class="demo-img"
+                                width="800" height="450" loading="lazy" decoding="async">
+                            <span class="demo-img-label" data-i18n="demo.settingsLabel">Settings</span>
                         </div>
-                        <h3>Theme Compatibility</h3>
-                        <ul>
-                            <li>Dark & light mode adaptive</li>
-                            <li>Works with various themes</li>
-                            <li>Theme variable driven styling</li>
-                        </ul>
+                        <h3 data-i18n="demo.settingsTitle">Feature-rich Settings</h3>
+                        <ul class="demo-list" data-demo-list="settings"></ul>
                     </div>
                 </div>
-                <div class="demo-summary fade-in">
-                    <div style="font-size:.78rem;letter-spacing:.5px;opacity:.55;">Key capabilities at a glance</div>
-                    <div class="summary-pills">
-                        <div class="summary-pill"><span class="ico">⏰</span><span>Time Rotation</span></div>
-                        <div class="summary-pill"><span class="ico">🎨</span><span>Theme Adaptive</span></div>
-                        <div class="summary-pill"><span class="ico">🚀</span><span>Optimized Loading</span></div>
-                        <div class="summary-pill"><span class="ico">🧩</span><span>Multi-Source Mix</span></div>
-                        <div class="summary-pill"><span class="ico">🎚️</span><span>Live Tuning</span></div>
-                        <div class="summary-pill"><span class="ico">🧠</span><span>Caching & Prefetch</span></div>
-                        <div class="summary-pill"><span class="ico">⌨️</span><span>Command Palette</span></div>
-                        <div class="summary-pill"><span class="ico">🔧</span><span>Custom API</span></div>
-                    </div>
+                <div class="summary-pills fade-in">
+                    <div class="summary-pill"><span class="ico">🌐</span><span
+                            data-i18n="demo.pills.multiSourceMix">Multi-Source Mix</span></div>
+                    <div class="summary-pill"><span class="ico">🎚️</span><span data-i18n="demo.pills.liveTuning">Live
+                            Tuning</span></div>
+                    <div class="summary-pill"><span class="ico">🧠</span><span
+                            data-i18n="demo.pills.cachingPrefetch">Caching & Prefetch</span></div>
+                    <div class="summary-pill"><span class="ico">⌨️</span><span
+                            data-i18n="demo.pills.commandPalette">Command Palette</span></div>
+                    <div class="summary-pill"><span class="ico">🔧</span><span data-i18n="demo.pills.customApi">Custom
+                            API</span></div>
                 </div>
             </div>
         </section>
-        <section class="features" id="features">
+
+        <!-- Quick Start Section -->
+        <section class="quickstart full-section" id="quickstart">
             <div class="container">
-                <h2 class="fade-in section-title">✨ <span class="heading-text">Key Features</span></h2>
-                <p class="features-subtitle fade-in">An elevated wallpaper experience crafted for Obsidian</p>
+                <h2 class="fade-in section-title">🚀 <span class="heading-text" data-i18n="quickstart.title">Quick
+                        Start</span></h2>
+                <p class="section-subtitle fade-in" data-i18n="quickstart.subtitle">Already installed? In three short
+                    steps you'll have smart rotation running.</p>
+
+                <div class="quickstart-content fade-in">
+                    <div class="quickstart-steps">
+                        <div class="quickstart-step">
+                            <span class="step-number" data-i18n="quickstart.step1.label">STEP 1</span>
+                            <h3 data-i18n="quickstart.step1.title">Add Sources</h3>
+                            <p data-i18n="quickstart.step1.desc">Add local images or enable API providers (Unsplash /
+                                Pixabay / Pexels / Wallhaven / Custom).</p>
+                        </div>
+                        <div class="quickstart-step">
+                            <span class="step-number" data-i18n="quickstart.step2.label">STEP 2</span>
+                            <h3 data-i18n="quickstart.step2.title">Set Rotation</h3>
+                            <p data-i18n="quickstart.step2.desc">Choose interval + optional time windows (morning / day
+                                / night) for contextual change.</p>
+                        </div>
+                        <div class="quickstart-step">
+                            <span class="step-number" data-i18n="quickstart.step3.label">STEP 3</span>
+                            <h3 data-i18n="quickstart.step3.title">Control & Enjoy</h3>
+                            <p data-i18n="quickstart.step3.desc">Use status bar clicks or Command Palette
+                                (<code>dtb</code>) to switch, save & fetch.</p>
+                        </div>
+                    </div>
+
+                    <div class="statusbar-demo">
+                        <figure class="statusbar-figure">
+                            <img src="assets/dtb-status-bar.jpg" alt="Status bar controls" width="800" height="450"
+                                loading="lazy" decoding="async" />
+                            <figcaption data-i18n="quickstart.statusbar.caption">Status Bar Snapshot</figcaption>
+                        </figure>
+                        <div class="statusbar-actions">
+                            <h4 data-i18n="quickstart.statusbar.title">Status Bar Quick Control</h4>
+                            <div class="statusbar-action">
+                                <span class="action-ico">🖱️</span>
+                                <span data-i18n="quickstart.statusbar.leftClick"><strong>Left Click</strong> Random
+                                    wallpaper</span>
+                            </div>
+                            <div class="statusbar-action">
+                                <span class="action-ico">🖱️</span>
+                                <span data-i18n="quickstart.statusbar.middleClick"><strong>Middle Click</strong> Open
+                                    settings tab</span>
+                            </div>
+                            <div class="statusbar-action">
+                                <span class="action-ico">🖱️</span>
+                                <span data-i18n="quickstart.statusbar.rightClick"><strong>Right Click</strong> Save
+                                    current background</span>
+                            </div>
+                            <p class="statusbar-hint" data-i18n="quickstart.statusbar.hint">Daily interaction happens
+                                here or via the command palette.</p>
+                            <p class="statusbar-tip" data-i18n="quickstart.statusbar.tip">Tip: assign hotkeys for even
+                                faster switching</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="quickstart-done fade-in" data-i18n="quickstart.done">You're set: sources + rotation + controls
+                    active.</p>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features full-section" id="features">
+            <div class="container">
+                <h2 class="fade-in section-title">✨ <span class="heading-text" data-i18n="features.title">Key
+                        Features</span></h2>
+                <p class="features-subtitle fade-in" data-i18n="features.subtitle">An elevated wallpaper experience
+                    crafted for Obsidian</p>
                 <div class="features-grid">
                     <div class="feature-card fade-in" style="--accent:#667eea;">
-                        <h3><span class="feature-icon">🖼️</span>Multi-source Library</h3>
-                        <p>Unsplash, Pixabay, Pexels, Wallhaven + custom API & local folders—flexibly combine and
-                            curate.
-                        </p>
+                        <h3><span class="feature-icon">🖼️</span><span
+                                data-i18n="features.multiSource.title">Multi-source Library</span></h3>
+                        <p data-i18n="features.multiSource.desc">Unsplash, Pixabay, Pexels, Wallhaven + custom API &
+                            local folders—flexibly combine and curate.</p>
                     </div>
                     <div class="feature-card fade-in" style="--accent:#14b8a6;">
-                        <h3><span class="feature-icon">🎨</span>Visual Tuning</h3>
-                        <p>Adjust blur, brightness, saturation, hue & more—theme-friendly and dark/light aware.</p>
+                        <h3><span class="feature-icon">🎨</span><span data-i18n="features.visualTuning.title">Visual
+                                Tuning</span></h3>
+                        <p data-i18n="features.visualTuning.desc">Adjust blur, brightness, saturation, hue &
+                            more—theme-friendly and dark/light aware.</p>
                     </div>
                     <div class="feature-card fade-in" style="--accent:#f59e0b;">
-                        <h3><span class="feature-icon">⚡</span>Smart Rotation</h3>
-                        <p>Time windows, interval auto-change, command palette quick switch, minute-level scheduling.
-                        </p>
+                        <h3><span class="feature-icon">⚡</span><span data-i18n="features.smartRotation.title">Smart
+                                Rotation</span></h3>
+                        <p data-i18n="features.smartRotation.desc">Time windows, interval auto-change, command palette
+                            quick switch, minute-level scheduling.</p>
                     </div>
                     <div class="feature-card fade-in" style="--accent:#8b5cf6;">
-                        <h3><span class="feature-icon">🤝</span>Great UX</h3>
-                        <p>Async loading, caching, default presets, batch ops & shortcut commands for fast workflows.
-                        </p>
+                        <h3><span class="feature-icon">🤝</span><span data-i18n="features.greatUx.title">Great UX</span>
+                        </h3>
+                        <p data-i18n="features.greatUx.desc">Async loading, caching, default presets, batch ops &
+                            shortcut commands for fast workflows.</p>
                     </div>
                     <div class="feature-card fade-in" style="--accent:#f43f5e;">
-                        <h3><span class="feature-icon">🚀</span>Performance Minded</h3>
-                        <p>Optimized rendering & caching for minimal impact on editor responsiveness.</p>
+                        <h3><span class="feature-icon">🚀</span><span data-i18n="features.performance.title">Performance
+                                Minded</span></h3>
+                        <p data-i18n="features.performance.desc">Optimized rendering & caching for minimal impact on
+                            editor responsiveness.</p>
                     </div>
                     <div class="feature-card fade-in" style="--accent:#06b6d4;">
-                        <h3><span class="feature-icon">📦</span>Roadmap</h3>
-                        <p>Weather integration, theme packs, video / audio / AI backgrounds, mobile refinements.</p>
+                        <h3><span class="feature-icon">📦</span><span data-i18n="features.roadmap.title">Roadmap</span>
+                        </h3>
+                        <p data-i18n="features.roadmap.desc">Weather integration, theme packs, video / audio / AI
+                            backgrounds, mobile refinements.</p>
                     </div>
                 </div>
             </div>
         </section>
-        <section class="installation" id="installation">
+
+        <!-- Installation Section -->
+        <section class="installation full-section" id="installation">
             <div class="container">
-                <h2 class="fade-in section-title">⬇️ <span class="heading-text">Installation</span></h2>
-                <p class="features-subtitle fade-in" style="margin-bottom:2.5rem;">Pick a method below. Once enabled,
-                    jump
-                    to <a href="#quickstart">Quick Start</a> to configure rotation & sources.</p>
+                <h2 class="fade-in section-title">⬇️ <span class="heading-text"
+                        data-i18n="installation.title">Installation</span></h2>
+                <p class="features-subtitle fade-in" data-i18n="installation.subtitle">
+                    Pick a method below. Once enabled, jump to Quick Start to configure rotation & sources.</p>
                 <div class="install-tabs fade-in" id="install-tabs" data-default="market">
                     <div class="tab-list" role="tablist" aria-label="Installation methods">
                         <button class="tab-btn" role="tab" aria-selected="true" data-tab="market" id="tab-market">🛒
-                            Marketplace</button>
-                        <button class="tab-btn" role="tab" aria-selected="false" data-tab="brat" id="tab-brat">🧪
-                            BRAT</button>
+                            <span data-i18n="installation.tabs.marketplace">Marketplace</span></button>
+                        <button class="tab-btn" role="tab" aria-selected="false" data-tab="brat" id="tab-brat">🧪 <span
+                                data-i18n="installation.tabs.brat">BRAT</span></button>
                         <button class="tab-btn" role="tab" aria-selected="false" data-tab="manual" id="tab-manual">📦
-                            Manual</button>
+                            <span data-i18n="installation.tabs.manual">Manual</span></button>
                     </div>
                     <div class="tab-panels">
                         <div class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-market" id="panel-market">
-                            <div class="install-method" style="margin:0;">
-                                <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🛒</span>
-                                    Community Marketplace <span class="install-status status-pending">Pending
-                                        Review</span>
+                            <div class="install-method">
+                                <h3>
+                                    <span>🛒</span>
+                                    <span data-i18n="installation.marketplace.title">Community Marketplace</span>
+                                    <span class="install-status status-pending"
+                                        data-i18n="installation.marketplace.status">Pending Review</span>
                                 </h3>
-                                <ul class="install-steps">
-                                    <li><span class="step-number">1</span> Settings → Community plugins →
-                                        <strong>Browse</strong>
-                                    </li>
-                                    <li><span class="step-number">2</span> (After approval) Search <strong>Dynamic Theme
-                                            Background</strong> / <strong>DTB</strong></li>
-                                    <li><span class="step-number">3</span> Install & enable</li>
-                                </ul>
-                                <div class="install-note-small">Currently in Obsidian review queue. Until approved, use
-                                    BRAT
-                                    or Manual. Track PR in <code class="repo-inline-code">obsidian-releases</code>.
-                                </div>
+                                <ul class="install-steps" data-install-method="marketplace"></ul>
+                                <div class="install-note-small" data-i18n="installation.marketplace.note">Currently in
+                                    Obsidian review queue. Until approved, use BRAT or Manual. Track PR in <code
+                                        class="repo-inline-code">obsidian-releases</code>.</div>
                             </div>
                         </div>
                         <div class="tab-panel" role="tabpanel" aria-labelledby="tab-brat" id="panel-brat" hidden>
-                            <div class="install-method" style="margin:0;">
-                                <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>🧪</span> BRAT
-                                    (Beta) <span class="install-status status-beta">Beta</span></h3>
-                                <ul class="install-steps">
-                                    <li><span class="step-number">1</span> Install <a
-                                            href="https://github.com/TfTHacker/obsidian42-brat" target="_blank"
-                                            rel="noopener noreferrer">BRAT</a>
-                                    </li>
-                                    <li><span class="step-number">2</span> BRAT → Add beta plugin → Paste repo
-                                        URL:<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>
-                                    </li>
-                                    <li><span class="step-number">3</span> Enable plugin in settings</li>
-                                </ul>
-                                <div class="install-note-small">Fastest way to try latest code before Marketplace
-                                    approval.
-                                </div>
+                            <div class="install-method">
+                                <h3>
+                                    <span>🧪</span>
+                                    <span data-i18n="installation.brat.title">BRAT (Beta)</span>
+                                    <span class="install-status status-beta"
+                                        data-i18n="installation.brat.status">Beta</span>
+                                </h3>
+                                <ul class="install-steps" data-install-method="brat"></ul>
+                                <div class="install-note-small" data-i18n="installation.brat.note">Fastest way to try
+                                    latest code before Marketplace approval.</div>
                             </div>
                         </div>
                         <div class="tab-panel" role="tabpanel" aria-labelledby="tab-manual" id="panel-manual" hidden>
-                            <div class="install-method" style="margin:0;">
-                                <h3 style="margin-top:0;display:flex;align-items:center;gap:.5rem;"><span>📦</span>
-                                    Manual
-                                    Install <span class="install-status status-available">Advanced</span></h3>
-                                <ul class="install-steps">
-                                    <li><span class="step-number">1</span> Download latest <code>main.js</code>,
-                                        <code>manifest.json</code>, <code>styles.css</code> from <a
-                                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"
-                                            target="_blank" rel="noopener noreferrer">Releases</a>
-                                    </li>
-                                    <li><span class="step-number">2</span> Create
-                                        folder:<br><code>.obsidian/plugins/obsidian-dynamic-theme-background/</code>
-                                    </li>
-                                    <li><span class="step-number">3</span> Place files inside</li>
-                                    <li><span class="step-number">4</span> Restart Obsidian & enable</li>
-                                </ul>
-                                <div class="install-note-small">Use for pinned versions, air‑gapped envs, or manual
-                                    audits.
-                                </div>
+                            <div class="install-method">
+                                <h3>
+                                    <span>📦</span>
+                                    <span data-i18n="installation.manual.title">Manual Install</span>
+                                    <span class="install-status status-available"
+                                        data-i18n="installation.manual.status">Advanced</span>
+                                </h3>
+                                <ul class="install-steps" data-install-method="manual"></ul>
+                                <div class="install-note-small" data-i18n="installation.manual.note">Use for pinned
+                                    versions, air-gapped envs, or manual audits.</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div style="text-align:center;margin-bottom:2rem;opacity:.7;">Need help? See the <a
-                        href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme" target="_blank"
-                        rel="noopener noreferrer">README</a>
-                    or <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues" target="_blank"
-                        rel="noopener noreferrer">report
-                        an issue</a>.</div>
-                <div style="text-align:center;margin-top:1.5rem;">
-                    <a href="#quickstart" class="btn btn-primary" style="padding:.75rem 1.4rem;font-size:.9rem;">
-                        <span>🚀</span><span>Go to Quick Start</span>
-                    </a>
-                </div>
+                <div class="install-help-text" data-i18n="installation.helpText">Need
+                    help? See the <a href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme"
+                        target="_blank" rel="noopener noreferrer">README</a> or <a
+                        href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues" target="_blank"
+                        rel="noopener noreferrer">report an issue</a>.</div>
             </div>
         </section>
-        <!-- Quick Start Section (now follows Installation) -->
-        <section class="features" id="quickstart" style="padding:6rem 0;background:rgba(0,0,0,.55);">
-            <div class="container">
-                <h2 class="fade-in section-title">🚀 <span class="heading-text">Quick Start</span></h2>
-                <p class="features-subtitle fade-in" style="margin-bottom:3rem;">Already installed? In three short steps
-                    you'll have smart rotation running.</p>
-                <div class="qs-steps-row three fade-in">
-                    <div class="qs-step">
-                        <span class="qs-step-number">STEP 1</span>
-                        <h3><span class="feature-icon">🖼️</span>Add Sources</h3>
-                        <p>Add local images or enable API providers (Unsplash / Pixabay / Pexels / Wallhaven / Custom).
-                        </p>
-                    </div>
-                    <div class="qs-step">
-                        <span class="qs-step-number">STEP 2</span>
-                        <h3><span class="feature-icon">⏱️</span>Set Rotation</h3>
-                        <p>Choose interval + optional time windows (morning / day / night) for contextual change.</p>
-                    </div>
-                    <div class="qs-step">
-                        <span class="qs-step-number">STEP 3</span>
-                        <h3><span class="feature-icon">⚡</span>Control & Enjoy</h3>
-                        <p>Use status bar clicks or Command Palette (<code>dtb</code>) to switch, save & fetch.</p>
-                    </div>
-                </div>
-                <div class="statusbar-preview fade-in"
-                    style="margin:1.8rem auto 2.8rem; justify-content:center; text-align:center;">
-                    <figure style="flex:0 1 640px;">
-                        <img src="assets/dtb-status-bar.jpg" alt="Status bar controls screenshot" loading="lazy"
-                            decoding="async" />
-                        <figcaption>Status Bar Snapshot</figcaption>
-                    </figure>
-                    <div class="statusbar-details" style="max-width:340px;">
-                        <h4 style="justify-content:center;">⚡ Status Bar Quick Control</h4>
-                        <ul class="statusbar-actions" style="text-align:left;">
-                            <li><span class="action-ico">🖱️</span><strong>Left Click</strong> Random wallpaper</li>
-                            <li><span class="action-ico">🖱️</span><strong>Middle Click</strong> Open settings tab</li>
-                            <li><span class="action-ico">🖱️</span><strong>Right Click</strong> Save current background
-                            </li>
-                        </ul>
-                        <div style="font-size:.75rem;opacity:.75;line-height:1.45;">Daily interaction happens here or
-                            via
-                            the command palette.</div>
-                        <div class="statusbar-tip">Tip: assign hotkeys for even faster switching</div>
-                    </div>
-                </div>
-                <div class="section-note fade-in">You're set: sources + rotation + controls active.</div>
-            </div>
-        </section>
+
         <!-- Commands Section -->
-        <section class="demo" id="commands" style="background:rgba(0,0,0,.65);">
+        <section class="demo full-section" id="commands">
             <div class="container">
-                <h2 class="fade-in section-title">⌨️ <span class="heading-text">Commands</span></h2>
-                <p class="fade-in" style="max-width:700px;margin:0 auto 3rem;opacity:.8;">Access via Command Palette.
-                    Assign
-                    hotkeys for instant control.</p>
+                <h2 class="fade-in section-title">⌨️ <span class="heading-text"
+                        data-i18n="commands.title">Commands</span></h2>
+                <p class="fade-in commands-subtitle" data-i18n="commands.subtitle">
+                    Access via Command Palette. Assign hotkeys for instant control.</p>
                 <div class="commands-grid">
                     <div class="command-card fade-in">
-                        <h4>Toggle Background<span class="tag-pill">core</span></h4>Enable/disable the current wallpaper
-                        layer without losing state.
+                        <h4><span data-i18n="commands.toggle.title">Toggle Background</span><span class="tag-pill"
+                                data-i18n="commands.toggle.tag">core</span></h4>
+                        <span data-i18n="commands.toggle.desc">Enable/disable the current wallpaper layer without losing
+                            state.</span>
                     </div>
                     <div class="command-card fade-in">
-                        <h4>Next Background<span class="tag-pill">rotation</span></h4>Immediately fetch or advance to
-                        the
-                        next image.
+                        <h4><span data-i18n="commands.next.title">Next Background</span><span class="tag-pill"
+                                data-i18n="commands.next.tag">rotation</span></h4>
+                        <span data-i18n="commands.next.desc">Immediately fetch or advance to the next image.</span>
                     </div>
                     <div class="command-card fade-in">
-                        <h4>Fetch Wallpaper<span class="tag-pill">network</span></h4>Force-refresh from active provider
-                        pool.
+                        <h4><span data-i18n="commands.fetch.title">Fetch Wallpaper</span><span class="tag-pill"
+                                data-i18n="commands.fetch.tag">network</span></h4>
+                        <span data-i18n="commands.fetch.desc">Force-refresh from active provider pool.</span>
                     </div>
                     <div class="command-card fade-in">
-                        <h4>Save Current Background<span class="tag-pill">utility</span></h4>Persist the displayed image
-                        to
-                        your vault for reuse.
+                        <h4><span data-i18n="commands.save.title">Save Current Background</span><span class="tag-pill"
+                                data-i18n="commands.save.tag">utility</span></h4>
+                        <span data-i18n="commands.save.desc">Persist the displayed image to your vault for reuse.</span>
                     </div>
                     <div class="command-card fade-in">
-                        <h4>Open Settings<span class="tag-pill">ui</span></h4>Jump directly to DTB settings pane.
+                        <h4><span data-i18n="commands.settings.title">Open Settings</span><span class="tag-pill"
+                                data-i18n="commands.settings.tag">ui</span></h4>
+                        <span data-i18n="commands.settings.desc">Jump directly to DTB settings pane.</span>
                     </div>
                     <div class="command-card fade-in">
-                        <h4>Test Background<span class="tag-pill">debug</span></h4>Diagnostic fetch & render for
-                        troubleshooting.
+                        <h4><span data-i18n="commands.test.title">Test Background</span><span class="tag-pill"
+                                data-i18n="commands.test.tag">debug</span></h4>
+                        <span data-i18n="commands.test.desc">Diagnostic fetch & render for troubleshooting.</span>
                     </div>
                 </div>
             </div>
         </section>
-        <!-- Sources Section (moved down) -->
-        <section class="api-sources" id="sources">
+
+        <!-- Sources Section -->
+        <section class="api-sources full-section" id="sources">
             <div class="container">
-                <h2 class="fade-in section-title">🌐 <span class="heading-text">Supported Sources</span></h2>
-                <p class="fade-in" style="margin-bottom:2rem;opacity:.8;">High quality wallpaper platforms + custom
-                    endpoints</p>
+                <h2 class="fade-in section-title">🌐 <span class="heading-text" data-i18n="sources.title">Supported
+                        Sources</span></h2>
+                <p class="fade-in sources-subtitle" data-i18n="sources.subtitle">High quality
+                    wallpaper platforms + custom endpoints</p>
                 <div class="api-logos">
                     <a class="api-logo fade-in" style="--accent:#9aa0ae;" href="https://unsplash.com/" target="_blank"
                         rel="noopener noreferrer">
-                        <div style="font-size:3rem;">📸</div>
+                        <div>📸</div>
                         <div class="api-logo-name">Unsplash</div>
-                        <p style="margin-top:.5rem;opacity:.8;">Photography</p>
+                        <p data-i18n="sources.unsplash">Photography</p>
                     </a>
                     <a class="api-logo fade-in" style="--accent:#28c76f;" href="https://pixabay.com/" target="_blank"
                         rel="noopener noreferrer">
-                        <div style="font-size:3rem;">🖼️</div>
+                        <div>🖼️</div>
                         <div class="api-logo-name">Pixabay</div>
-                        <p style="margin-top:.5rem;opacity:.8;">Free images</p>
+                        <p data-i18n="sources.pixabay">Free images</p>
                     </a>
                     <a class="api-logo fade-in" style="--accent:#14b8a6;" href="https://www.pexels.com/" target="_blank"
                         rel="noopener noreferrer">
-                        <div style="font-size:3rem;">🎨</div>
+                        <div>🎨</div>
                         <div class="api-logo-name">Pexels</div>
-                        <p style="margin-top:.5rem;opacity:.8;">Curated shots</p>
+                        <p data-i18n="sources.pexels">Curated shots</p>
                     </a>
                     <a class="api-logo fade-in" style="--accent:#8b5cf6;" href="https://wallhaven.cc/" target="_blank"
                         rel="noopener noreferrer">
-                        <div style="font-size:3rem;">🏞️</div>
+                        <div>🏞️</div>
                         <div class="api-logo-name">Wallhaven</div>
-                        <p style="margin-top:.5rem;opacity:.8;">Wallpaper hub</p>
+                        <p data-i18n="sources.wallhaven">Wallpaper hub</p>
                     </a>
-                    <a class="api-logo fade-in" style="--accent:#00d26a;" href="http://wallpaper.apc.360.cn/"
-                        target="_blank">
-                        <div style="font-size:3rem;">🎯</div>
+                    <a class="api-logo fade-in" style="--accent:#00d26a;" href="https://wallpaper.apc.360.cn/"
+                        target="_blank" rel="noopener noreferrer">
+                        <div>🎯</div>
                         <div class="api-logo-name">360 Wallpaper</div>
-                        <p style="margin-top:.5rem;opacity:.8;">HD categories</p>
+                        <p data-i18n="sources.qihoo360">HD categories</p>
                     </a>
-                    <a class="api-logo fade-in" style="--accent:#ff9800;" href="#"
-                        onclick="alert('Configure your custom API in the plugin settings.')">
-                        <div style="font-size:3rem;">🔧</div>
+                    <button type="button" class="api-logo fade-in" style="--accent:#ff9800;" id="custom-api-btn">
+                        <div>🔧</div>
                         <div class="api-logo-name">Custom API</div>
-                        <p style="margin-top:.5rem;opacity:.8;">Bring your own</p>
-                    </a>
+                        <p data-i18n="sources.custom">Bring your own</p>
+                    </button>
                 </div>
             </div>
         </section>
-        <!-- Roadmap Section -->
-        <section class="api-sources" id="roadmap" style="background:rgba(0,0,0,.5);">
-            <div class="container" style="max-width:1150px;">
-                <h2 class="fade-in section-title">🧭 <span class="heading-text">Roadmap</span></h2>
-                <p class="fade-in" style="max-width:760px;margin:0 0 2.2rem;opacity:.8;text-align:left;">Planned &
-                    exploratory ideas (subject to change). Track progress on GitHub Issues / Milestones.</p>
-                <ul class="roadmap-list" style="text-align:left;">
-                    <li class="roadmap-item fade-in"><span class="ri-ico">🌤️</span>
-                        <div><strong>Context Aware</strong><br><span style="opacity:.75;">Weather / system theme / focus
-                                mode driven wallpaper sets.</span></div>
-                    </li>
-                    <li class="roadmap-item fade-in"><span class="ri-ico">🎞️</span>
-                        <div><strong>Animated Media</strong><br><span style="opacity:.75;">Video / subtle cinemagraph &
-                                possible GIF optimization.</span></div>
-                    </li>
-                    <li class="roadmap-item fade-in"><span class="ri-ico">🧠</span>
-                        <div><strong>AI Backgrounds</strong><br><span style="opacity:.75;">On-demand generation (local
-                                or
-                                API) with style presets.</span></div>
-                    </li>
-                    <li class="roadmap-item fade-in"><span class="ri-ico">📱</span>
-                        <div><strong>Mobile Refinements</strong><br><span style="opacity:.75;">Adaptive performance &
-                                touch
-                                gestures.</span></div>
-                    </li>
-                    <li class="roadmap-item fade-in"><span class="ri-ico">🎚️</span>
-                        <div><strong>Preset Packs</strong><br><span style="opacity:.75;">Shareable theme + adjustment
-                                bundles.</span></div>
-                    </li>
-                    <li class="roadmap-item fade-in"><span class="ri-ico">🗂️</span>
-                        <div><strong>Collections</strong><br><span style="opacity:.75;">User-defined named image sets &
-                                pinning.</span></div>
-                    </li>
-                </ul>
-                <div class="section-note fade-in">Have an idea? Open a feature request on GitHub.</div>
-            </div>
-        </section>
-        <section class="faq" id="faq">
+
+        <!-- FAQ Section -->
+        <section class="faq full-section" id="faq">
             <div class="container">
-                <h2 class="fade-in section-title">❓ <span class="heading-text">FAQ</span></h2>
+                <h2 class="fade-in section-title">❓ <span class="heading-text" data-i18n="faq.title">FAQ</span></h2>
                 <div class="faq-grid">
                     <div class="faq-item fade-in">
                         <div class="faq-question">Which wallpaper sources are supported?</div>
@@ -2790,8 +478,7 @@
                     <div class="faq-item fade-in">
                         <div class="faq-question">Theme & mobile support?</div>
                         <div class="faq-answer">Yes—responsive layout and theme variable integration for dark & light
-                            modes.
-                        </div>
+                            modes.</div>
                     </div>
                     <div class="faq-item fade-in">
                         <div class="faq-question">Performance impact?</div>
@@ -2818,140 +505,316 @@
                         </div>
                     </div>
                 </div>
-                <div style="margin-top:3rem;opacity:.6;font-size:.85rem;" class="fade-in">API usage must comply with
-                    each
-                    provider's Terms of Service. Respect rate limits & attribution policies where required.</div>
+                <div class="faq-disclaimer fade-in" data-i18n="faq.disclaimer">API
+                    usage must comply with each provider's Terms of Service. Respect rate limits & attribution policies
+                    where required.</div>
             </div>
         </section>
     </main>
+
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>About DTB</h3>
-                    <div>Dynamic Theme Background enhances Obsidian with dynamic, smart wallpapers for inspiration.
+                    <h3 data-i18n="footer.aboutTitle">About DTB</h3>
+                    <div data-i18n="footer.aboutDesc">Dynamic Theme Background enhances Obsidian with dynamic, smart
+                        wallpapers for inspiration.</div>
+                </div>
+                <div class="footer-section">
+                    <h3 data-i18n="footer.linksTitle">Links</h3>
+                    <div class="footer-links">
+                        <a href="https://github.com/sean2077/obsidian-dynamic-theme-background" target="_blank"
+                            rel="noopener noreferrer" data-i18n="footer.github">GitHub Repo</a>
+                        <a href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme" target="_blank"
+                            rel="noopener noreferrer" data-i18n="footer.docs">Documentation</a>
+                        <a href="#faq" data-i18n="footer.faq">FAQ</a>
                     </div>
                 </div>
                 <div class="footer-section">
-                    <h3>Links</h3>
-                    <div class="footer-links"><a href="https://github.com/sean2077/obsidian-dynamic-theme-background"
-                            target="_blank" rel="noopener noreferrer">GitHub Repo</a><a
-                            href="https://github.com/sean2077/obsidian-dynamic-theme-background#readme" target="_blank"
-                            rel="noopener noreferrer">Documentation</a><a href="#faq">FAQ</a></div>
-                </div>
-                <div class="footer-section">
-                    <h3>Contact</h3>
-                    <div>Need help or custom work? <a
-                            href="https://github.com/sean2077/obsidian-dynamic-theme-background/issues" target="_blank"
-                            rel="noopener noreferrer">Contact via GitHub Issues</a>.</div>
+                    <h3 data-i18n="footer.contactTitle">Contact</h3>
+                    <div data-i18n="footer.contactDesc">Need help or custom work? Contact via GitHub Issues.</div>
                 </div>
             </div>
-            <div class="badges"><span class="badge">MIT License</span><span class="badge">Made with ❤️ by
-                    sean2077</span><span class="badge">Obsidian Community</span><a class="badge" id="dtb-version-footer"
-                    data-fallback="v?" href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases"
-                    target="_blank" rel="noopener noreferrer">version…</a></div>
-            <div style="opacity:.5;font-size:.85rem;">© 2025 Dynamic Theme Background. All rights reserved.</div>
+            <div class="badges">
+                <span class="badge" data-i18n="footer.license">MIT License</span>
+                <span class="badge" data-i18n="footer.madeBy">Made with ❤️ by sean2077</span>
+                <span class="badge" data-i18n="footer.community">Obsidian Community</span>
+                <a class="badge" id="dtb-version-footer" data-fallback="v?"
+                    href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases" target="_blank"
+                    rel="noopener noreferrer">version…</a>
+            </div>
+            <div class="footer-copyright"><span data-i18n="footer.copyright">© 2025 Dynamic Theme
+                    Background. All rights reserved.</span></div>
         </div>
     </footer>
-    <button id="back-to-top" aria-label="Back to top" title="Back to top">↑</button>
+
+    <button id="back-to-top" data-i18n-aria-label="nav.backToTop" data-i18n-title="nav.backToTop">↑</button>
+
+    <!-- DTB Interactive Button -->
+    <button id="dtb-switch-btn" title="Click to switch background" aria-label="Switch background">
+        <span class="dtb-icon">🌈</span>
+        <span class="dtb-label">DTB</span>
+    </button>
+
+    <!-- Arrow hint pointing to DTB button -->
+    <div class="dtb-arrow-hint" id="dtb-arrow-hint">
+        <span class="arrow-text" data-i18n="hero.trySwitch">Try switching →</span>
+        <svg class="arrow-svg" viewBox="0 0 60 40" fill="none">
+            <path d="M5 20 Q30 5 50 25" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-dasharray="4 3" fill="none" />
+            <path d="M45 20 L52 26 L48 32" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" fill="none" />
+        </svg>
+    </div>
+
     <script>
-        // 错误处理和性能优化
-        window.addEventListener('error', function (e) {
-            console.warn('DTB Page Error:', e.message);
-        });
-
-        // 预加载关键字体
-        if ('FontFace' in window) {
-            const font = new FontFace('system', 'local(-apple-system), local(BlinkMacSystemFont)');
-            font.load().catch(() => { }); // 静默失败
-        }
-
         (function () {
-            // Lazy particles
-            const particles = document.querySelector('.floating-particles');
-            let particlesSpawned = false; function spawnParticles() { if (particlesSpawned || !particles) return; particlesSpawned = true; for (let i = 0; i < 26; i++) { const p = document.createElement('div'); p.className = 'particle'; const s = Math.random() * 34 + 12; p.style.width = p.style.height = s + 'px'; p.style.left = Math.random() * 100 + '%'; p.style.top = Math.random() * 100 + '%'; p.style.animationDuration = (Math.random() * 14 + 11) + 's'; p.style.background = `rgba(255,255,255,${Math.random() * 0.13 + 0.04})`; particles.appendChild(p); } }
-            window.addEventListener('scroll', spawnParticles, { once: true, passive: true }); setTimeout(spawnParticles, 1200);
+            // Time-based dynamic background
+            (function () {
+                var bgEl = document.querySelector('.dynamic-bg');
+                if (!bgEl) return;
+
+                var timeClasses = ['time-dawn', 'time-morning', 'time-noon', 'time-afternoon', 'time-dusk', 'time-night'];
+                var timeLabels = ['🌅 Dawn', '☀️ Morning', '🌞 Noon', '🌤️ Afternoon', '🌇 Dusk', '🌙 Night'];
+                var currentIndex = 0;
+
+                // Demo mode: cycle through all times every 10 seconds
+                var demoMode = new URLSearchParams(location.search).has('demo');
+
+                function getTimeClass() {
+                    var hour = new Date().getHours();
+                    if (hour >= 5 && hour < 8) return 'time-dawn';
+                    if (hour >= 8 && hour < 11) return 'time-morning';
+                    if (hour >= 11 && hour < 14) return 'time-noon';
+                    if (hour >= 14 && hour < 17) return 'time-afternoon';
+                    if (hour >= 17 && hour < 19) return 'time-dusk';
+                    return 'time-night';
+                }
+
+                function getTimeIndex() {
+                    var cls = getTimeClass();
+                    return timeClasses.indexOf(cls);
+                }
+
+                function updateBackground(index) {
+                    if (typeof index === 'number') {
+                        currentIndex = index;
+                    }
+                    var cls = timeClasses[currentIndex];
+                    bgEl.className = 'dynamic-bg ' + cls;
+
+                    // Update DTB button tooltip
+                    var dtbBtn = document.getElementById('dtb-switch-btn');
+                    if (dtbBtn) {
+                        dtbBtn.title = timeLabels[currentIndex] + ' - Click to switch';
+                    }
+                }
+
+                // Initialize with current time
+                currentIndex = getTimeIndex();
+                updateBackground();
+
+                // DTB button click handler
+                var dtbBtn = document.getElementById('dtb-switch-btn');
+                var arrowHint = document.getElementById('dtb-arrow-hint');
+
+                if (dtbBtn) {
+                    dtbBtn.addEventListener('click', function () {
+                        currentIndex = (currentIndex + 1) % timeClasses.length;
+                        updateBackground();
+                        // Add click animation
+                        dtbBtn.classList.add('clicked');
+                        setTimeout(function () { dtbBtn.classList.remove('clicked'); }, 200);
+                        // Hide arrow hint after first click
+                        if (arrowHint) {
+                            arrowHint.classList.add('hidden');
+                        }
+                    });
+                }
+
+                // Auto-hide arrow hint after 8 seconds
+                if (arrowHint) {
+                    setTimeout(function () {
+                        arrowHint.classList.add('hidden');
+                    }, 10000);
+                }
+
+                if (demoMode) {
+                    console.log('🎬 Demo mode enabled - backgrounds will cycle every 10 seconds');
+                    setInterval(function () {
+                        currentIndex = (currentIndex + 1) % timeClasses.length;
+                        updateBackground();
+                    }, 10000);
+                } else {
+                    // Production: update every minute based on real time
+                    setInterval(function () {
+                        currentIndex = getTimeIndex();
+                        updateBackground();
+                    }, 60000);
+                }
+            })();
+
+            // Skip particles on low-perf mode
+            if (document.documentElement.classList.contains('dtb-perf-low')) return;
+
+            // Lazy particles - reduced count for better performance
+            var particles = document.querySelector('.floating-particles');
+            var particleCount = 10;
+            var particlesSpawned = false;
+
+            function spawnParticles() {
+                if (particlesSpawned || !particles) return;
+                particlesSpawned = true;
+                for (var i = 0; i < particleCount; i++) {
+                    var p = document.createElement('div');
+                    p.className = 'particle';
+                    var s = Math.random() * 28 + 10;
+                    p.style.cssText = 'width:' + s + 'px;height:' + s + 'px;left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 100) + '%;animation-duration:' + (Math.random() * 18 + 14) + 's;background:rgba(255,255,255,' + (Math.random() * 0.1 + 0.03) + ')';
+                    particles.appendChild(p);
+                }
+            }
+
+            window.addEventListener('scroll', spawnParticles, { once: true, passive: true });
+            setTimeout(spawnParticles, 1500);
+
             // IntersectionObserver fade-in
-            const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -80px 0px', threshold: 0.1 }) : null;
-            document.querySelectorAll('.fade-in').forEach(el => { if (io) io.observe(el); else el.classList.add('visible'); });
+            var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+                es.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -80px 0px', threshold: 0.1 }) : null;
+
+            document.querySelectorAll('.fade-in').forEach(function (el) {
+                if (io) io.observe(el); else el.classList.add('visible');
+            });
+
             // Smooth anchors
-            document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => { if (a.classList.contains('logo')) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } const id = a.getAttribute('href').slice(1); const t = document.getElementById(id); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }));
-            // Back to top dynamic
-            const back = document.getElementById('back-to-top'); const threshold = () => window.innerHeight * 0.65; function toggleBack() { if (window.scrollY > threshold()) back.classList.add('visible'); else back.classList.remove('visible'); } window.addEventListener('scroll', toggleBack, { passive: true }); toggleBack(); back.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-            // Copy buttons
-            document.querySelectorAll('.copy-btn').forEach(btn => { btn.addEventListener('click', () => { const id = btn.getAttribute('data-copy-target'); const code = document.getElementById(id); if (!code) return; navigator.clipboard.writeText(code.innerText).then(() => { const o = btn.innerHTML; btn.textContent = '✓ Copied'; setTimeout(() => btn.innerHTML = o, 1800); }); }); });
-            // dynamic version fetch (guarded by ?noapi=1 to disable in local preview)
-            (async () => {
-                const headerEl = document.getElementById('dtb-version-header');
-                const footerEl = document.getElementById('dtb-version-footer');
+            document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+                a.addEventListener('click', function (e) {
+                    if (a.classList.contains('logo')) {
+                        e.preventDefault();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                    }
+                    var id = a.getAttribute('href').slice(1);
+                    var t = document.getElementById(id);
+                    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+                });
+            });
+
+            // Back to top
+            var back = document.getElementById('back-to-top');
+            function threshold() { return window.innerHeight * 0.65; }
+            function toggleBack() { back.classList.toggle('visible', window.scrollY > threshold()); }
+            window.addEventListener('scroll', toggleBack, { passive: true });
+            toggleBack();
+            back.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+            // Dynamic version fetch
+            (function () {
+                var headerEl = document.getElementById('dtb-version-header');
+                var footerEl = document.getElementById('dtb-version-footer');
+
                 function setVersion(v, url) {
                     if (headerEl) { headerEl.textContent = v; headerEl.dataset.releaseUrl = url || ''; headerEl.style.cursor = 'pointer'; headerEl.title = 'Open release ' + v; }
                     if (footerEl) { footerEl.textContent = v; footerEl.dataset.releaseUrl = url || ''; footerEl.title = 'Open release ' + v; if (footerEl.tagName === 'A' && url) footerEl.setAttribute('href', url); }
                 }
-                const params = new URLSearchParams(location.search);
-                const skipApi = params.has('noapi') || params.get('noapi') === '1';
-                try {
-                    if (skipApi) throw new Error('skip-api');
-                    const res = await fetch('https://api.github.com/repos/sean2077/obsidian-dynamic-theme-background/releases/latest', {
-                        headers: { 'Accept': 'application/vnd.github+json' }
-                    });
-                    if (!res.ok) throw new Error('status ' + res.status);
-                    const json = await res.json();
-                    let tag = json.tag_name || json.name || '';
-                    if (tag && !/^v/i.test(tag)) tag = 'v' + tag; // ensure leading v
+
+                var params = new URLSearchParams(location.search);
+                var skipApi = params.has('noapi') || params.get('noapi') === '1';
+
+                fetch('https://api.github.com/repos/sean2077/obsidian-dynamic-theme-background/releases/latest', {
+                    headers: { 'Accept': 'application/vnd.github+json' }
+                }).then(function (res) {
+                    if (skipApi || !res.ok) throw new Error('skip');
+                    return res.json();
+                }).then(function (json) {
+                    var tag = json.tag_name || json.name || '';
+                    if (tag && !/^v/i.test(tag)) tag = 'v' + tag;
                     if (!tag) tag = headerEl?.dataset.fallback || 'v?';
-                    const releaseUrl = `https://github.com/sean2077/obsidian-dynamic-theme-background/releases/tag/${tag.replace(/^v/i, '')}`;
+                    var releaseUrl = 'https://github.com/sean2077/obsidian-dynamic-theme-background/releases/tag/' + tag.replace(/^v/i, '');
                     setVersion(tag, releaseUrl);
-                    // update JSON-LD (no hard-coded version). If existing script present, patch it; else create.
-                    const schema = document.getElementById('schema-dtb');
-                    const ver = tag.replace(/^v/, '');
+
+                    // Update JSON-LD
+                    var schema = document.getElementById('schema-dtb');
+                    var ver = tag.replace(/^v/, '');
                     if (schema) {
                         try {
-                            const data = JSON.parse(schema.textContent || '{}');
+                            var data = JSON.parse(schema.textContent || '{}');
                             data.softwareVersion = ver;
                             schema.textContent = JSON.stringify(data);
-                        } catch (err) {
-                            const s = document.createElement('script');
-                            s.type = 'application/ld+json';
-                            s.id = 'schema-dtb';
-                            s.textContent = JSON.stringify({
-                                "@context": "https://schema.org",
-                                "@type": "SoftwareApplication",
-                                "name": "Dynamic Theme Background",
-                                "softwareVersion": ver
-                            });
-                            document.head.appendChild(s);
-                        }
-                    } else {
-                        const s = document.createElement('script');
-                        s.type = 'application/ld+json';
-                        s.id = 'schema-dtb';
-                        s.textContent = JSON.stringify({
-                            "@context": "https://schema.org",
-                            "@type": "SoftwareApplication",
-                            "name": "Dynamic Theme Background",
-                            "softwareVersion": ver
-                        });
-                        document.head.appendChild(s);
+                        } catch (err) { }
                     }
-                } catch (e) {
-                    const fallback = headerEl?.dataset.fallback || 'v?';
-                    const fallbackUrl = 'https://github.com/sean2077/obsidian-dynamic-theme-background/releases';
+                }).catch(function () {
+                    var fallback = headerEl?.dataset.fallback || 'v?';
+                    var fallbackUrl = 'https://github.com/sean2077/obsidian-dynamic-theme-background/releases';
                     setVersion(fallback, fallbackUrl);
                     if (footerEl && footerEl.tagName === 'A') footerEl.setAttribute('href', fallbackUrl);
-                }
-                // Make header badge navigate via location.assign instead of window.open
+                });
+
                 if (headerEl) {
-                    headerEl.addEventListener('click', e => {
-                        const u = headerEl.dataset.releaseUrl;
+                    headerEl.addEventListener('click', function (e) {
+                        var u = headerEl.dataset.releaseUrl;
                         if (u) { e.preventDefault(); e.stopPropagation(); location.assign(u); }
                     });
                 }
             })();
-            // installation tabs + keyboard nav
-            (function () { const container = document.getElementById('install-tabs'); if (!container) return; const buttons = [...container.querySelectorAll('.tab-btn')]; const panels = [...container.querySelectorAll('.tab-panel')]; buttons.forEach((b, i) => { const id = b.dataset.tab; b.id = b.id || ('tab-' + id); const pnl = container.querySelector('#panel-' + id); if (pnl) pnl.setAttribute('aria-labelledby', b.id); b.setAttribute('tabindex', i === 0 ? '0' : '-1'); }); function activate(id, focus) { buttons.forEach((b) => { const sel = b.dataset.tab === id; b.classList.toggle('is-active', sel); b.setAttribute('aria-selected', sel ? 'true' : 'false'); b.setAttribute('tabindex', sel ? '0' : '-1'); if (sel && focus) b.focus(); }); panels.forEach(p => { const show = p.id === 'panel-' + id; p.classList.toggle('is-active', show); if (show) p.removeAttribute('hidden'); else p.setAttribute('hidden', ''); }); history.replaceState(null, '', '#install-' + id); } buttons.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.tab, true))); container.addEventListener('keydown', e => { const current = buttons.findIndex(b => b.getAttribute('aria-selected') === 'true'); if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) { e.preventDefault(); let ni = current; if (e.key === 'ArrowRight') ni = (current + 1) % buttons.length; else if (e.key === 'ArrowLeft') ni = (current - 1 + buttons.length) % buttons.length; else if (e.key === 'Home') ni = 0; else if (e.key === 'End') ni = buttons.length - 1; activate(buttons[ni].dataset.tab, true); } }); const match = location.hash.match(/^#install-(market|brat|manual)$/); if (match) activate(match[1], false); else activate(buttons[0].dataset.tab, false); })();
+
+            // Installation tabs
+            (function () {
+                var container = document.getElementById('install-tabs');
+                if (!container) return;
+                var buttons = Array.from(container.querySelectorAll('.tab-btn'));
+                var panels = Array.from(container.querySelectorAll('.tab-panel'));
+
+                buttons.forEach(function (b, i) {
+                    var id = b.dataset.tab;
+                    b.id = b.id || ('tab-' + id);
+                    var pnl = container.querySelector('#panel-' + id);
+                    if (pnl) pnl.setAttribute('aria-labelledby', b.id);
+                    b.setAttribute('tabindex', i === 0 ? '0' : '-1');
+                });
+
+                function activate(id, focus) {
+                    buttons.forEach(function (b) {
+                        var sel = b.dataset.tab === id;
+                        b.classList.toggle('is-active', sel);
+                        b.setAttribute('aria-selected', sel ? 'true' : 'false');
+                        b.setAttribute('tabindex', sel ? '0' : '-1');
+                        if (sel && focus) b.focus();
+                    });
+                    panels.forEach(function (p) {
+                        var show = p.id === 'panel-' + id;
+                        p.classList.toggle('is-active', show);
+                        if (show) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+                    });
+                    history.replaceState(null, '', '#install-' + id);
+                }
+
+                buttons.forEach(function (btn) {
+                    btn.addEventListener('click', function () { activate(btn.dataset.tab, true); });
+                });
+
+                container.addEventListener('keydown', function (e) {
+                    var current = buttons.findIndex(function (b) { return b.getAttribute('aria-selected') === 'true'; });
+                    if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].indexOf(e.key) >= 0) {
+                        e.preventDefault();
+                        var ni = current;
+                        if (e.key === 'ArrowRight') ni = (current + 1) % buttons.length;
+                        else if (e.key === 'ArrowLeft') ni = (current - 1 + buttons.length) % buttons.length;
+                        else if (e.key === 'Home') ni = 0;
+                        else if (e.key === 'End') ni = buttons.length - 1;
+                        activate(buttons[ni].dataset.tab, true);
+                    }
+                });
+
+                var match = location.hash.match(/^#install-(market|brat|manual)$/);
+                if (match) activate(match[1], false); else activate(buttons[0].dataset.tab, false);
+            })();
         })();
     </script>
+    <!-- i18n support -->
+    <script src="i18n.js" defer></script>
 </body>
 
 </html>

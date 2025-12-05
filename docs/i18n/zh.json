@@ -1,0 +1,303 @@
+{
+    "lang": "zh-CN",
+    "dir": "ltr",
+    "meta": {
+        "title": "Obsidian DTB - 动态主题背景 (Dynamic Theme Background)",
+        "description": "Dynamic Theme Background (DTB) - Obsidian 多源动态壁纸插件：支持 Unsplash / Pixabay / Pexels / Wallhaven / 360壁纸、本地图片与自定义 API，时间/间隔轮换、缓存与视觉调优。",
+        "keywords": "Obsidian, 壁纸, 背景, 插件, Unsplash, Pexels, Pixabay, Wallhaven, 360壁纸, 动态, 自定义, 主题, 背景",
+        "ogTitle": "Dynamic Theme Background - Obsidian 插件",
+        "ogDescription": "多源动态壁纸、智能调度与视觉调优，让你的 Obsidian 知识空间常用常新。",
+        "ogLocale": "zh_CN"
+    },
+    "nav": {
+        "brandName": "Obsidian DTB",
+        "preview": "预览",
+        "quickstart": "快速开始",
+        "features": "特性",
+        "install": "安装",
+        "commands": "命令",
+        "sources": "图源",
+        "faq": "常见问题",
+        "github": "GitHub 仓库",
+        "langSwitch": "中文 ⇄ EN",
+        "langSwitchTitle": "中文 ⇄ EN | 切换到英文",
+        "langLabel": "EN",
+        "backToTop": "返回顶部",
+        "currentVersion": "当前版本",
+        "versionLoading": "加载中…",
+        "openRelease": "打开发行版"
+    },
+    "hero": {
+        "tagline": "Obsidian 多源动态壁纸插件",
+        "bgHint": "↓ 此背景会随时间变化 ↓",
+        "trySwitch": "试试切换 →",
+        "installBtn": "立即安装",
+        "sourceBtn": "源代码",
+        "actions": {
+            "leftClick": "<strong>左键点击</strong> 随机壁纸",
+            "middleClick": "<strong>中键点击</strong> 打开设置",
+            "rightClick": "<strong>右键点击</strong> 保存背景"
+        }
+    },
+    "demo": {
+        "title": "预览",
+        "switchingLabel": "轮换",
+        "switchingTitle": "多源壁纸库",
+        "switchingItems": [
+            "Unsplash / Pixabay / Pexels / Wallhaven",
+            "本地 + 远程混合",
+            "自定义 API 扩展"
+        ],
+        "backgroundsLabel": "背景",
+        "backgroundsTitle": "图片与渐变背景",
+        "backgroundsItems": [
+            "丰富的图片背景支持",
+            "精美的渐变背景",
+            "可视化参数调节"
+        ],
+        "settingsLabel": "设置",
+        "settingsTitle": "功能丰富的设置",
+        "settingsItems": [
+            "深色/浅色模式自适应",
+            "模糊、亮度、饱和度调节",
+            "基于时间的轮换计划"
+        ],
+        "summaryLabel": "主要功能一览",
+        "pills": {
+            "timeRotation": "时间轮换",
+            "themeAdaptive": "主题自适应",
+            "optimizedLoading": "优化加载",
+            "multiSourceMix": "多源混合",
+            "liveTuning": "实时调节",
+            "cachingPrefetch": "缓存预取",
+            "commandPalette": "命令面板",
+            "customApi": "自定义 API"
+        }
+    },
+    "features": {
+        "title": "主要特性",
+        "subtitle": "围绕「高质量壁纸 + 智能切换 + 极佳性能」打造的增强体验",
+        "multiSource": {
+            "title": "多源整合",
+            "desc": "内置 Unsplash / Pixabay / Pexels / Wallhaven；支持自定义 API 与本地文件夹，集中管理。"
+        },
+        "visualTuning": {
+            "title": "可调视觉",
+            "desc": "模糊、亮度、饱和度、色相、透明度实时调节，兼容暗/亮主题。"
+        },
+        "smartRotation": {
+            "title": "智能轮换",
+            "desc": "支持时间段、固定间隔、命令面板、状态栏快捷触发，多场景动态切换。"
+        },
+        "greatUx": {
+            "title": "优秀体验",
+            "desc": "异步加载与缓存、默认示例、批量操作、快捷命令，快速高效。"
+        },
+        "performance": {
+            "title": "性能优化",
+            "desc": "按需请求 + 预取策略 + 渲染优化，降低对编辑性能的影响。"
+        },
+        "roadmap": {
+            "title": "前瞻计划",
+            "desc": "天气联动、主题包、视频/音频/AI 背景、移动端强化等持续演进。"
+        }
+    },
+    "installation": {
+        "title": "安装",
+        "subtitle": "选择一种方式开始使用，启用后前往 <a href=\"#quickstart\">快速开始</a> 配置轮换与源。",
+        "tabs": {
+            "marketplace": "市场",
+            "brat": "BRAT",
+            "manual": "手动"
+        },
+        "marketplace": {
+            "title": "社区市场",
+            "status": "审核中",
+            "steps": [
+                "设置 → 社区插件 → <strong>浏览</strong>",
+                "（通过后）搜索 <strong>Dynamic Theme Background</strong> / <strong>DTB</strong>",
+                "安装并启用"
+            ],
+            "note": "当前在官方审核队列。待通过前可使用 BRAT 或 手动 安装。跟踪 PR: <code class=\"repo-inline-code\">obsidian-releases</code>"
+        },
+        "brat": {
+            "title": "BRAT (Beta)",
+            "status": "Beta",
+            "steps": [
+                "安装 <a href=\"https://github.com/TfTHacker/obsidian42-brat\" target=\"_blank\" rel=\"noopener noreferrer\">BRAT</a>",
+                "BRAT → Add beta plugin → 粘贴仓库地址：<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>",
+                "在设置中启用插件"
+            ],
+            "note": "在 Marketplace 上架前最快体验最新功能的方式。"
+        },
+        "manual": {
+            "title": "手动安装",
+            "status": "进阶",
+            "steps": [
+                "前往 <a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background/releases\" target=\"_blank\" rel=\"noopener noreferrer\">Releases</a> 下载最新 <code>main.js</code>、<code>manifest.json</code>、<code>styles.css</code>",
+                "创建文件夹：<br><code>.obsidian/plugins/obsidian-dynamic-theme-background/</code>",
+                "将文件放入该文件夹",
+                "重启 Obsidian 并在设置中启用"
+            ],
+            "note": "适用于固定版本、离线或需手动审查的环境。"
+        },
+        "helpText": "需要帮助？查看 <a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background#readme\" target=\"_blank\" rel=\"noopener noreferrer\">README</a> 或<a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background/issues\" target=\"_blank\" rel=\"noopener noreferrer\">提交 Issue</a>。",
+        "goToQuickstart": "进入快速开始"
+    },
+    "quickstart": {
+        "title": "快速开始",
+        "subtitle": "已安装？3 步完成基础配置。",
+        "step1": {
+            "label": "步骤 1",
+            "title": "添加源",
+            "desc": "添加本地图片或启用 API 源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义）。"
+        },
+        "step2": {
+            "label": "步骤 2",
+            "title": "设置轮换",
+            "desc": "配置间隔 + 可选时间段（早 / 日 / 夜）实现上下文切换。"
+        },
+        "step3": {
+            "label": "步骤 3",
+            "title": "控制与体验",
+            "desc": "使用状态栏或命令面板 (<code>dtb</code>) 切换、保存与获取。"
+        },
+        "statusbar": {
+            "caption": "状态栏示例",
+            "title": "状态栏快速控制",
+            "leftClick": "<strong>左键</strong> 随机壁纸",
+            "middleClick": "<strong>中键</strong> 打开设置",
+            "rightClick": "<strong>右键</strong> 保存当前背景",
+            "hint": "日常交互主要在此或命令面板完成。",
+            "tip": "提示：可为命令设置快捷键"
+        },
+        "done": "完成：源 + 轮换 + 控制均已就绪。"
+    },
+    "commands": {
+        "title": "命令",
+        "subtitle": "在命令面板输入 <code>dtb</code> 查找全部命令，可绑定快捷键提升效率。",
+        "toggle": {
+            "title": "切换背景",
+            "tag": "core",
+            "desc": "启用 / 禁用当前背景层，不丢失状态。"
+        },
+        "next": {
+            "title": "下一张背景",
+            "tag": "rotation",
+            "desc": "立即抓取或前进到下一张图片。"
+        },
+        "fetch": {
+            "title": "获取壁纸",
+            "tag": "network",
+            "desc": "强制刷新当前启用源池。"
+        },
+        "save": {
+            "title": "保存当前背景",
+            "tag": "utility",
+            "desc": "将当前显示图片保存到库中复用。"
+        },
+        "settings": {
+            "title": "打开设置",
+            "tag": "ui",
+            "desc": "直接跳转到插件设置面板。"
+        },
+        "test": {
+            "title": "测试背景",
+            "tag": "debug",
+            "desc": "调试抓取与渲染流程。"
+        }
+    },
+    "sources": {
+        "title": "支持的源",
+        "subtitle": "高质量壁纸平台 + 自定义拓展",
+        "unsplash": "摄影",
+        "pixabay": "免费图片",
+        "pexels": "精选图库",
+        "wallhaven": "壁纸社区",
+        "qihoo360": "多分类高清",
+        "custom": "自定义 API",
+        "customAlert": "请在插件设置中配置自定义 API。"
+    },
+    "roadmap": {
+        "title": "发展路线图",
+        "subtitle": "规划中和探索性功能（可能发生变化）。通过 GitHub Issues / Milestones 跟踪开发进展。",
+        "items": {
+            "contextAware": {
+                "title": "情境感知",
+                "desc": "根据天气、系统主题、专注模式自动切换壁纸集。"
+            },
+            "animatedMedia": {
+                "title": "动态媒体",
+                "desc": "支持视频、微动画及可能的 GIF 优化。"
+            },
+            "aiBackgrounds": {
+                "title": "AI 生成背景",
+                "desc": "按需生成（本地或 API），提供风格预设。"
+            },
+            "mobile": {
+                "title": "移动端优化",
+                "desc": "自适应性能与触控手势支持。"
+            },
+            "presets": {
+                "title": "预设包",
+                "desc": "可分享的主题 + 调整参数组合。"
+            },
+            "collections": {
+                "title": "收藏夹",
+                "desc": "用户自定义命名图片集及置顶功能。"
+            }
+        },
+        "cta": "有想法？在 GitHub 上提交功能请求。"
+    },
+    "faq": {
+        "title": "常见问题",
+        "items": [
+            {
+                "q": "支持哪些壁纸源？",
+                "a": "Unsplash、Pixabay、Pexels、Wallhaven 及自定义 API；更多源即将推出。"
+            },
+            {
+                "q": "如何设置轮换规则？",
+                "a": "可配置时间段、间隔自动轮换或通过命令面板手动触发。"
+            },
+            {
+                "q": "支持主题适配和移动端吗？",
+                "a": "支持。响应式布局，深色/浅色模式自动适配。"
+            },
+            {
+                "q": "对性能有影响吗？",
+                "a": "影响极小。异步加载和智能缓存保持工作区响应流畅。"
+            },
+            {
+                "q": "反馈与问题？",
+                "a": "通过 <a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=\" target=\"_blank\">Bug 报告</a> 反馈问题或通过 <a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=\" target=\"_blank\">功能建议</a> 提出需求。"
+            },
+            {
+                "q": "能否禁用动画？",
+                "a": "可以——启用操作系统的减少动画偏好设置或切换插件动画设置（即将推出）。"
+            },
+            {
+                "q": "配置存储在哪里？",
+                "a": "在您的库的 <code>.obsidian/plugins/obsidian-dynamic-theme-background/</code> 文件夹中（标准的 Obsidian 插件模式）。"
+            }
+        ],
+        "disclaimer": "API 使用必须遵守各提供商的服务条款。请遵守访问频率限制和必要的归属政策。"
+    },
+    "footer": {
+        "aboutTitle": "关于 DTB",
+        "aboutDesc": "Dynamic Theme Background 为 Obsidian 提供动态智能壁纸，带来创作灵感。",
+        "linksTitle": "链接",
+        "github": "GitHub 仓库",
+        "docs": "文档",
+        "faq": "常见问题",
+        "contactTitle": "联系",
+        "contactDesc": "需要帮助或定制开发？通过 GitHub Issues 联系。",
+        "license": "MIT 许可证",
+        "madeBy": "由 sean2077 用 ❤️ 制作",
+        "community": "Obsidian 社区",
+        "copyright": "© 2025 Dynamic Theme Background. 保留所有权利。"
+    },
+    "accessibility": {
+        "skipToContent": "跳至内容"
+    }
+}

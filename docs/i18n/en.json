@@ -1,0 +1,303 @@
+{
+    "lang": "en",
+    "dir": "ltr",
+    "meta": {
+        "title": "Obsidian DTB - Dynamic Theme Background",
+        "description": "Dynamic Theme Background (DTB) - Multi-source dynamic wallpaper plugin for Obsidian: Unsplash, Pexels, Pixabay, Wallhaven, 360 Wallpaper, custom & local images.",
+        "keywords": "Obsidian, wallpaper, background, plugin, Unsplash, Pexels, Pixabay, Wallhaven, 360 Wallpaper, dynamic, theme background",
+        "ogTitle": "Dynamic Theme Background - Obsidian Plugin",
+        "ogDescription": "Multi-source wallpapers, smart scheduling & visual tuning for an inspired Obsidian workspace.",
+        "ogLocale": "en_US"
+    },
+    "nav": {
+        "brandName": "Obsidian DTB",
+        "preview": "Preview",
+        "quickstart": "Quick Start",
+        "features": "Features",
+        "install": "Install",
+        "commands": "Commands",
+        "sources": "Sources",
+        "faq": "FAQ",
+        "github": "GitHub Repository",
+        "langSwitch": "EN ⇄ 中文",
+        "langSwitchTitle": "EN ⇄ 中文 | Switch to Chinese",
+        "langLabel": "中",
+        "backToTop": "Back to top",
+        "currentVersion": "Current version",
+        "versionLoading": "loading…",
+        "openRelease": "Open release"
+    },
+    "hero": {
+        "tagline": "Multi-source dynamic wallpapers for Obsidian",
+        "bgHint": "↓ This background changes with time of day ↓",
+        "trySwitch": "Try switching →",
+        "installBtn": "Install Now",
+        "sourceBtn": "Source Code",
+        "actions": {
+            "leftClick": "<strong>Left Click</strong> Random wallpaper",
+            "middleClick": "<strong>Middle Click</strong> Open settings",
+            "rightClick": "<strong>Right Click</strong> Save background"
+        }
+    },
+    "demo": {
+        "title": "Preview",
+        "switchingLabel": "Switching",
+        "switchingTitle": "Multi-source Library",
+        "switchingItems": [
+            "Unsplash / Pixabay / Pexels / Wallhaven",
+            "Local & remote images combined",
+            "Custom API extensibility"
+        ],
+        "backgroundsLabel": "Backgrounds",
+        "backgroundsTitle": "Image & Gradient Backgrounds",
+        "backgroundsItems": [
+            "Rich image backgrounds support",
+            "Beautiful gradient backgrounds",
+            "Visual parameter adjustments"
+        ],
+        "settingsLabel": "Settings",
+        "settingsTitle": "Feature-rich Settings",
+        "settingsItems": [
+            "Dark & light mode adaptive",
+            "Blur, brightness, saturation tuning",
+            "Time-based rotation scheduling"
+        ],
+        "summaryLabel": "Key capabilities at a glance",
+        "pills": {
+            "timeRotation": "Time Rotation",
+            "themeAdaptive": "Theme Adaptive",
+            "optimizedLoading": "Optimized Loading",
+            "multiSourceMix": "Multi-Source Mix",
+            "liveTuning": "Live Tuning",
+            "cachingPrefetch": "Caching & Prefetch",
+            "commandPalette": "Command Palette",
+            "customApi": "Custom API"
+        }
+    },
+    "features": {
+        "title": "Key Features",
+        "subtitle": "An elevated wallpaper experience crafted for Obsidian",
+        "multiSource": {
+            "title": "Multi-source Library",
+            "desc": "Unsplash, Pixabay, Pexels, Wallhaven + custom API & local folders—flexibly combine and curate."
+        },
+        "visualTuning": {
+            "title": "Visual Tuning",
+            "desc": "Adjust blur, brightness, saturation, hue & more—theme-friendly and dark/light aware."
+        },
+        "smartRotation": {
+            "title": "Smart Rotation",
+            "desc": "Time windows, interval auto-change, command palette quick switch, minute-level scheduling."
+        },
+        "greatUx": {
+            "title": "Great UX",
+            "desc": "Async loading, caching, default presets, batch ops & shortcut commands for fast workflows."
+        },
+        "performance": {
+            "title": "Performance Minded",
+            "desc": "Optimized rendering & caching for minimal impact on editor responsiveness."
+        },
+        "roadmap": {
+            "title": "Roadmap",
+            "desc": "Weather integration, theme packs, video / audio / AI backgrounds, mobile refinements."
+        }
+    },
+    "installation": {
+        "title": "Installation",
+        "subtitle": "Pick a method below. Once enabled, jump to <a href=\"#quickstart\">Quick Start</a> to configure rotation & sources.",
+        "tabs": {
+            "marketplace": "Marketplace",
+            "brat": "BRAT",
+            "manual": "Manual"
+        },
+        "marketplace": {
+            "title": "Community Marketplace",
+            "status": "Pending Review",
+            "steps": [
+                "Settings → Community plugins → <strong>Browse</strong>",
+                "(After approval) Search <strong>Dynamic Theme Background</strong> / <strong>DTB</strong>",
+                "Install & enable"
+            ],
+            "note": "Currently in Obsidian review queue. Until approved, use BRAT or Manual. Track PR in <code class=\"repo-inline-code\">obsidian-releases</code>."
+        },
+        "brat": {
+            "title": "BRAT (Beta)",
+            "status": "Beta",
+            "steps": [
+                "Install <a href=\"https://github.com/TfTHacker/obsidian42-brat\" target=\"_blank\" rel=\"noopener noreferrer\">BRAT</a>",
+                "BRAT → Add beta plugin → Paste repo URL:<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>",
+                "Enable plugin in settings"
+            ],
+            "note": "Fastest way to try latest code before Marketplace approval."
+        },
+        "manual": {
+            "title": "Manual Install",
+            "status": "Advanced",
+            "steps": [
+                "Download latest <code>main.js</code>, <code>manifest.json</code>, <code>styles.css</code> from <a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background/releases\" target=\"_blank\" rel=\"noopener noreferrer\">Releases</a>",
+                "Create folder:<br><code>.obsidian/plugins/obsidian-dynamic-theme-background/</code>",
+                "Place files inside",
+                "Restart Obsidian & enable"
+            ],
+            "note": "Use for pinned versions, air-gapped envs, or manual audits."
+        },
+        "helpText": "Need help? See the <a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background#readme\" target=\"_blank\" rel=\"noopener noreferrer\">README</a> or <a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background/issues\" target=\"_blank\" rel=\"noopener noreferrer\">report an issue</a>.",
+        "goToQuickstart": "Go to Quick Start"
+    },
+    "quickstart": {
+        "title": "Quick Start",
+        "subtitle": "Already installed? In three short steps you'll have smart rotation running.",
+        "step1": {
+            "label": "STEP 1",
+            "title": "Add Sources",
+            "desc": "Add local images or enable API providers (Unsplash / Pixabay / Pexels / Wallhaven / Custom)."
+        },
+        "step2": {
+            "label": "STEP 2",
+            "title": "Set Rotation",
+            "desc": "Choose interval + optional time windows (morning / day / night) for contextual change."
+        },
+        "step3": {
+            "label": "STEP 3",
+            "title": "Control & Enjoy",
+            "desc": "Use status bar clicks or Command Palette (<code>dtb</code>) to switch, save & fetch."
+        },
+        "statusbar": {
+            "caption": "Status Bar Snapshot",
+            "title": "Status Bar Quick Control",
+            "leftClick": "<strong>Left Click</strong> Random wallpaper",
+            "middleClick": "<strong>Middle Click</strong> Open settings tab",
+            "rightClick": "<strong>Right Click</strong> Save current background",
+            "hint": "Daily interaction happens here or via the command palette.",
+            "tip": "Tip: assign hotkeys for even faster switching"
+        },
+        "done": "You're set: sources + rotation + controls active."
+    },
+    "commands": {
+        "title": "Commands",
+        "subtitle": "Access via Command Palette. Assign hotkeys for instant control.",
+        "toggle": {
+            "title": "Toggle Background",
+            "tag": "core",
+            "desc": "Enable/disable the current wallpaper layer without losing state."
+        },
+        "next": {
+            "title": "Next Background",
+            "tag": "rotation",
+            "desc": "Immediately fetch or advance to the next image."
+        },
+        "fetch": {
+            "title": "Fetch Wallpaper",
+            "tag": "network",
+            "desc": "Force-refresh from active provider pool."
+        },
+        "save": {
+            "title": "Save Current Background",
+            "tag": "utility",
+            "desc": "Persist the displayed image to your vault for reuse."
+        },
+        "settings": {
+            "title": "Open Settings",
+            "tag": "ui",
+            "desc": "Jump directly to DTB settings pane."
+        },
+        "test": {
+            "title": "Test Background",
+            "tag": "debug",
+            "desc": "Diagnostic fetch & render for troubleshooting."
+        }
+    },
+    "sources": {
+        "title": "Supported Sources",
+        "subtitle": "High quality wallpaper platforms + custom endpoints",
+        "unsplash": "Photography",
+        "pixabay": "Free images",
+        "pexels": "Curated shots",
+        "wallhaven": "Wallpaper hub",
+        "qihoo360": "HD categories",
+        "custom": "Bring your own",
+        "customAlert": "Configure your custom API in the plugin settings."
+    },
+    "roadmap": {
+        "title": "Roadmap",
+        "subtitle": "Planned & exploratory ideas (subject to change). Track progress on GitHub Issues / Milestones.",
+        "items": {
+            "contextAware": {
+                "title": "Context Aware",
+                "desc": "Weather / system theme / focus mode driven wallpaper sets."
+            },
+            "animatedMedia": {
+                "title": "Animated Media",
+                "desc": "Video / subtle cinemagraph & possible GIF optimization."
+            },
+            "aiBackgrounds": {
+                "title": "AI Backgrounds",
+                "desc": "On-demand generation (local or API) with style presets."
+            },
+            "mobile": {
+                "title": "Mobile Refinements",
+                "desc": "Adaptive performance & touch gestures."
+            },
+            "presets": {
+                "title": "Preset Packs",
+                "desc": "Shareable theme + adjustment bundles."
+            },
+            "collections": {
+                "title": "Collections",
+                "desc": "User-defined named image sets & pinning."
+            }
+        },
+        "cta": "Have an idea? Open a feature request on GitHub."
+    },
+    "faq": {
+        "title": "FAQ",
+        "items": [
+            {
+                "q": "Which wallpaper sources are supported?",
+                "a": "Unsplash, Pixabay, Pexels, Wallhaven plus custom APIs; more incoming."
+            },
+            {
+                "q": "How do I set rotation rules?",
+                "a": "Configure time slots, interval auto-rotate or trigger manually via the command palette."
+            },
+            {
+                "q": "Theme & mobile support?",
+                "a": "Yes—responsive layout and theme variable integration for dark & light modes."
+            },
+            {
+                "q": "Performance impact?",
+                "a": "Async loading + smart caching keeps the workspace responsive."
+            },
+            {
+                "q": "Feedback & issues?",
+                "a": "Report bugs via <a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=\" target=\"_blank\" rel=\"noopener noreferrer\">Bug Report</a> or suggest features via <a href=\"https://github.com/sean2077/obsidian-dynamic-theme-background/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=\" target=\"_blank\" rel=\"noopener noreferrer\">Feature Request</a>."
+            },
+            {
+                "q": "Can I disable animations?",
+                "a": "Yes—enable your OS reduced motion preference or toggle plugin animation settings (coming soon)."
+            },
+            {
+                "q": "Where is configuration stored?",
+                "a": "Inside your vault <code>.obsidian/plugins/obsidian-dynamic-theme-background/</code> folder (standard Obsidian plugin pattern)."
+            }
+        ],
+        "disclaimer": "API usage must comply with each provider's Terms of Service. Respect rate limits & attribution policies where required."
+    },
+    "footer": {
+        "aboutTitle": "About DTB",
+        "aboutDesc": "Dynamic Theme Background enhances Obsidian with dynamic, smart wallpapers for inspiration.",
+        "linksTitle": "Links",
+        "github": "GitHub Repo",
+        "docs": "Documentation",
+        "faq": "FAQ",
+        "contactTitle": "Contact",
+        "contactDesc": "Need help or custom work? Contact via GitHub Issues.",
+        "license": "MIT License",
+        "madeBy": "Made with ❤️ by sean2077",
+        "community": "Obsidian Community",
+        "copyright": "© 2025 Dynamic Theme Background. All rights reserved."
+    },
+    "accessibility": {
+        "skipToContent": "Skip to content"
+    }
+}
