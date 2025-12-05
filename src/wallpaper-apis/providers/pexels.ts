@@ -228,7 +228,7 @@ export class PexelsApi extends BaseWallpaperApi {
             // 更新分页信息
             this.totalPages = response.total_results ? Math.ceil(response.total_results / this.perPage) : -1;
             this.totalCount = response.total_results ?? -1;
-            this.perPage = Number(this.params.per_page) ?? 15;
+            this.perPage = Number(this.params.per_page) || 15;
 
             new Notice(
                 t("api_initialized_notice", {
@@ -387,18 +387,32 @@ export class PexelsApi extends BaseWallpaperApi {
         return response.json;
     }
 
+    // 安全地将未知值转换为字符串，避免对象被转换为 [object Object]
+    private safeString(value: unknown): string {
+        if (value === null || value === undefined) {
+            return "";
+        }
+        if (typeof value === "string") {
+            return value;
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+            return String(value);
+        }
+        return "";
+    }
+
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformPhoto(photo: Record<string, unknown>): WallpaperImage {
         const src = (photo.src as Record<string, unknown>) ?? {};
 
         return {
-            id: String(photo.id || ""),
-            url: String(src.large || src.original || src.large2x || ""),
+            id: this.safeString(photo.id),
+            url: this.safeString(src.large) || this.safeString(src.original) || this.safeString(src.large2x),
             width: Number(photo.width) || undefined,
             height: Number(photo.height) || undefined,
-            author: String(photo.photographer || ""),
-            description: String(photo.alt || ""),
-            downloadUrl: String(src.original || src.large2x || src.large || ""),
+            author: this.safeString(photo.photographer),
+            description: this.safeString(photo.alt),
+            downloadUrl: this.safeString(src.original) || this.safeString(src.large2x) || this.safeString(src.large),
         };
     }
 }

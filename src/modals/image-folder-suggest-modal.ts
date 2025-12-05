@@ -26,7 +26,7 @@ export class ImageFolderSuggestModal extends SuggestModal<string> {
         el.createEl("div", { text: folderPath });
     }
 
-    onChooseSuggestion(folderPath: string, evt: MouseEvent | KeyboardEvent) {
+    onChooseSuggestion(folderPath: string, _evt: MouseEvent | KeyboardEvent) {
         this.onSubmit(folderPath);
     }
 }

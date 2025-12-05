@@ -53,7 +53,7 @@ interface Qihoo360WallpaperResponse {
         img_800_600?: string;
         img_640_480?: string;
         // 支持更多分辨率字段
-        [key: string]: any;
+        [key: string]: string | undefined;
     }>;
 }
 
@@ -457,7 +457,7 @@ export class Qihoo360Api extends BaseWallpaperApi {
     /**
      * 转换API响应为WallpaperImage格式
      */
-    private convertToWallpaperImage(item: any, index: number): WallpaperImage {
+    private convertToWallpaperImage(item: Qihoo360WallpaperResponse["data"][number], index: number): WallpaperImage {
         // 获取首选分辨率设置
         const preferredResolution = this.params.preferredResolution || "auto";
         let imageUrl = item.url;

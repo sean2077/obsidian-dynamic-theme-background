@@ -157,7 +157,7 @@ export class DragSort<T> {
             }
         };
 
-        const dropHandler = async (e: DragEvent) => {
+        const dropHandler = (e: DragEvent) => {
             e.preventDefault();
 
             const draggedId = e.dataTransfer?.getData("text/plain");
@@ -172,7 +172,7 @@ export class DragSort<T> {
             const midpoint = rect.top + rect.height / 2;
             const insertAfter = e.clientY >= midpoint;
 
-            await this.reorderItems(draggedId, targetId, insertAfter);
+            void this.reorderItems(draggedId, targetId, insertAfter);
 
             // 清理样式
             element.classList.remove("dtb-drag-over-top", "dtb-drag-over-bottom");

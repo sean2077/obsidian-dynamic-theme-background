@@ -105,7 +105,7 @@ export abstract class BaseWallpaperApi {
         return [];
     }
 
-    static validateParams(params: WallpaperApiParams): { valid: boolean; errors?: string[] } {
+    static validateParams(_params: WallpaperApiParams): { valid: boolean; errors?: string[] } {
         return { valid: true };
     }
 

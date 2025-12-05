@@ -34,7 +34,7 @@ export class ImagePathSuggestModal extends SuggestModal<string> {
         text.textContent = imagePath;
     }
 
-    onChooseSuggestion(imagePath: string, evt: MouseEvent | KeyboardEvent) {
+    onChooseSuggestion(imagePath: string, _evt: MouseEvent | KeyboardEvent) {
         this.onSubmit(imagePath);
     }
 }

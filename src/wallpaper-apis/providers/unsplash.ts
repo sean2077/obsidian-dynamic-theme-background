@@ -231,7 +231,7 @@ export class UnsplashApi extends BaseWallpaperApi {
                 })
             );
 
-            this.perPage = Number(this.params.per_page) ?? 10;
+            this.perPage = Number(this.params.per_page) || 10;
 
             // 初始化数据缓存
             this.wallpaperImageCache = [];
@@ -389,19 +389,33 @@ export class UnsplashApi extends BaseWallpaperApi {
         return response.json;
     }
 
+    // 安全地将未知值转换为字符串，避免对象被转换为 [object Object]
+    private safeString(value: unknown): string {
+        if (value === null || value === undefined) {
+            return "";
+        }
+        if (typeof value === "string") {
+            return value;
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+            return String(value);
+        }
+        return "";
+    }
+
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformPhoto(photo: Record<string, unknown>): WallpaperImage {
         const user = (photo.user as Record<string, unknown>) ?? {};
         const urls = (photo.urls as Record<string, unknown>) ?? {};
 
         return {
-            id: String(photo.id ?? ""),
-            url: String(urls.regular || urls.full || urls.raw || ""),
+            id: this.safeString(photo.id),
+            url: this.safeString(urls.regular) || this.safeString(urls.full) || this.safeString(urls.raw),
             width: Number(photo.width) || undefined,
             height: Number(photo.height) || undefined,
-            author: String(user.name || user.username || ""),
-            description: String(photo.description || photo.alt_description || ""),
-            downloadUrl: String(urls.full || urls.raw || ""),
+            author: this.safeString(user.name) || this.safeString(user.username),
+            description: this.safeString(photo.description) || this.safeString(photo.alt_description),
+            downloadUrl: this.safeString(urls.full) || this.safeString(urls.raw),
         };
     }
 }

@@ -117,12 +117,12 @@ export class WallhavenApi extends BaseWallpaperApi {
                     { value: "nsfw", label: "NSFW (18+)" },
                 ],
                 toApiValue: (uiValue: string[]) => {
-                    const arr = Array.isArray(uiValue) ? (uiValue as string[]) : [];
+                    const arr = Array.isArray(uiValue) ? uiValue : [];
                     let result = "";
                     result += arr.includes("sfw") ? "1" : "0";
                     result += arr.includes("sketchy") ? "1" : "0";
                     result += arr.includes("nsfw") ? "1" : "0";
-                    return result ?? (defaultParams.purity as string);
+                    return result || (defaultParams.purity as string);
                 },
                 fromApiValue: (apiValue: string) => {
                     const str = apiValue?.toString() ?? (defaultParams.purity as string);
@@ -381,11 +381,27 @@ export class WallhavenApi extends BaseWallpaperApi {
         console.debug(`Fetching Wallhaven search results from: ${url}`);
         const response = await requestUrl({ url });
         return response.json;
-    } // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
+    }
+
+    // 安全地将未知值转换为字符串，避免对象被转换为 [object Object]
+    private safeString(value: unknown): string {
+        if (value === null || value === undefined) {
+            return "";
+        }
+        if (typeof value === "string") {
+            return value;
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+            return String(value);
+        }
+        return "";
+    }
+
+    // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformImage(apiImage: Record<string, unknown>): WallpaperImage {
         return {
-            id: String(apiImage.id ?? ""),
-            url: String(apiImage.path ?? ""),
+            id: this.safeString(apiImage.id),
+            url: this.safeString(apiImage.path),
             width: Number(apiImage.dimension_x) || undefined,
             height: Number(apiImage.dimension_y) || undefined,
         };

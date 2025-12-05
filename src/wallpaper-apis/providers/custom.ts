@@ -69,7 +69,7 @@ export class CustomApi extends BaseWallpaperApi {
     // 参数验证
     // ============================================================================
 
-    validateParams(params: WallpaperApiParams): boolean {
+    validateParams(_params: WallpaperApiParams): boolean {
         if (!this.baseUrl) {
             console.warn("Custom API: baseUrl is required");
             return false;

@@ -61,7 +61,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         // Wallpaper API 管理器
         // 实例化所有已配置的API
         for (const apiConfig of this.settings.wallpaperApis) {
-            apiManager.createApi(apiConfig);
+            void apiManager.createApi(apiConfig);
         }
 
         console.debug("Dynamic Theme Background plugin loaded");
@@ -89,13 +89,13 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     /**
      * 激活设置标签页视图
      */
-    async activateView() {
+    activateView(): void {
         // 检查是否已经存在该类型的 leaf
         const existingLeaf = this.app.workspace.getLeavesOfType(DTB_SETTINGS_VIEW_TYPE)[0];
 
         if (existingLeaf) {
             // 如果已存在，则聚焦它
-            this.app.workspace.revealLeaf(existingLeaf);
+            void this.app.workspace.revealLeaf(existingLeaf);
         } else {
             // 如果不存在，则创建新的 leaf
             const leaf = this.app.workspace.getLeaf("tab");
@@ -105,7 +105,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
             });
 
             // 确保标签页获得焦点
-            this.app.workspace.revealLeaf(leaf);
+            void this.app.workspace.revealLeaf(leaf);
         }
     }
 
@@ -122,7 +122,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     activateStatusBar() {
         this.deactivateStatusBar();
         this.statusBar = this.addStatusBarItem();
-        this.statusBar.setText("🌈 DTB");
+        this.statusBar.setText("🌈 DTB"); // eslint-disable-line obsidianmd/ui/sentence-case -- acronym
         this.statusBar.addClass("dtb-status-bar");
         this.statusBar.setAttribute("title", t("status_bar_title"));
         this.statusBar.addEventListener("click", (evt) => {

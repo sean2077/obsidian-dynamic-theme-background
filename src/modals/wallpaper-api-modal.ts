@@ -606,7 +606,7 @@ export class WallpaperApiEditorModal extends Modal {
             try {
                 const extraParams = JSON.parse(this.extraParamsTextarea.value);
                 Object.assign(params, extraParams);
-            } catch (error) {
+            } catch {
                 new Notice(t("api_modal_invalid_json"));
             }
         }
@@ -657,9 +657,7 @@ export class WallpaperApiEditorModal extends Modal {
                 value = selectEl.value || undefined;
             } else if (input.classList.contains("dtb-multiselect")) {
                 // 多选
-                const checkboxes = input.querySelectorAll(
-                    'input[type="checkbox"]:checked'
-                ) as NodeListOf<HTMLInputElement>;
+                const checkboxes = input.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked');
                 const selectedValues = Array.from(checkboxes).map((cb) => cb.value);
                 value = selectedValues.length > 0 ? selectedValues : undefined;
             }

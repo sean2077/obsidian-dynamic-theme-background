@@ -1,9 +1,9 @@
 export default {
     // ===== 设置标题 =====
-    settings_title: "🌈 动态主题背景",
-    version: "🛠️ 版本: ",
-    author: "🎨 作者: ",
-    homepage: "🏠 首页: ",
+    settings_title: "Dynamic Theme Background",
+    version: "Version: ",
+    author: "Author: ",
+    homepage: "Homepage: ",
 
     // ===== 基础设置 =====
     enable_plugin_name: "启用动态背景",

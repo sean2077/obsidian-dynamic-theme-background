@@ -178,7 +178,7 @@ export class BackgroundModal extends Modal {
                     .onClick(() => {
                         // 清空每背景覆盖，让其回退到全局
                         this.blurDepth = undefined;
-                        this.bgItem.blurDepth = undefined as any;
+                        this.bgItem.blurDepth = undefined;
                         this.displayAppearanceSettings(containerEl); // 重新渲染设置
                     })
             );
@@ -202,7 +202,7 @@ export class BackgroundModal extends Modal {
                     .onClick(() => {
                         // 清空每背景覆盖，让其回退到全局
                         this.brightness4Bg = undefined;
-                        this.bgItem.brightness4Bg = undefined as any;
+                        this.bgItem.brightness4Bg = undefined;
                         this.displayAppearanceSettings(containerEl); // 重新渲染设置
                     })
             );
@@ -226,7 +226,7 @@ export class BackgroundModal extends Modal {
                     .onClick(() => {
                         // 清空每背景覆盖，让其回退到全局
                         this.saturate4Bg = undefined;
-                        this.bgItem.saturate4Bg = undefined as any;
+                        this.bgItem.saturate4Bg = undefined;
                         this.displayAppearanceSettings(containerEl); // 重新渲染设置
                     })
             );
@@ -284,10 +284,10 @@ export class BackgroundModal extends Modal {
                     this.bgColorOpacityDark = undefined;
                     this.bgColorLight = undefined;
                     this.bgColorOpacityLight = undefined;
-                    this.bgItem.bgColorDark = undefined as any;
-                    this.bgItem.bgColorOpacityDark = undefined as any;
-                    this.bgItem.bgColorLight = undefined as any;
-                    this.bgItem.bgColorOpacityLight = undefined as any;
+                    this.bgItem.bgColorDark = undefined;
+                    this.bgItem.bgColorOpacityDark = undefined;
+                    this.bgItem.bgColorLight = undefined;
+                    this.bgItem.bgColorOpacityLight = undefined;
                     this.displayAppearanceSettings(containerEl);
                 })
         );
@@ -298,10 +298,10 @@ export class BackgroundModal extends Modal {
             .setDesc(t("bg_size_desc"))
             .addDropdown((dropdown) => {
                 // 添加下拉选项
-                dropdown.addOption("intelligent", "intelligent");
-                dropdown.addOption("cover", "cover");
-                dropdown.addOption("contain", "contain");
-                dropdown.addOption("auto", "auto");
+                dropdown.addOption("intelligent", "Intelligent");
+                dropdown.addOption("cover", "Cover");
+                dropdown.addOption("contain", "Contain");
+                dropdown.addOption("auto", "Auto");
                 // 使用专门的悬停选项方法添加 tooltip（推荐用法）
                 addDropdownOptionHoverTooltip(
                     dropdown,
@@ -331,7 +331,7 @@ export class BackgroundModal extends Modal {
                     .onClick(() => {
                         // 清空每背景覆盖，让其回退到全局
                         this.bgSize = undefined;
-                        this.bgItem.bgSize = undefined as any;
+                        this.bgItem.bgSize = undefined;
                         this.displayAppearanceSettings(containerEl); // 重新渲染设置
                     })
             );

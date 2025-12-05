@@ -310,7 +310,7 @@ export class PixabayApi extends BaseWallpaperApi {
             // 更新分页信息
             this.totalPages = response.totalHits ? Math.ceil(response.totalHits / this.perPage) : -1;
             this.totalCount = response.total ?? -1;
-            this.perPage = Number(this.params.per_page) ?? 20;
+            this.perPage = Number(this.params.per_page) || 20;
 
             new Notice(
                 t("api_initialized_notice", {
@@ -439,19 +439,38 @@ export class PixabayApi extends BaseWallpaperApi {
         return response.json;
     }
 
+    // 安全地将未知值转换为字符串，避免对象被转换为 [object Object]
+    private safeString(value: unknown): string {
+        if (value === null || value === undefined) {
+            return "";
+        }
+        if (typeof value === "string") {
+            return value;
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+            return String(value);
+        }
+        return "";
+    }
+
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformImage(image: Record<string, unknown>): WallpaperImage {
+        const tagsStr = this.safeString(image.tags);
         return {
-            id: String(image.id ?? ""),
-            url: String(image.largeImageURL || image.fullHDURL || image.webformatURL || ""),
+            id: this.safeString(image.id),
+            url:
+                this.safeString(image.largeImageURL) ||
+                this.safeString(image.fullHDURL) ||
+                this.safeString(image.webformatURL),
             width: Number(image.imageWidth) || Number(image.webformatWidth) || undefined,
             height: Number(image.imageHeight) || Number(image.webformatHeight) || undefined,
-            author: String(image.user || ""),
-            description: String(image.tags || ""),
-            tags: String(image.tags || "")
-                .split(", ")
-                .filter((tag) => tag.trim()),
-            downloadUrl: String(image.imageURL || image.largeImageURL || image.fullHDURL || ""),
+            author: this.safeString(image.user),
+            description: tagsStr,
+            tags: tagsStr.split(", ").filter((tag) => tag.trim()),
+            downloadUrl:
+                this.safeString(image.imageURL) ||
+                this.safeString(image.largeImageURL) ||
+                this.safeString(image.fullHDURL),
         };
     }
 }

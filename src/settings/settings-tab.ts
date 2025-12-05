@@ -102,8 +102,8 @@ export class DTBSettingTab extends PluginSettingTab {
     private displayHeader(containerEl: HTMLElement) {
         const headerContainer = containerEl.createDiv("dtb-section-header");
 
-        // 创建左侧标题容器
-        const titleContainer = headerContainer.createDiv();
+        // 创建左侧标题容器（预留位置）
+        headerContainer.createDiv();
         // 移除顶级标题，按照Obsidian指南
 
         // 创建右侧信息容器
@@ -349,10 +349,10 @@ export class DTBSettingTab extends PluginSettingTab {
             .setDesc(t("bg_size_desc"))
             .addDropdown((dropdown) => {
                 // 添加下拉选项
-                dropdown.addOption("intelligent", "intelligent");
-                dropdown.addOption("cover", "cover");
-                dropdown.addOption("contain", "contain");
-                dropdown.addOption("auto", "auto");
+                dropdown.addOption("intelligent", "Intelligent");
+                dropdown.addOption("cover", "Cover");
+                dropdown.addOption("contain", "Contain");
+                dropdown.addOption("auto", "Auto");
                 // 使用专门的悬停选项方法添加 tooltip（推荐用法）
                 addDropdownOptionHoverTooltip(
                     dropdown,
@@ -612,7 +612,7 @@ export class DTBSettingTab extends PluginSettingTab {
             enabled: true,
         };
 
-        const modal = new TimeRuleModal(this.app, editRule, async (updatedRule) => {
+        const modal = new TimeRuleModal(this.app, editRule, (updatedRule) => {
             if (!updatedRule.name.trim() || !updatedRule.startTime || !updatedRule.endTime) {
                 new Notice(t("notice_all_fields_required"));
                 return;
@@ -643,7 +643,7 @@ export class DTBSettingTab extends PluginSettingTab {
             }
 
             this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
-            await this.plugin.saveSettings();
+            void this.plugin.saveSettings();
             // 这里仅需刷新时间规则列表
             this.plugin.refreshActiveTimeRules();
         });
@@ -731,7 +731,7 @@ export class DTBSettingTab extends PluginSettingTab {
             type,
             value: "",
         };
-        const modal = new BackgroundModal(this.app, this.plugin, bg, async (newBg: BackgroundItem) => {
+        const modal = new BackgroundModal(this.app, this.plugin, bg, (newBg: BackgroundItem) => {
             if (!newBg.name.trim() || !newBg.value.trim()) {
                 new Notice(t("notice_name_and_value_required"));
                 return;
@@ -744,7 +744,7 @@ export class DTBSettingTab extends PluginSettingTab {
 
             // 添加到设置中
             this.plugin.settings.backgrounds.push(newBg);
-            await this.plugin.saveSettings();
+            void this.plugin.saveSettings();
 
             // 这里仅需刷新背景列表和时间规则列表
             this.displayBackgrounds();
@@ -756,7 +756,7 @@ export class DTBSettingTab extends PluginSettingTab {
 
     // 显示编辑背景的模态窗口
     private showEditBackgroundModal(bg: BackgroundItem, index: number): void {
-        const modal = new BackgroundModal(this.app, this.plugin, bg, async (newBg: BackgroundItem) => {
+        const modal = new BackgroundModal(this.app, this.plugin, bg, (newBg: BackgroundItem) => {
             if (!newBg.name.trim() || !newBg.value.trim()) {
                 new Notice(t("notice_name_and_value_required"));
                 return;
@@ -767,7 +767,7 @@ export class DTBSettingTab extends PluginSettingTab {
             // 更新现有背景项
             this.plugin.settings.backgrounds[index] = newBg;
 
-            await this.plugin.saveSettings();
+            void this.plugin.saveSettings();
 
             // 如果当前正在使用这个背景，则更新显示
             if (this.plugin.background?.id === bg.id) {
@@ -792,8 +792,8 @@ export class DTBSettingTab extends PluginSettingTab {
         }, 0);
     }
 
-    private showAddFolderModal() {
-        const modal = new ImageFolderSuggestModal(this.app, async (folderPath: string) => {
+    private showAddFolderModal(): void {
+        const modal = new ImageFolderSuggestModal(this.app, (folderPath: string) => {
             if (!folderPath.trim()) {
                 new Notice(t("notice_valid_folder_path_required"));
                 return;
@@ -806,14 +806,15 @@ export class DTBSettingTab extends PluginSettingTab {
                 return;
             }
 
-            try {
-                // 处理文件夹中的图片文件
-                await this.addImagesFromFolder(folderPath);
-                new Notice(t("notice_folder_added_successfully", { folderPath }));
-            } catch (error) {
-                console.error("Error adding images from folder:", error);
-                new Notice(t("notice_error_adding_folder_images"));
-            }
+            // 处理文件夹中的图片文件
+            this.addImagesFromFolder(folderPath)
+                .then(() => {
+                    new Notice(t("notice_folder_added_successfully", { folderPath }));
+                })
+                .catch((error) => {
+                    console.error("Error adding images from folder:", error);
+                    new Notice(t("notice_error_adding_folder_images"));
+                });
         });
 
         modal.open();
@@ -916,7 +917,7 @@ export class DTBSettingTab extends PluginSettingTab {
             actions.createEl("button", { text: t("button_preview") }).onclick = () => {
                 this.plugin.background = bg;
                 this.plugin.settings.currentIndex = index; // 更新当前索引
-                this.plugin.saveSettings();
+                void this.plugin.saveSettings();
                 this.plugin.updateStyleCss();
                 this.displayBackgrounds(); // 刷新激活图标
             };
@@ -983,7 +984,7 @@ export class DTBSettingTab extends PluginSettingTab {
                 break;
             }
             default:
-                console.warn(`DTB: Unknown background type: ${bg.type}`);
+                console.warn(`DTB: Unknown background type: ${bg.type as string}`);
                 break;
         }
     }
@@ -1108,7 +1109,7 @@ export class DTBSettingTab extends PluginSettingTab {
                         if (!existingApi) {
                             // 如果不存在，则添加并创建 API 实例
                             this.plugin.settings.wallpaperApis.push(apiConfig);
-                            apiManager.createApi(apiConfig);
+                            void apiManager.createApi(apiConfig);
                         }
                     }
                     new Notice(t("restore_default_apis_success"));
@@ -1317,7 +1318,7 @@ export class DTBSettingTab extends PluginSettingTab {
 
         const modal = new WallpaperApiEditorModal(this.app, emptyConfig, (apiConfig) => {
             // 创建新的API实例
-            apiManager.createApi(apiConfig);
+            void apiManager.createApi(apiConfig);
             // 添加到插件设置中
             this.plugin.settings.wallpaperApis.push(apiConfig);
             void this.plugin.saveSettings();
@@ -1332,7 +1333,7 @@ export class DTBSettingTab extends PluginSettingTab {
     private showEditWallpaperApiModal(apiConfig: WallpaperApiConfig, index: number) {
         const modal = new WallpaperApiEditorModal(this.app, apiConfig, (updatedConfig) => {
             // 有可能api类型也修改了，干脆重新创建API实例覆盖原来的
-            apiManager.createApi(updatedConfig);
+            void apiManager.createApi(updatedConfig);
 
             this.plugin.settings.wallpaperApis[index] = updatedConfig;
             void this.plugin.saveSettings();
