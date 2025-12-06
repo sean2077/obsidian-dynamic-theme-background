@@ -28,7 +28,9 @@
     },
     "hero": {
         "badge": "Obsidian 插件",
-        "tagline": "多源动态壁纸插件 ·",
+        "desc": "多源动态壁纸",
+        "slogan": "在 Obsidian 中打造你的专属壁纸库！",
+        "tagline": "让每一次笔记体验都充满视觉灵感~",
         "statSources": "壁纸图源",
         "statImages": "高清壁纸",
         "statFree": "免费开源",

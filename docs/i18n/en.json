@@ -28,7 +28,9 @@
     },
     "hero": {
         "badge": "Obsidian Plugin",
-        "tagline": "Multi-source dynamic wallpapers for",
+        "desc": "Multi-source Dynamic Wallpaper",
+        "slogan": "Build Your Own Wallpaper Library in Obsidian!",
+        "tagline": "Make every note-taking experience visually inspiring~",
         "statSources": "Wallpaper Sources",
         "statImages": "HD Wallpapers",
         "statFree": "Free & Open Source",
