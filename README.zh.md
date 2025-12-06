@@ -53,20 +53,20 @@
 ### BRAT
 
 1. 安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat)
-2. Add beta plugin → \`https://github.com/sean2077/obsidian-dynamic-theme-background\`
+2. Add beta plugin → `https://github.com/sean2077/obsidian-dynamic-theme-background`
 3. 在设置中启用
 
 ### 手动安装
 
-1. 从 [Releases](https://github.com/sean2077/obsidian-dynamic-theme-background/releases) 下载 \`main.js\`、\`manifest.json\`、\`styles.css\`
-2. 创建 \`.obsidian/plugins/obsidian-dynamic-theme-background/\`
+1. 从 [Releases](https://github.com/sean2077/obsidian-dynamic-theme-background/releases) 下载 `main.js`、`manifest.json`、`styles.css`
+2. 创建 `.obsidian/plugins/obsidian-dynamic-theme-background/`
 3. 放入文件，重启 Obsidian，启用插件
 
 ## 快速开始
 
 1. **添加源** — 本地图片或 API 源（Unsplash / Pixabay / Pexels / Wallhaven / 自定义）
 2. **设置轮换** — 间隔 + 可选时间段（早/日/夜）
-3. **控制** — 状态栏或命令面板（\`dtb\`）切换、保存与获取
+3. **控制** — 状态栏或命令面板（`dtb`）切换、保存与获取
 
 **状态栏操作：**
 - 左键 → 随机壁纸
@@ -82,13 +82,13 @@
 <details>
 <summary>CSS 覆盖说明</summary>
 
-\`\`\`css
+```css
 .dtb-enabled .workspace::before {
     background-image: var(--dtb-bg-image);
     filter: blur(var(--dtb-blur-depth)) brightness(var(--dtb-brightness)) saturate(var(--dtb-saturate));
     /* ... */
 }
-\`\`\`
+```
 
 </details>
 

@@ -53,20 +53,20 @@
 ### BRAT
 
 1. Install [BRAT](https://github.com/TfTHacker/obsidian42-brat)
-2. Add beta plugin → \`https://github.com/sean2077/obsidian-dynamic-theme-background\`
+2. Add beta plugin → `https://github.com/sean2077/obsidian-dynamic-theme-background`
 3. Enable in settings
 
 ### Manual
 
-1. Download \`main.js\`, \`manifest.json\`, \`styles.css\` from [Releases](https://github.com/sean2077/obsidian-dynamic-theme-background/releases)
-2. Create \`.obsidian/plugins/obsidian-dynamic-theme-background/\`
+1. Download `main.js`, `manifest.json`, `styles.css` from [Releases](https://github.com/sean2077/obsidian-dynamic-theme-background/releases)
+2. Create `.obsidian/plugins/obsidian-dynamic-theme-background/`
 3. Place files inside, restart Obsidian, enable
 
 ## Quick Start
 
 1. **Add Sources** — Local images or API providers (Unsplash / Pixabay / Pexels / Wallhaven / Custom)
 2. **Set Rotation** — Interval + optional time windows (morning / day / night)
-3. **Control** — Status bar clicks or Command Palette (\`dtb\`) to switch, save & fetch
+3. **Control** — Status bar clicks or Command Palette (`dtb`) to switch, save & fetch
 
 **Status Bar:**
 - Left Click → Random wallpaper
@@ -82,13 +82,13 @@
 <details>
 <summary>CSS Override Details</summary>
 
-\`\`\`css
+```css
 .dtb-enabled .workspace::before {
     background-image: var(--dtb-bg-image);
     filter: blur(var(--dtb-blur-depth)) brightness(var(--dtb-brightness)) saturate(var(--dtb-saturate));
     /* ... */
 }
-\`\`\`
+```
 
 </details>
 
