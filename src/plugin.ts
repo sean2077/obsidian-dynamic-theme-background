@@ -122,7 +122,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     activateStatusBar() {
         this.deactivateStatusBar();
         this.statusBar = this.addStatusBarItem();
-        this.statusBar.setText("🌈 DTB"); // eslint-disable-line obsidianmd/ui/sentence-case -- acronym
+        this.statusBar.setText("DTB");
         this.statusBar.addClass("dtb-status-bar");
         this.statusBar.setAttribute("title", t("status_bar_title"));
         this.statusBar.addEventListener("click", (evt) => {

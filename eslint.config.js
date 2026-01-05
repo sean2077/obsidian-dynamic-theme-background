@@ -29,7 +29,7 @@ export default [
             "@typescript-eslint/no-misused-promises": "error",
 
             // 项目特定覆盖
-            "obsidianmd/ui/sentence-case": ["warn", { enforceCamelCaseLower: false }],
+            // "obsidianmd/ui/sentence-case": ["warn", { enforceCamelCaseLower: false }],
             "@typescript-eslint/no-unused-vars": [
                 "error",
                 { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },

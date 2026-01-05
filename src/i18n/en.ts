@@ -1,6 +1,6 @@
 export default {
     // ===== 设置标题 =====
-    settings_title: "Dynamic Theme Background",
+    settings_title: "Dynamic theme background",
     version: "Version: ",
     author: "Author: ",
     homepage: "Homepage: ",
@@ -13,7 +13,7 @@ export default {
     enable_status_bar_name: "Enable status bar",
     enable_status_bar_desc: "Turn the status bar feature on or off.",
     status_bar_title:
-        "🖱️Left Click: Switch random wallpaper\n🖱️Middle Click: Open settings tab\n🖱️Right Click: Save current background",
+        "🖱️Left click: Switch random wallpaper\n🖱️Middle click: Open settings tab\n🖱️Right click: Save current background",
 
     // ===== 外观设置 =====
     appearance_settings_title: "Appearance",
@@ -167,19 +167,19 @@ export default {
 
     // ===== 默认配置相关 =====
     default_morning_rule: "Morning",
-    default_later_morning_rule: "Later Morning",
+    default_later_morning_rule: "Later morning",
     default_noon_rule: "Noon",
     default_afternoon_rule: "Afternoon",
     default_dusk_rule: "Dusk",
     default_evening_rule: "Evening",
     default_night_rule: "Night",
-    blue_purple_gradient_bg: "Blue Purple Gradient",
-    pink_gradient_bg: "Pink Gradient",
-    blue_cyan_gradient_bg: "Blue Cyan Gradient",
-    green_cyan_gradient_bg: "Green Cyan Gradient",
-    pink_yellow_gradient_bg: "Pink Yellow Gradient",
-    cyan_pink_gradient_bg: "Cyan Pink Gradient",
-    dark_blue_gray_gradient_bg: "Dark Blue Gray Gradient",
+    blue_purple_gradient_bg: "Blue purple gradient",
+    pink_gradient_bg: "Pink gradient",
+    blue_cyan_gradient_bg: "Blue cyan gradient",
+    green_cyan_gradient_bg: "Green cyan gradient",
+    pink_yellow_gradient_bg: "Pink yellow gradient",
+    cyan_pink_gradient_bg: "Cyan pink gradient",
+    dark_blue_gray_gradient_bg: "Dark blue gray gradient",
 
     // ===== Notice 消息 =====
     notice_all_fields_required: "⚠️ DTB: Please provide all required fields",

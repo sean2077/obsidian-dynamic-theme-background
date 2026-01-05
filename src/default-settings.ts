@@ -140,7 +140,7 @@ function genDefaultSettings(): DTBSettings {
         wallpaperApis: [
             {
                 id: "api-wallhaven-default",
-                name: "Wallhaven API (Default)",
+                name: "Wallhaven API (default)",
                 type: WallpaperApiType.Wallhaven,
                 baseUrl: apiRegistry.getDefaultBaseUrl(WallpaperApiType.Wallhaven) || "",
                 enabled: false,
@@ -148,7 +148,7 @@ function genDefaultSettings(): DTBSettings {
             },
             {
                 id: "api-qihoo360-default",
-                name: "360壁纸 API (Default)",
+                name: "360壁纸 API (default)",
                 type: WallpaperApiType.Qihoo360,
                 baseUrl: apiRegistry.getDefaultBaseUrl(WallpaperApiType.Qihoo360) || "",
                 enabled: false,

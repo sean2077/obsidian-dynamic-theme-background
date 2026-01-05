@@ -151,7 +151,7 @@ export class PixabayApi extends BaseWallpaperApi {
                 defaultValue: "",
                 description: "Filter results by category",
                 options: [
-                    { value: "", label: "All Categories" },
+                    { value: "", label: "All categories" },
                     { value: "backgrounds", label: "Backgrounds" },
                     { value: "fashion", label: "Fashion" },
                     { value: "nature", label: "Nature" },

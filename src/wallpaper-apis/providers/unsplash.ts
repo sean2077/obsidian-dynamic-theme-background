@@ -111,7 +111,7 @@ export class UnsplashApi extends BaseWallpaperApi {
                 description: "Filter results by color",
                 options: [
                     { value: "", label: "Any" },
-                    { value: "black_and_white", label: "Black and White" },
+                    { value: "black_and_white", label: "Black and white" },
                     { value: "black", label: "Black" },
                     { value: "white", label: "White" },
                     { value: "yellow", label: "Yellow" },
@@ -131,8 +131,8 @@ export class UnsplashApi extends BaseWallpaperApi {
                 defaultValue: defaultParams.content_filter,
                 description: "Limit results by content safety",
                 options: [
-                    { value: "low", label: "Low (Default)" },
-                    { value: "high", label: "High (More restrictive)" },
+                    { value: "low", label: "Low (default)" },
+                    { value: "high", label: "High (more restrictive)" },
                 ],
             },
             {

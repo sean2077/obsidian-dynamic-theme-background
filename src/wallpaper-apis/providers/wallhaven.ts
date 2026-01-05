@@ -140,12 +140,12 @@ export class WallhavenApi extends BaseWallpaperApi {
                 defaultValue: defaultParams.sorting,
                 description: "How to sort the results",
                 options: [
-                    { value: "date_added", label: "Date Added" },
+                    { value: "date_added", label: "Date added" },
                     { value: "relevance", label: "Relevance" },
                     { value: "random", label: "Random" },
                     { value: "views", label: "Views" },
                     { value: "favorites", label: "Favorites" },
-                    { value: "toplist", label: "Top List" },
+                    { value: "toplist", label: "Top list" },
                 ],
             },
             {
@@ -166,12 +166,12 @@ export class WallhavenApi extends BaseWallpaperApi {
                 defaultValue: defaultParams.topRange,
                 description: "Time range for top wallpapers. (Sorting MUST be set to 'toplist')",
                 options: [
-                    { value: "1W", label: "Last Week" },
-                    { value: "1M", label: "Last Month" },
-                    { value: "3M", label: "Last 3 Months" },
-                    { value: "6M", label: "Last 6 Months" },
-                    { value: "1Y", label: "Last Year" },
-                    { value: "all", label: "All Time" },
+                    { value: "1W", label: "Last week" },
+                    { value: "1M", label: "Last month" },
+                    { value: "3M", label: "Last 3 months" },
+                    { value: "6M", label: "Last 6 months" },
+                    { value: "1Y", label: "Last year" },
+                    { value: "all", label: "All time" },
                 ],
             },
             {
