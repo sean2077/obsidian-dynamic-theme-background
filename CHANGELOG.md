@@ -1,3 +1,9 @@
+## [2.8.6](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.5...2.8.6) (2026-01-05)
+
+### Fixes
+
+* apply sentence case to UI text for Obsidian plugin validation ([72f8ba2](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/72f8ba22d8399010a0a52d1ec67b1ba618fe2cce))
+
 ## [2.8.5](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.4...2.8.5) (2025-12-05)
 
 ### Fixes
