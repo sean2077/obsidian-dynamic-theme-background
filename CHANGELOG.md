@@ -1,3 +1,9 @@
+## [2.8.7](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.6...2.8.7) (2026-01-21)
+
+### Fixes
+
+* enable sentence-case eslint rules and fix 36 UI text violations ([27ea8c8](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/27ea8c8e543d9a92312c0a0acac5944221fe0fbb))
+
 ## [2.8.6](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.5...2.8.6) (2026-01-05)
 
 ### Fixes
