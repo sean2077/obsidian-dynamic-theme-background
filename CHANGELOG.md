@@ -1,3 +1,9 @@
+## [2.9.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.7...2.9.0) (2026-03-17)
+
+### Features
+
+* decompose plugin and settings into service-oriented architecture ([62d855f](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/62d855ffbd7aefb8e402f26a45cede2cb9efd7fb))
+
 ## [2.8.7](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.8.6...2.8.7) (2026-01-21)
 
 ### Fixes
