@@ -3,6 +3,8 @@
  * @description Utility functions for the Obsidian Dynamic Theme Background plugin.
  */
 
+import { logger } from "../core/logger";
+
 /**
  * Converts a hexadecimal color string to an RGBA color string with the specified opacity.
  *
@@ -26,7 +28,7 @@ export function hexToRgba(hex: string, opacity: number): string {
     }
 
     if (hex.length !== 6) {
-        console.warn("DTB: Invalid hex color format:", hex);
+        logger.warn("Invalid hex color format:", hex);
         return `rgba(31, 30, 30, ${opacity})`;
     }
 
@@ -35,4 +37,13 @@ export function hexToRgba(hex: string, opacity: number): string {
     const b = parseInt(hex.substring(4, 6), 16);
 
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
+
+/**
+ * 生成唯一 ID
+ * @param prefix 可选前缀
+ */
+export function generateId(prefix?: string): string {
+    const uuid = crypto.randomUUID();
+    return prefix ? `${prefix}-${uuid}` : uuid;
 }

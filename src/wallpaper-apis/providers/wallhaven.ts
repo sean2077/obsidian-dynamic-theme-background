@@ -3,6 +3,7 @@
  */
 
 import { Notice, requestUrl } from "obsidian";
+import { logger } from "../../core/logger";
 import { t } from "../../i18n";
 import {
     apiRegistry,
@@ -89,14 +90,15 @@ export class WallhavenApi extends BaseWallpaperApi {
                     { value: "anime", label: "Anime" },
                     { value: "people", label: "People" },
                 ],
-                toApiValue: (uiValue: string[]) => {
+                toApiValue: (uiValue) => {
+                    const arr = Array.isArray(uiValue) ? uiValue : [String(uiValue)];
                     let result = "";
-                    result += uiValue.includes("general") ? "1" : "0";
-                    result += uiValue.includes("anime") ? "1" : "0";
-                    result += uiValue.includes("people") ? "1" : "0";
-                    return result ?? (defaultParams.categories as string);
+                    result += arr.includes("general") ? "1" : "0";
+                    result += arr.includes("anime") ? "1" : "0";
+                    result += arr.includes("people") ? "1" : "0";
+                    return result || (defaultParams.categories as string);
                 },
-                fromApiValue: (apiValue: string) => {
+                fromApiValue: (apiValue) => {
                     const str = apiValue?.toString() ?? (defaultParams.categories as string);
                     const result: string[] = [];
                     if (str[0] === "1") result.push("general");
@@ -116,15 +118,15 @@ export class WallhavenApi extends BaseWallpaperApi {
                     { value: "sketchy", label: "Sketchy" },
                     { value: "nsfw", label: "NSFW (18+)" },
                 ],
-                toApiValue: (uiValue: string[]) => {
-                    const arr = Array.isArray(uiValue) ? uiValue : [];
+                toApiValue: (uiValue) => {
+                    const arr = Array.isArray(uiValue) ? uiValue : [String(uiValue)];
                     let result = "";
                     result += arr.includes("sfw") ? "1" : "0";
                     result += arr.includes("sketchy") ? "1" : "0";
                     result += arr.includes("nsfw") ? "1" : "0";
                     return result || (defaultParams.purity as string);
                 },
-                fromApiValue: (apiValue: string) => {
+                fromApiValue: (apiValue) => {
                     const str = apiValue?.toString() ?? (defaultParams.purity as string);
                     const result: string[] = [];
                     if (str[0] === "1") result.push("sfw");
@@ -291,21 +293,21 @@ export class WallhavenApi extends BaseWallpaperApi {
         // 拉取第一页数据用于测试连通性
         const resp = await this.fetchSearchResults(1);
         if (!resp) {
-            console.warn("Wallhaven API initialization failed: No response from search endpoint.");
+            logger.warn("Wallhaven API initialization failed: No response from search endpoint.");
             return false;
         }
 
         // 填充 totalPages、totalCount 等状态
         const meta = resp.meta;
         if (!meta) {
-            console.warn("Wallhaven API response missing meta information.");
+            logger.warn("Wallhaven API response missing meta information.");
             return false;
         }
         this.totalPages = meta.last_page ?? -1;
         this.totalCount = meta.total ?? -1;
         this.perPage = meta.per_page ?? -1;
         if (this.totalPages <= 0 || this.totalCount < 0 || this.perPage <= 0) {
-            console.warn("Wallhaven API response has invalid pagination data.");
+            logger.warn("Wallhaven API response has invalid pagination data.");
             return false;
         }
         new Notice(
@@ -316,59 +318,28 @@ export class WallhavenApi extends BaseWallpaperApi {
             })
         );
 
-        // 初始化数据缓存
-        this.wallpaperImageCache = [];
-        this.curDataIndex = 0;
-        this.currentPage = 1;
-
-        this.initialized = true;
+        this.finishInit();
         return true;
-    }
-
-    deinit(): Promise<boolean> {
-        if (!this.initialized) {
-            return Promise.resolve(true);
-        }
-
-        // 清理缓存数据
-        this.wallpaperImageCache = [];
-        this.curDataIndex = 0;
-        this.currentPage = 1;
-
-        this.initialized = false;
-        return Promise.resolve(true);
-    }
-
-    async updateImageCache(): Promise<boolean> {
-        // 如果已经到最后一页了，跳到第一页
-        if (this.totalPages > 0 && this.currentPage > this.totalPages) {
-            this.currentPage = 1;
-        }
-        const success = await this.fetchAndCachePageImages(this.currentPage);
-        if (success) {
-            this.currentPage += 1;
-        }
-        return success;
     }
 
     // ============================================================================
     // 辅助方法
     // ============================================================================
 
-    // 拉取指定页码的壁纸数据并缓存到 wallpaperImageCache
-    private async fetchAndCachePageImages(page = this.currentPage): Promise<boolean> {
+    protected async fetchPage(page: number): Promise<boolean> {
         try {
             const data = await this.fetchSearchResults(page);
 
             if (!data.data || !Array.isArray(data.data)) {
-                console.warn("Invalid API response format from Wallhaven");
+                logger.warn("Invalid API response format from Wallhaven");
                 return false;
             }
             // 为避免爆内存，这里应仅缓存当前页的数据
             this.wallpaperImageCache = data.data.map((img: Record<string, unknown>) => this.transformImage(img));
+            this.curDataIndex = 0;
             return true;
         } catch (error) {
-            console.warn(`Error fetching images from Wallhaven API:`, error);
+            logger.warn("Error fetching images from Wallhaven API:", error);
             return false;
         }
     }
@@ -378,23 +349,9 @@ export class WallhavenApi extends BaseWallpaperApi {
         // 合并参数并使用基类方法构建查询字符串
         const allParams = { ...this.params, page };
         const url = `${this.buildEndpointUrl("search")}?${this.buildUrlParams(allParams)}`;
-        console.debug(`Fetching Wallhaven search results from: ${url}`);
+        logger.debug(`Fetching Wallhaven search results from: ${url}`);
         const response = await requestUrl({ url });
         return response.json;
-    }
-
-    // 安全地将未知值转换为字符串，避免对象被转换为 [object Object]
-    private safeString(value: unknown): string {
-        if (value === null || value === undefined) {
-            return "";
-        }
-        if (typeof value === "string") {
-            return value;
-        }
-        if (typeof value === "number" || typeof value === "boolean") {
-            return String(value);
-        }
-        return "";
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

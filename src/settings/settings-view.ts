@@ -47,16 +47,16 @@ export class DTBSettingsView extends ItemView {
     }
 
     async onClose(): Promise<void> {
-        // 清理设置标签页的订阅
         if (this.settingTab) {
-            this.settingTab.cleanup();
-        }
+            // hide() 调用 cleanup() + 设置 active=false + 从 settingTabs Map 中移除
+            this.settingTab.hide();
 
-        // 清理资源
-        if (this.settingTab && this.settingTab.containerEl) {
-            this.settingTab.containerEl.empty();
+            // 清理 DOM
+            if (this.settingTab.containerEl) {
+                this.settingTab.containerEl.empty();
+            }
         }
-        this.settingTab = null; // 释放引用，帮助垃圾回收
+        this.settingTab = null;
         return Promise.resolve();
     }
 }

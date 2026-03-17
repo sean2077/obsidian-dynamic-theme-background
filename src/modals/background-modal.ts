@@ -1,7 +1,7 @@
 import { App, Modal, Setting } from "obsidian";
 import { t } from "../i18n";
 import type DynamicThemeBackgroundPlugin from "../plugin";
-import { BackgroundItem } from "../types";
+import type { BackgroundItem, DTBSettings } from "../types";
 import { addDropdownOptionHoverTooltip } from "../utils";
 import { ImagePathSuggestModal } from "./image-path-suggest-modal";
 
@@ -17,8 +17,8 @@ export class BackgroundModal extends Modal {
     bgItem: BackgroundItem;
     onSubmit: (bg: BackgroundItem) => void;
 
-    nameInput: HTMLInputElement;
-    valueInput: HTMLInputElement;
+    nameInput!: HTMLInputElement;
+    valueInput!: HTMLInputElement;
     // 背景单独的模糊度、亮度、饱和度、遮罩颜色和透明度、填充方式设置
     blurDepth?: number;
     brightness4Bg?: number;
@@ -67,6 +67,7 @@ export class BackgroundModal extends Modal {
         // Name input
         contentEl.createEl("label", { text: t("bg_name_label") });
         this.nameInput = contentEl.createEl("input", { type: "text", cls: "dtb-input" });
+        this.nameInput.value = this.bgItem.name;
 
         // Value input
         let valueLabel = "";
@@ -96,6 +97,7 @@ export class BackgroundModal extends Modal {
                 placeholder,
                 cls: "dtb-flex-1",
             });
+            this.valueInput.value = this.bgItem.value;
             const browseButton = inputContainer.createEl("button", {
                 type: "button",
                 text: t("button_browse"),
@@ -112,6 +114,7 @@ export class BackgroundModal extends Modal {
                 placeholder,
                 cls: "dtb-input",
             });
+            this.valueInput.value = this.bgItem.value;
         }
 
         // 背景单独的模糊度、亮度、饱和度、遮罩颜色和透明度、填充方式设置
@@ -318,8 +321,8 @@ export class BackgroundModal extends Modal {
                 );
                 dropdown
                     .setValue(this.bgSize ?? this.bgItem.bgSize ?? this.plugin.settings.bgSize)
-                    .onChange((value: "cover" | "contain" | "auto" | "intelligent") => {
-                        this.bgSize = value;
+                    .onChange((value: string) => {
+                        this.bgSize = value as DTBSettings["bgSize"];
                     });
 
                 return dropdown;

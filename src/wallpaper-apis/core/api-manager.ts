@@ -1,3 +1,5 @@
+import { logger } from "../../core/logger";
+import { generateId } from "../../utils/utils";
 import { ApiError, ApiErrorType } from "./api-error";
 import { apiRegistry } from "./api-registry";
 import { ApiStateManager } from "./api-state-manager";
@@ -44,7 +46,7 @@ class WallpaperApiManager {
                 `Invalid parameters for API "${config.name}": ${validation.errors?.join(", ") ?? "Unknown error"}`,
                 config.id
             );
-            console.warn(`WallpaperApiManager: ${error.message}`);
+            logger.warn(error.message);
             return;
         }
 
@@ -52,7 +54,7 @@ class WallpaperApiManager {
         const ApiClass = apiRegistry.getApiClass(config.type);
 
         if (!ApiClass) {
-            console.warn(`WallpaperApiManager: Unsupported API type "${config.type}". No registered API class found.`);
+            logger.warn(`Unsupported API type "${config.type}". No registered API class found.`);
             return;
         }
 
@@ -74,8 +76,11 @@ class WallpaperApiManager {
      * @param apiId API实例唯一标识符
      */
     deleteApi(apiId: string): void {
+        const api = this.apis.get(apiId);
+        if (api) {
+            void api.tryDisable(); // deinit 后再移除
+        }
         this.apis.delete(apiId);
-        // 清理状态管理器中的订阅
         this.stateManager.cleanupByApiId(apiId);
     }
 
@@ -83,8 +88,10 @@ class WallpaperApiManager {
      * 删除所有API实例
      */
     deleteAllApis(): void {
+        for (const api of this.apis.values()) {
+            void api.tryDisable();
+        }
         this.apis.clear();
-        // 清理状态管理器中的所有订阅
         this.stateManager.cleanup();
     }
 
@@ -131,7 +138,7 @@ class WallpaperApiManager {
                 `API instance with ID "${apiId}" not found`,
                 apiId
             );
-            console.warn(`WallpaperApiManager: ${error.message}`);
+            logger.warn(error.message);
             this.stateManager.notify(apiId, {
                 configEnabled: false,
                 instanceEnabled: false,
@@ -163,7 +170,7 @@ class WallpaperApiManager {
                 });
                 apiConfig.enabled = false;
 
-                console.warn(`WallpaperApiManager: Failed to enable API "${apiId}", config reverted.`);
+                logger.warn(`Failed to enable API "${apiId}", config reverted.`);
                 return false;
             }
 
@@ -198,7 +205,7 @@ class WallpaperApiManager {
             });
             apiConfig.enabled = false;
 
-            console.error(`WallpaperApiManager: Error enabling API "${apiId}":`, error);
+            logger.error(`Error enabling API "${apiId}":`, error);
             return false;
         }
     }
@@ -212,7 +219,7 @@ class WallpaperApiManager {
         // 1. 先找到配置和API实例
         const api = this.getApiById(apiId);
         if (!api) {
-            console.warn(`WallpaperApiManager: API config or instance with ID "${apiId}" not found.`);
+            logger.warn(`API config or instance with ID "${apiId}" not found.`);
             return false;
         }
 
@@ -240,7 +247,7 @@ class WallpaperApiManager {
         if (apiId) {
             const foundApi = this.getApiById(apiId);
             if (!foundApi) {
-                console.warn(`WallpaperApiManager: API with ID "${apiId}" not found.`);
+                logger.warn(`API with ID "${apiId}" not found.`);
                 return null;
             }
             randomApi = foundApi;
@@ -248,7 +255,7 @@ class WallpaperApiManager {
             // 随机从已启用的API中选择一个
             const enabledApis = Array.from(this.apis.values()).filter((api) => api.getEnabled());
             if (enabledApis.length === 0) {
-                console.warn("No enabled wallpaper APIs available.");
+                logger.warn("No enabled wallpaper APIs available.");
                 return null;
             }
             randomApi = enabledApis[Math.floor(Math.random() * enabledApis.length)];
@@ -257,7 +264,7 @@ class WallpaperApiManager {
         // 获取壁纸
         const imageList = await randomApi.getImages(count);
         if (!imageList || imageList.length === 0) {
-            console.warn(`No images found for API: ${randomApi.getName()}`);
+            logger.warn(`No images found for API: ${randomApi.getName()}`);
             return null;
         }
         return imageList;
@@ -268,7 +275,7 @@ class WallpaperApiManager {
     // ============================================================================
 
     private genApiId(): string {
-        return `api-${crypto.randomUUID()}`;
+        return generateId("api");
     }
 }
 

@@ -4,6 +4,8 @@
 
 import { JSONPath } from "jsonpath-plus";
 import { requestUrl } from "obsidian";
+import { logger } from "../../core/logger";
+import { generateId } from "../../utils/utils";
 import {
     apiRegistry,
     BaseWallpaperApi,
@@ -71,13 +73,13 @@ export class CustomApi extends BaseWallpaperApi {
 
     validateParams(_params: WallpaperApiParams): boolean {
         if (!this.baseUrl) {
-            console.warn("Custom API: baseUrl is required");
+            logger.warn("Custom API: baseUrl is required");
             return false;
         }
 
         const urlJsonPath = this.config.customSettings?.imageUrlJsonPath;
         if (!urlJsonPath) {
-            console.warn("Custom API: imageUrlJsonPath is required");
+            logger.warn("Custom API: imageUrlJsonPath is required");
             return false;
         }
 
@@ -97,37 +99,24 @@ export class CustomApi extends BaseWallpaperApi {
             // 测试连通性
             const images = await this.fetchImages();
             if (!images || images.length === 0) {
-                console.warn("Custom API initialization failed: No images returned.");
+                logger.warn("Custom API initialization failed: No images returned.");
                 return false;
             }
 
             // 初始化数据缓存
-            this.wallpaperImageCache = [];
-            this.curDataIndex = 0;
-            this.currentPage = 1;
+            this.finishInit();
             this.totalPages = 1; // Custom API 通常只有一页
             this.totalCount = images.length;
 
-            this.initialized = true;
             return true;
         } catch (error) {
-            console.error("Custom API initialization failed:", error);
+            logger.error("Custom API initialization failed:", error);
             return false;
         }
     }
 
     deinit(): Promise<boolean> {
-        if (!this.initialized) {
-            return Promise.resolve(true);
-        }
-
-        // 清理缓存数据
-        this.wallpaperImageCache = [];
-        this.curDataIndex = 0;
-        this.currentPage = 1;
-
-        this.initialized = false;
-        return Promise.resolve(true);
+        return super.deinit(); // 重置 cache, curDataIndex, currentPage, initialized
     }
 
     async updateImageCache(): Promise<boolean> {
@@ -141,7 +130,7 @@ export class CustomApi extends BaseWallpaperApi {
             }
             return false;
         } catch (error) {
-            console.error("Custom API cache update failed:", error);
+            logger.error("Custom API cache update failed:", error);
             return false;
         }
     }
@@ -169,7 +158,7 @@ export class CustomApi extends BaseWallpaperApi {
             const data = response.json;
             return this.transformCustomResponse(data);
         } catch (error) {
-            console.error("Custom API fetch error:", error);
+            logger.error("Custom API fetch error:", error);
             throw error;
         }
     }
@@ -184,7 +173,7 @@ export class CustomApi extends BaseWallpaperApi {
             const urlJsonPath = this.config.customSettings?.imageUrlJsonPath;
 
             if (!urlJsonPath) {
-                console.warn("Custom API: imageUrlJsonPath is required for JSON response");
+                logger.warn("Custom API: imageUrlJsonPath is required for JSON response");
                 return [];
             }
 
@@ -196,7 +185,7 @@ export class CustomApi extends BaseWallpaperApi {
             });
 
             if (!urls || (Array.isArray(urls) && urls.length === 0)) {
-                console.warn("Custom API: No URLs found at path:", urlJsonPath);
+                logger.warn("Custom API: No URLs found at path:", urlJsonPath);
                 return [];
             }
 
@@ -213,15 +202,14 @@ export class CustomApi extends BaseWallpaperApi {
                     };
                 });
         } catch (error) {
-            console.warn("Error parsing custom API response:", error);
+            logger.warn("Error parsing custom API response:", error);
             return [];
         }
     }
 
     // 生成图片ID
-    private generateImageId(index?: number): string {
-        const timestamp = Date.now();
-        return `custom_${timestamp}_${index !== undefined ? index : Math.random().toString(36).substring(2, 9)}`;
+    private generateImageId(_index?: number): string {
+        return generateId("custom");
     }
 }
 

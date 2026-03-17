@@ -3,6 +3,8 @@
  * 支持对任意列表进行拖拽排序操作
  */
 
+import { logger } from "../core/logger";
+
 /**
  * 拖拽排序配置接口
  */
@@ -80,11 +82,10 @@ export class DragSort<T> {
             element.classList.remove(this.config.itemClass);
         }
 
-        // 移除事件监听器
+        // 移除事件监听器（WeakMap 自动清理引用，无需手动 delete）
         const cleanup = this.dragHandles.get(element);
         if (cleanup) {
             cleanup();
-            this.dragHandles.delete(element);
         }
     }
 
@@ -205,7 +206,7 @@ export class DragSort<T> {
         const targetIndex = items.findIndex((item) => this.config.getItemId(item) === targetId);
 
         if (draggedIndex === -1 || targetIndex === -1) {
-            console.warn("DTB: Invalid drag operation - item not found");
+            logger.warn("Invalid drag operation - item not found");
             return;
         }
 

@@ -3,6 +3,8 @@
  * 简化设计：移除接口冗余，只保留必要的抽象类
  */
 
+import { logger } from "../../core/logger";
+import { generateId } from "../../utils/utils";
 import type {
     WallpaperApiConfig,
     WallpaperApiEndpoints,
@@ -66,12 +68,56 @@ export abstract class BaseWallpaperApi {
     }
 
     // ============================================================================
-    // 抽象方法 - 子类必须实现
+    // 抽象/模板方法
     // ============================================================================
 
     abstract init(): Promise<boolean>; // 启用插件时必须调用
-    abstract deinit(): Promise<boolean>; // 禁用插件时必须调用
-    abstract updateImageCache(): Promise<boolean>; // 更新图片缓存数据 wallpaperImageCache
+
+    /**
+     * 禁用时清理（默认实现，子类可覆写）
+     */
+    deinit(): Promise<boolean> {
+        if (!this.initialized) return Promise.resolve(true);
+        this.wallpaperImageCache = [];
+        this.curDataIndex = 0;
+        this.currentPage = 1;
+        this.initialized = false;
+        return Promise.resolve(true);
+    }
+
+    /**
+     * 更新图片缓存（模板方法）
+     * 标准分页提供者只需覆写 fetchPage()，无需覆写此方法
+     * 非标准分页提供者（如 qihoo360、custom）可直接覆写
+     */
+    async updateImageCache(): Promise<boolean> {
+        if (this.totalPages > 0 && this.currentPage > this.totalPages) {
+            this.currentPage = 1;
+        }
+        const success = await this.fetchPage(this.currentPage);
+        if (success) {
+            this.currentPage += 1;
+        }
+        return success;
+    }
+
+    /**
+     * 获取指定页的数据（子类实现）
+     * 默认实现抛出错误，子类必须覆写 fetchPage 或 updateImageCache
+     */
+    protected fetchPage(_page: number): Promise<boolean> {
+        throw new Error("fetchPage must be implemented by subclass or override updateImageCache");
+    }
+
+    /**
+     * 初始化完成的公共收尾逻辑
+     */
+    protected finishInit(): void {
+        this.wallpaperImageCache = [];
+        this.curDataIndex = 0;
+        this.currentPage = 1;
+        this.initialized = true;
+    }
 
     // ============================================================================
     // 静态方法 - 基类中抛出错误的方法，子类必须实现
@@ -169,7 +215,7 @@ export abstract class BaseWallpaperApi {
             }
             return success;
         } catch (error) {
-            console.error(`Failed to enable API "${this.name}":`, error);
+            logger.error(`Failed to enable API "${this.name}":`, error);
             return false;
         }
     }
@@ -186,7 +232,7 @@ export abstract class BaseWallpaperApi {
             }
             return success;
         } catch (error) {
-            console.error(`Failed to disable API "${this.name}":`, error);
+            logger.error(`Failed to disable API "${this.name}":`, error);
             return false;
         }
     }
@@ -196,11 +242,27 @@ export abstract class BaseWallpaperApi {
     // ============================================================================
 
     generateBackgroundId(): string {
-        return `${this.getId()}-${Date.now()}`;
+        return generateId(this.getId());
     }
 
     generateBackgroundName(): string {
         return `${this.getName()} - ${new Date().toLocaleString()}`;
+    }
+
+    /**
+     * 安全地将未知值转换为字符串
+     */
+    protected safeString(value: unknown): string {
+        if (value === null || value === undefined) {
+            return "";
+        }
+        if (typeof value === "string") {
+            return value;
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+            return String(value);
+        }
+        return "";
     }
 
     protected saveConfig(): void {
@@ -282,9 +344,9 @@ export abstract class BaseWallpaperApi {
             }
 
             if (images.length < imageNum) {
-                await this.updateImageCache();
-                if (this.wallpaperImageCache.length === 0) {
-                    break; // 没有更多图片了
+                const updated = await this.updateImageCache();
+                if (!updated || this.wallpaperImageCache.length === 0) {
+                    break; // 获取失败或没有更多图片
                 }
                 this.curDataIndex = 0;
             }

@@ -5,9 +5,9 @@ import type { TimeRule } from "../types";
 export class TimeRuleModal extends Modal {
     rule: TimeRule;
     onSubmit: (rule: { name: string; startTime: string; endTime: string }) => void;
-    nameInput: HTMLInputElement;
-    startTimeInput: HTMLInputElement;
-    endTimeInput: HTMLInputElement;
+    nameInput!: HTMLInputElement;
+    startTimeInput!: HTMLInputElement;
+    endTimeInput!: HTMLInputElement;
 
     constructor(
         app: App,

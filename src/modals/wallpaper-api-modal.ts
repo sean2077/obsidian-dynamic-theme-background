@@ -1,4 +1,6 @@
 import { App, Modal, Notice } from "obsidian";
+import { logger } from "../core/logger";
+import { generateId } from "../utils/utils";
 import { t } from "../i18n";
 import {
     apiManager,
@@ -20,23 +22,23 @@ export class WallpaperApiEditorModal extends Modal {
     onSubmit: (apiConfig: WallpaperApiConfig) => void;
 
     // 基础配置输入元素
-    nameInput: HTMLInputElement;
-    descInput: HTMLInputElement; // 可选描述输入
-    typeSelect: HTMLSelectElement;
-    urlInput: HTMLInputElement;
+    nameInput!: HTMLInputElement;
+    descInput!: HTMLInputElement; // 可选描述输入
+    typeSelect!: HTMLSelectElement;
+    urlInput!: HTMLInputElement;
     // Headers配置
-    headersContainer: HTMLDivElement;
+    headersContainer!: HTMLDivElement;
     headerInputs: Array<{ key: HTMLInputElement; value: HTMLInputElement }> = [];
 
     // 参数配置容器的引用
-    paramsSectionContainer: HTMLElement;
+    paramsSectionContainer!: HTMLElement;
     // 动态参数输入元素映射
     paramInputs: Map<string, HTMLElement> = new Map();
     // 额外参数输入
-    extraParamsTextarea: HTMLTextAreaElement;
+    extraParamsTextarea!: HTMLTextAreaElement;
 
     // 自定义设置容器的引用
-    customSettingsSectionContainer: HTMLElement;
+    customSettingsSectionContainer!: HTMLElement;
     // 自定义设置输入元素
     customSettingsInputs: Map<string, HTMLElement> = new Map();
 
@@ -400,7 +402,7 @@ export class WallpaperApiEditorModal extends Modal {
                 try {
                     currentValue = descriptor.fromApiValue(currentValue as ApiValueType);
                 } catch (error) {
-                    console.warn(`Failed to convert value for ${descriptor.key}:`, error);
+                    logger.warn(`Failed to convert value for ${descriptor.key}:`, error);
                     currentValue = descriptor.defaultValue;
                 }
             }
@@ -620,7 +622,7 @@ export class WallpaperApiEditorModal extends Modal {
         });
 
         return {
-            id: this.apiConfig.id || `api-${Date.now()}`,
+            id: this.apiConfig.id || generateId("api"),
             name: this.nameInput.value || t("api_modal_unnamed_api"),
             description: this.descInput.value || "",
             type: this.typeSelect.value as WallpaperApiType,
@@ -718,14 +720,15 @@ export class WallpaperApiEditorModal extends Modal {
                 return;
             }
 
-            // 这里需临时创建个实例来测试
-            await apiManager.createApi(config);
-            // 如果能成功启用则测试通过
-            await apiManager.enableApi(config.id);
+            // 使用临时 ID 避免覆盖同 ID 的已有实例
+            const testConfig = { ...config, id: generateId("api-test") };
+
+            await apiManager.createApi(testConfig);
+            await apiManager.enableApi(testConfig.id);
 
             new Notice(t("api_modal_test_successful"));
 
-            apiManager.deleteApi(config.id); // 测试后删除临时实例
+            apiManager.deleteApi(testConfig.id);
         } catch (error) {
             new Notice(t("api_modal_test_failed", { error: (error as Error).message }));
         }

@@ -3,6 +3,7 @@
  */
 
 import { Notice, requestUrl } from "obsidian";
+import { logger } from "../../core/logger";
 import { t } from "../../i18n";
 import {
     apiRegistry,
@@ -221,14 +222,14 @@ export class PexelsApi extends BaseWallpaperApi {
             }
 
             if (!response || !response.photos || !Array.isArray(response.photos)) {
-                console.warn("Pexels API initialization failed: Invalid response format.");
+                logger.warn("Pexels API initialization failed: Invalid response format.");
                 return false;
             }
 
-            // 更新分页信息
+            // 更新分页信息（先更新 perPage，再计算 totalPages）
+            this.perPage = Number(this.params.per_page) || 15;
             this.totalPages = response.total_results ? Math.ceil(response.total_results / this.perPage) : -1;
             this.totalCount = response.total_results ?? -1;
-            this.perPage = Number(this.params.per_page) || 15;
 
             new Notice(
                 t("api_initialized_notice", {
@@ -238,57 +239,26 @@ export class PexelsApi extends BaseWallpaperApi {
                 })
             );
 
-            // 初始化数据缓存
-            this.wallpaperImageCache = [];
-            this.curDataIndex = 0;
-            this.currentPage = 1;
-
-            this.initialized = true;
+            this.finishInit();
             return true;
         } catch (error) {
-            console.warn("Pexels API initialization failed:", error);
+            logger.warn("Pexels API initialization failed:", error);
             return false;
         }
-    }
-
-    deinit(): Promise<boolean> {
-        if (!this.initialized) {
-            return Promise.resolve(true);
-        }
-
-        // 清理缓存数据
-        this.wallpaperImageCache = [];
-        this.curDataIndex = 0;
-        this.currentPage = 1;
-
-        this.initialized = false;
-        return Promise.resolve(true);
-    }
-
-    async updateImageCache(): Promise<boolean> {
-        // 如果已经到最后一页了，跳到第一页
-        if (this.totalPages > 0 && this.currentPage > this.totalPages) {
-            this.currentPage = 1;
-        }
-
-        let success = false;
-        if (this.params.query) {
-            // 有搜索查询，使用搜索接口
-            success = await this.fetchAndCacheSearchResults(this.currentPage);
-        } else {
-            // 没有搜索查询，使用精选接口
-            success = await this.fetchAndCacheCuratedPhotos(this.currentPage);
-        }
-
-        if (success) {
-            this.currentPage += 1;
-        }
-        return success;
     }
 
     // ============================================================================
     // 辅助方法
     // ============================================================================
+
+    protected async fetchPage(page: number): Promise<boolean> {
+        const query = this.params.query as string | undefined;
+        if (query && query.trim() !== "") {
+            return this.fetchAndCacheSearchResults(page);
+        } else {
+            return this.fetchAndCacheCuratedPhotos(page);
+        }
+    }
 
     // 拉取搜索结果并缓存
     private async fetchAndCacheSearchResults(page = this.currentPage): Promise<boolean> {
@@ -296,7 +266,7 @@ export class PexelsApi extends BaseWallpaperApi {
             const data = await this.fetchSearchResults(page);
 
             if (!data || !data.photos || !Array.isArray(data.photos)) {
-                console.warn("Invalid search response format from Pexels API");
+                logger.warn("Invalid search response format from Pexels API");
                 return false;
             }
 
@@ -310,7 +280,7 @@ export class PexelsApi extends BaseWallpaperApi {
 
             return true;
         } catch (error) {
-            console.warn(`Error fetching search results from Pexels API:`, error);
+            logger.warn("Error fetching search results from Pexels API:", error);
             return false;
         }
     }
@@ -320,8 +290,9 @@ export class PexelsApi extends BaseWallpaperApi {
         try {
             const data = await this.fetchCuratedPhotos(page);
 
-            if (!data || !data.photos || !Array.isArray(data.photos)) {
-                console.warn("Invalid curated photos response format from Pexels API");
+            if (!data || !data.photos || !Array.isArray(data.photos) || data.photos.length === 0) {
+                logger.warn("Invalid or empty curated photos response from Pexels API");
+                this.currentPage = 1; // 重置页码以便下次从头获取
                 return false;
             }
 
@@ -331,7 +302,7 @@ export class PexelsApi extends BaseWallpaperApi {
 
             return true;
         } catch (error) {
-            console.warn(`Error fetching curated photos from Pexels API:`, error);
+            logger.warn("Error fetching curated photos from Pexels API:", error);
             return false;
         }
     }
@@ -377,7 +348,7 @@ export class PexelsApi extends BaseWallpaperApi {
         queryParams.append("per_page", String(this.params.per_page || this.perPage));
 
         const url = `${this.buildEndpointUrl("curated")}?${queryParams.toString()}`;
-        console.debug(`Fetching Pixabay curated photos from: ${url}`);
+        logger.debug(`Fetching Pexels curated photos from: ${url}`);
         const response = await requestUrl({
             url,
             headers: {
@@ -385,20 +356,6 @@ export class PexelsApi extends BaseWallpaperApi {
             },
         });
         return response.json;
-    }
-
-    // 安全地将未知值转换为字符串，避免对象被转换为 [object Object]
-    private safeString(value: unknown): string {
-        if (value === null || value === undefined) {
-            return "";
-        }
-        if (typeof value === "string") {
-            return value;
-        }
-        if (typeof value === "number" || typeof value === "boolean") {
-            return String(value);
-        }
-        return "";
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

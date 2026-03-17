@@ -3,6 +3,7 @@
  */
 
 import { Notice, requestUrl } from "obsidian";
+import { logger } from "../../core/logger";
 import { t } from "../../i18n";
 import {
     apiRegistry,
@@ -204,7 +205,7 @@ export class UnsplashApi extends BaseWallpaperApi {
             // 测试API连通性 - 获取随机图片
             const response = await this.fetchRandomPhotos(1);
             if (!response || !Array.isArray(response) || response.length === 0) {
-                console.warn("Unsplash API initialization failed: No response from random endpoint.");
+                logger.warn("Unsplash API initialization failed: No response from random endpoint.");
                 return false;
             }
 
@@ -212,7 +213,7 @@ export class UnsplashApi extends BaseWallpaperApi {
             if (this.params.query) {
                 const searchResp = await this.fetchSearchResults(1);
                 if (!searchResp) {
-                    console.warn("Unsplash API initialization failed: No response from search endpoint.");
+                    logger.warn("Unsplash API initialization failed: No response from search endpoint.");
                     return false;
                 }
                 this.totalPages = searchResp.total_pages ?? -1;
@@ -233,48 +234,11 @@ export class UnsplashApi extends BaseWallpaperApi {
 
             this.perPage = Number(this.params.per_page) || 10;
 
-            // 初始化数据缓存
-            this.wallpaperImageCache = [];
-            this.curDataIndex = 0;
-            this.currentPage = 1;
-
-            this.initialized = true;
+            this.finishInit();
             return true;
         } catch (error) {
-            console.warn("Unsplash API initialization failed:", error);
+            logger.warn("Unsplash API initialization failed:", error);
             return false;
-        }
-    }
-
-    deinit(): Promise<boolean> {
-        if (!this.initialized) {
-            return Promise.resolve(true);
-        }
-
-        // 清理缓存数据
-        this.wallpaperImageCache = [];
-        this.curDataIndex = 0;
-        this.currentPage = 1;
-
-        this.initialized = false;
-        return Promise.resolve(true);
-    }
-
-    async updateImageCache(): Promise<boolean> {
-        // 如果有搜索查询，使用搜索接口
-        if (this.params.query) {
-            // 如果已经到最后一页了，跳到第一页
-            if (this.totalPages > 0 && this.currentPage > this.totalPages) {
-                this.currentPage = 1;
-            }
-            const success = await this.fetchAndCacheSearchResults(this.currentPage);
-            if (success) {
-                this.currentPage += 1;
-            }
-            return success;
-        } else {
-            // 没有搜索查询，使用随机图片接口
-            return await this.fetchAndCacheRandomPhotos();
         }
     }
 
@@ -282,13 +246,22 @@ export class UnsplashApi extends BaseWallpaperApi {
     // 辅助方法
     // ============================================================================
 
+    protected async fetchPage(page: number): Promise<boolean> {
+        const query = this.params.query as string | undefined;
+        if (query && query.trim() !== "") {
+            return this.fetchAndCacheSearchResults(page);
+        } else {
+            return this.fetchAndCacheRandomPhotos();
+        }
+    }
+
     // 拉取搜索结果并缓存
     private async fetchAndCacheSearchResults(page = this.currentPage): Promise<boolean> {
         try {
             const data = await this.fetchSearchResults(page);
 
             if (!data || !data.results || !Array.isArray(data.results)) {
-                console.warn("Invalid search response format from Unsplash API");
+                logger.warn("Invalid search response format from Unsplash API");
                 return false;
             }
 
@@ -302,7 +275,7 @@ export class UnsplashApi extends BaseWallpaperApi {
 
             return true;
         } catch (error) {
-            console.warn(`Error fetching search results from Unsplash API:`, error);
+            logger.warn("Error fetching search results from Unsplash API:", error);
             return false;
         }
     }
@@ -313,7 +286,7 @@ export class UnsplashApi extends BaseWallpaperApi {
             const photos = await this.fetchRandomPhotos(this.perPage);
 
             if (!photos || !Array.isArray(photos)) {
-                console.warn("Invalid random photos response format from Unsplash API");
+                logger.warn("Invalid random photos response format from Unsplash API");
                 return false;
             }
 
@@ -323,7 +296,7 @@ export class UnsplashApi extends BaseWallpaperApi {
 
             return true;
         } catch (error) {
-            console.warn(`Error fetching random photos from Unsplash API:`, error);
+            logger.warn("Error fetching random photos from Unsplash API:", error);
             return false;
         }
     }
@@ -356,7 +329,7 @@ export class UnsplashApi extends BaseWallpaperApi {
         }
 
         const url = `${this.buildEndpointUrl("search")}?${queryParams.toString()}`;
-        console.debug(`Fetching Unsplash search results from: ${url}`);
+        logger.debug(`Fetching Unsplash search results from: ${url}`);
         const response = await requestUrl({ url });
         return response.json;
     }
@@ -384,23 +357,9 @@ export class UnsplashApi extends BaseWallpaperApi {
         }
 
         const url = `${this.buildEndpointUrl("random")}?${queryParams.toString()}`;
-        console.debug(`Fetching Unsplash random photos from: ${url}`);
+        logger.debug(`Fetching Unsplash random photos from: ${url}`);
         const response = await requestUrl({ url });
         return response.json;
-    }
-
-    // 安全地将未知值转换为字符串，避免对象被转换为 [object Object]
-    private safeString(value: unknown): string {
-        if (value === null || value === undefined) {
-            return "";
-        }
-        if (typeof value === "string") {
-            return value;
-        }
-        if (typeof value === "number" || typeof value === "boolean") {
-            return String(value);
-        }
-        return "";
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

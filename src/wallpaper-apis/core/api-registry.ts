@@ -3,6 +3,7 @@
  * 简化设计：直接使用类类型，无需复杂接口
  */
 
+import { logger } from "../../core/logger";
 import type { BaseWallpaperApi } from "./base-api";
 import type {
     WallpaperApiConfig,
@@ -70,7 +71,7 @@ class ApiRegistry {
     createInstance(type: WallpaperApiType, config: WallpaperApiConfig): BaseWallpaperApi | null {
         const ApiClass = this.apiClasses.get(type);
         if (!ApiClass) {
-            console.warn(`API type "${type}" is not registered`);
+            logger.warn(`API type "${type}" is not registered`);
             return null;
         }
         return new ApiClass(config);

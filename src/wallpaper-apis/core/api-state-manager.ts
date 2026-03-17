@@ -3,6 +3,8 @@
  * 专门用于管理API的配置状态、实例状态和UI状态之间的同步
  */
 
+import { logger } from "../../core/logger";
+
 /**
  * API状态订阅者
  */
@@ -66,7 +68,7 @@ export class ApiStateManager {
                                 await result;
                             }
                         } catch (error) {
-                            console.warn(`DTB: Error in state change callback for ${subscriber.name}:`, error);
+                            logger.warn(`Error in state change callback for ${subscriber.name}:`, error);
                         }
                     });
 
@@ -77,7 +79,7 @@ export class ApiStateManager {
             // 并发执行所有回调，但不等待结果（火后即忘模式）
             if (callbackPromises.length > 0) {
                 void Promise.all(callbackPromises).catch((error) => {
-                    console.warn("DTB: Unexpected error in state notification batch:", error);
+                    logger.warn("Unexpected error in state notification batch:", error);
                 });
             }
         }, 0);
