@@ -15,6 +15,15 @@ import {
     WallpaperImage,
 } from "../core";
 
+interface WallhavenResponse {
+    data?: Record<string, unknown>[];
+    meta?: {
+        last_page?: number;
+        per_page?: number;
+        total?: number;
+    };
+}
+
 export class WallhavenApi extends BaseWallpaperApi {
     type: WallpaperApiType = WallpaperApiType.Wallhaven;
 
@@ -96,7 +105,7 @@ export class WallhavenApi extends BaseWallpaperApi {
                     result += arr.includes("general") ? "1" : "0";
                     result += arr.includes("anime") ? "1" : "0";
                     result += arr.includes("people") ? "1" : "0";
-                    return result || (defaultParams.categories as string);
+                    return result || (defaultParams.categories);
                 },
                 fromApiValue: (apiValue) => {
                     const str = apiValue?.toString() ?? (defaultParams.categories as string);
@@ -124,7 +133,7 @@ export class WallhavenApi extends BaseWallpaperApi {
                     result += arr.includes("sfw") ? "1" : "0";
                     result += arr.includes("sketchy") ? "1" : "0";
                     result += arr.includes("nsfw") ? "1" : "0";
-                    return result || (defaultParams.purity as string);
+                    return result || (defaultParams.purity);
                 },
                 fromApiValue: (apiValue) => {
                     const str = apiValue?.toString() ?? (defaultParams.purity as string);
@@ -345,13 +354,14 @@ export class WallhavenApi extends BaseWallpaperApi {
     }
 
     // 搜索请求, 返回 response.json
-    private async fetchSearchResults(page = this.currentPage) {
+    private async fetchSearchResults(page = this.currentPage): Promise<WallhavenResponse> {
         // 合并参数并使用基类方法构建查询字符串
         const allParams = { ...this.params, page };
         const url = `${this.buildEndpointUrl("search")}?${this.buildUrlParams(allParams)}`;
         logger.debug(`Fetching Wallhaven search results from: ${url}`);
         const response = await requestUrl({ url });
-        return response.json;
+        const data: unknown = response.json;
+        return data as WallhavenResponse;
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

@@ -54,7 +54,7 @@ export class ApiStateManager {
      */
     notify(apiId: string, state: ApiState): void {
         // 立即返回，异步执行所有回调以避免阻塞调用者
-        setTimeout(() => {
+        window.setTimeout(() => {
             const callbackPromises: Promise<void>[] = [];
 
             for (const { subscriber, callback } of this.listeners.values()) {

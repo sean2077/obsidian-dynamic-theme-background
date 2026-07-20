@@ -18,7 +18,7 @@ export default {
     // ===== 外观设置 =====
     appearance_settings_title: "Appearance",
     appearance_settings_hint:
-        "💡 global appearance settings. These act as defaults and have lower priority than per-background overrides. If changes here seem ineffective, check whether the currently active background has its own appearance overrides.",
+        "💡 Global appearance settings. These act as defaults and have lower priority than per-background overrides. If changes here seem ineffective, check whether the currently active background has its own appearance overrides.",
     blur_depth_name: "Background blur",
     blur_depth_desc: "Set the background blurriness, from 0 to 30.",
     reset_blur_tooltip: "Reset to default blur",
@@ -68,7 +68,7 @@ export default {
     reset_time_rules_button: "Restore defaults",
     reset_time_rules_tooltip: "Reset the time slot rules to their default settings.",
     time_rule_hint:
-        "💡 when time slot rules overlap, the first matching rule takes precedence. The indicator 🔥 means the current active rule.",
+        "💡 When time slot rules overlap, the first matching rule takes precedence. The indicator 🔥 means the current active rule.",
     rule_name_label: "Rule name:",
     start_time_label: "Start time (hh:mm):",
     end_time_label: "End time (hh:mm):",
@@ -91,7 +91,7 @@ export default {
     restore_default_bg_no_new: "All default backgrounds already exist in the list",
     add_folder_modal_title: "Add images from folder",
     folder_path_label: "Folder path (vault internal path):",
-    folder_path_placeholder: "e.g., assets/images or photos",
+    folder_path_placeholder: "For example, assets/images or photos",
     folder_scan_success: "🎉 Successfully added {count} images from folder",
     folder_scan_error: "Failed to scan folder: {error}",
     folder_not_found: "Folder not found or empty",
@@ -102,11 +102,11 @@ export default {
     add_modal_title_gradient: "Add gradient background",
     bg_name_label: "Background name:",
     image_url_label: "Image URL (remote link or vault internal path):",
-    color_value_label: "Color value (e.g. #ff0000):",
-    gradient_css_label: "CSS gradient (e.g. Linear-gradient(45deg, #ff0000, #0000ff)):",
+    color_value_label: "Color value, for example #ff0000:",
+    gradient_css_label: "CSS gradient, for example linear-gradient(45deg, #ff0000, #0000ff):",
     select_background_option: "Select background",
     background_management_hint:
-        "💡 tip: you can drag background items to reorder them; the background with 🔥 indicator is the currently applied background.",
+        "💡 Tip: you can drag background items to reorder them; the background with 🔥 indicator is the currently applied background.",
     drag_handle_tooltip: "Drag to reorder",
     random_wallpaper_settings_title: "Random wallpaper",
     enable_random_wallpaper_name: "Enable random wallpaper",
@@ -123,9 +123,9 @@ export default {
     add_api_button: "Add API",
     restore_default_apis_tooltip:
         "Restore the default wallpaper APIs provided by the plugin (will not overwrite existing APIs)",
-    restore_default_apis_success: "🎉 successfully restored default wallpaper APIs",
+    restore_default_apis_success: "🎉 Successfully restored default wallpaper APIs",
     wallpaper_api_hint:
-        "💡 you can add multiple API instances of the same type with different parameters to get different types of wallpapers.",
+        "💡 You can add multiple API instances of the same type with different parameters to get different types of wallpapers.",
     add_api_bg_tooltip: "Click to add a new wallpaper from API",
     wallpaper_api_url_name: "Wallpaper API URL",
     wallpaper_api_url_desc:
@@ -136,22 +136,22 @@ export default {
     test_api_connection_desc: "Test whether current API settings can fetch wallpapers normally",
 
     // ===== 命令相关 =====
-    command_open_settings_tab_name: "Dtb: open settings in new tab",
-    command_toggle_name: "Dtb: toggle dynamic background",
-    command_toggle_enabled_notice: "✅ dtb: dynamic background enabled",
-    command_toggle_disabled_notice: "❌ dtb: dynamic background disabled",
-    command_next_bg_name: "Dtb: switch to next background",
+    command_open_settings_tab_name: "DTB: open settings in new tab",
+    command_toggle_name: "DTB: toggle dynamic background",
+    command_toggle_enabled_notice: "✅ DTB: dynamic background enabled",
+    command_toggle_disabled_notice: "❌ DTB: dynamic background disabled",
+    command_next_bg_name: "DTB: switch to next background",
     command_next_bg_notice: "🎨 DTB: Background switched to: {bgName}",
-    command_test_bg_name: "Dtb: test current time period background",
+    command_test_bg_name: "DTB: test current time period background",
     command_test_bg_success_notice: "🕒 DTB: Current period: {ruleName}, background: {bgName}",
     command_test_bg_no_bg_notice: "⚠️ DTB: No background set for period {ruleName}",
-    command_test_bg_no_rule_notice: "⚠️ dtb: no matching rule for the current time",
-    command_test_bg_not_supported_notice: "⚠️ dtb: current mode does not support background testing",
-    command_fetch_random_wallpaper_name: "Dtb: fetch random wallpaper",
-    command_fetch_random_wallpaper_notice_success: "🎉 dtb: applied random wallpaper",
+    command_test_bg_no_rule_notice: "⚠️ DTB: no matching rule for the current time",
+    command_test_bg_not_supported_notice: "⚠️ DTB: current mode does not support background testing",
+    command_fetch_random_wallpaper_name: "DTB: fetch random wallpaper",
+    command_fetch_random_wallpaper_notice_success: "🎉 DTB: applied random wallpaper",
     command_fetch_random_wallpaper_notice_failed:
-        "❌ dtb: failed to fetch random wallpaper, please check API settings and network connection",
-    command_save_current_background_name: "Dtb: save current background",
+        "❌ DTB: failed to fetch random wallpaper, please check API settings and network connection",
+    command_save_current_background_name: "DTB: save current background",
 
     // ===== 通用按钮文本 =====
     button_cancel: "Cancel",
@@ -182,12 +182,12 @@ export default {
     dark_blue_gray_gradient_bg: "Dark blue gray gradient",
 
     // ===== Notice 消息 =====
-    notice_all_fields_required: "⚠️ dtb: please provide all required fields",
-    notice_name_and_value_required: "⚠️ dtb: please provide both name and value",
-    notice_valid_folder_path_required: "⚠️ dtb: please provide a valid folder path",
-    notice_folder_not_found: "❌ dtb: folder not found",
+    notice_all_fields_required: "⚠️ DTB: please provide all required fields",
+    notice_name_and_value_required: "⚠️ DTB: please provide both name and value",
+    notice_valid_folder_path_required: "⚠️ DTB: please provide a valid folder path",
+    notice_folder_not_found: "❌ DTB: folder not found",
     notice_folder_added_successfully: '🎉 DTB: Images from folder "{folderPath}" added successfully',
-    notice_error_adding_folder_images: "❌ dtb: error adding images from folder",
+    notice_error_adding_folder_images: "❌ DTB: error adding images from folder",
     notice_api_failed_enable_disable: "❌ DTB: Failed to {action} {apiName}",
     notice_api_success_enable_disable: "🎉 DTB: Successfully {action} {apiName}",
     notice_api_error_enable_disable: "❌ DTB: Error {action} {apiName}",
@@ -196,13 +196,13 @@ export default {
     notice_api_success_applied: "🎉 DTB: Successfully applied wallpaper from {apiName}",
     notice_api_failed_fetch: "❌ DTB: Failed to fetch wallpaper from {apiName}",
     notice_api_error_fetch: "❌ DTB: Error fetching wallpaper from {apiName}: {error}",
-    notice_save_background_no_need_save_local: "🎉 dtb: current background is a local image, no need to save",
+    notice_save_background_no_need_save_local: "🎉 DTB: current background is a local image, no need to save",
     notice_save_background_valid_folder_path_required:
-        "⚠️ dtb: please provide a valid folder path to save the wallpaper",
-    notice_save_background_only_image_supported: "⚠️ dtb: only image backgrounds are supported for saving",
+        "⚠️ DTB: please provide a valid folder path to save the wallpaper",
+    notice_save_background_only_image_supported: "⚠️ DTB: only image backgrounds are supported for saving",
     notice_save_background_success: "🎉 DTB: Current background saved to {folderPath}",
     notice_save_background_failed:
-        "❌ dtb: failed to save current background, please check folder path and permissions",
+        "❌ DTB: failed to save current background, please check folder path and permissions",
     notice_save_background_overwrite_existing_file: "⚠️ DTB: File {filePath} already exists, do you want to overwrite?",
     notice_save_background_converted:
         '🎉 DTB: Current background has been converted to value from "{oldPath}" to "{newPath}", the original link has been saved to the remoteUrl property as a backup, if the local file does not exist later, it will fall back to using the remote link',
@@ -222,7 +222,7 @@ export default {
     api_modal_header_value: "Header value",
     api_modal_api_parameters: "API parameters",
     api_modal_api_documentation: "📖 API documentation",
-    api_modal_token_url: "🔑 token URL",
+    api_modal_token_url: "🔑 Token URL",
     api_modal_extra_params: "Extra parameters (JSON)",
     api_modal_extra_params_desc: "Additional parameters not covered above, in JSON format",
     api_modal_extra_params_placeholder: '{\n  "customParam": "value",\n  "anotherParam": 123\n}',

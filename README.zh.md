@@ -46,6 +46,8 @@
 
 ## 安装
 
+> 需要 Obsidian 1.7.2 或更高版本。
+
 ### 社区市场（审核中）
 
 > 当前在官方审核队列。跟踪进度：[obsidian-releases#7359](https://github.com/obsidianmd/obsidian-releases/pull/7359)

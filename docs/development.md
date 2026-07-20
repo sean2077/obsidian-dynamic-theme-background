@@ -21,7 +21,7 @@ Install the locked dependency set with `npm ci`.
 |---|---|---|
 | Development bundle | `npm run dev` | Starts the esbuild watcher and writes generated `main.js`. |
 | Production/type check | `npm run build` | Runs TypeScript checking, then a minified production bundle. |
-| TypeScript lint | `npm run lint` | Includes Obsidian-specific rules and promise-safety checks. |
+| Project lint | `npm run lint` | Scans the manifest and TypeScript sources with the current Obsidian-specific and promise-safety rules. |
 | CSS lint | `npm run lint:css` | Applies the repository's selector and style rules. |
 | TypeScript formatting | `npm run fmt` | Mutates all `src/**/*.ts`; inspect the resulting diff. |
 

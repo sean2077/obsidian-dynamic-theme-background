@@ -15,6 +15,11 @@ import {
     WallpaperImage,
 } from "../core";
 
+interface PexelsResponse {
+    photos?: Record<string, unknown>[];
+    total_results?: number;
+}
+
 export class PexelsApi extends BaseWallpaperApi {
     type: WallpaperApiType = WallpaperApiType.Pexels;
 
@@ -308,7 +313,7 @@ export class PexelsApi extends BaseWallpaperApi {
     }
 
     // 搜索请求
-    private async fetchSearchResults(page = this.currentPage) {
+    private async fetchSearchResults(page = this.currentPage): Promise<PexelsResponse> {
         const queryParams = new URLSearchParams();
 
         // 必需参数
@@ -337,11 +342,12 @@ export class PexelsApi extends BaseWallpaperApi {
                 Authorization: String(this.params.api_key || ""),
             },
         });
-        return response.json;
+        const data: unknown = response.json;
+        return data as PexelsResponse;
     }
 
     // 精选图片请求
-    private async fetchCuratedPhotos(page = this.currentPage) {
+    private async fetchCuratedPhotos(page = this.currentPage): Promise<PexelsResponse> {
         const queryParams = new URLSearchParams();
 
         queryParams.append("page", String(page));
@@ -355,7 +361,8 @@ export class PexelsApi extends BaseWallpaperApi {
                 Authorization: String(this.params.api_key || ""),
             },
         });
-        return response.json;
+        const data: unknown = response.json;
+        return data as PexelsResponse;
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

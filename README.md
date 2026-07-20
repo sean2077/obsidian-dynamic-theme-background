@@ -46,6 +46,8 @@
 
 ## Installation
 
+> Requires Obsidian 1.7.2 or later.
+
 ### Marketplace (Pending)
 
 > Currently in Obsidian review queue. Track: [obsidian-releases#7359](https://github.com/obsidianmd/obsidian-releases/pull/7359)

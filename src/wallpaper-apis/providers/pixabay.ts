@@ -15,6 +15,12 @@ import {
     WallpaperImage,
 } from "../core";
 
+interface PixabayResponse {
+    hits?: Record<string, unknown>[];
+    total?: number;
+    totalHits?: number;
+}
+
 export class PixabayApi extends BaseWallpaperApi {
     type: WallpaperApiType = WallpaperApiType.Pixabay;
 
@@ -358,7 +364,7 @@ export class PixabayApi extends BaseWallpaperApi {
     }
 
     // 搜索请求
-    private async fetchSearchResults(page = this.currentPage) {
+    private async fetchSearchResults(page = this.currentPage): Promise<PixabayResponse> {
         const queryParams = new URLSearchParams();
 
         // 必需参数
@@ -404,7 +410,8 @@ export class PixabayApi extends BaseWallpaperApi {
         const url = `${this.buildEndpointUrl("search")}?${queryParams.toString()}`;
         logger.debug(`Fetching Pixabay search results from: ${url}`);
         const response = await requestUrl({ url });
-        return response.json;
+        const data: unknown = response.json;
+        return data as PixabayResponse;
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

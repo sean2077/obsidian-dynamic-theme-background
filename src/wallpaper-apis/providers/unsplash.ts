@@ -15,6 +15,12 @@ import {
     WallpaperImage,
 } from "../core";
 
+interface UnsplashSearchResponse {
+    results?: Record<string, unknown>[];
+    total?: number;
+    total_pages?: number;
+}
+
 export class UnsplashApi extends BaseWallpaperApi {
     type: WallpaperApiType = WallpaperApiType.Unsplash;
 
@@ -302,7 +308,7 @@ export class UnsplashApi extends BaseWallpaperApi {
     }
 
     // 搜索请求
-    private async fetchSearchResults(page = this.currentPage) {
+    private async fetchSearchResults(page = this.currentPage): Promise<UnsplashSearchResponse> {
         const queryParams = new URLSearchParams();
 
         // 必需参数
@@ -331,11 +337,12 @@ export class UnsplashApi extends BaseWallpaperApi {
         const url = `${this.buildEndpointUrl("search")}?${queryParams.toString()}`;
         logger.debug(`Fetching Unsplash search results from: ${url}`);
         const response = await requestUrl({ url });
-        return response.json;
+        const data: unknown = response.json;
+        return data as UnsplashSearchResponse;
     }
 
     // 随机图片请求
-    private async fetchRandomPhotos(count = 1) {
+    private async fetchRandomPhotos(count = 1): Promise<Record<string, unknown>[]> {
         const queryParams = new URLSearchParams();
 
         // 必需参数
@@ -359,7 +366,8 @@ export class UnsplashApi extends BaseWallpaperApi {
         const url = `${this.buildEndpointUrl("random")}?${queryParams.toString()}`;
         logger.debug(`Fetching Unsplash random photos from: ${url}`);
         const response = await requestUrl({ url });
-        return response.json;
+        const data: unknown = response.json;
+        return data as Record<string, unknown>[];
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

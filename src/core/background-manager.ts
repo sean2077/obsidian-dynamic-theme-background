@@ -47,14 +47,14 @@ export class BackgroundManager {
      */
     stop(): void {
         if (this.intervalId) {
-            clearInterval(this.intervalId);
+            window.clearInterval(this.intervalId);
             this.intervalId = null;
         }
         if (this.timeoutId) {
-            clearTimeout(this.timeoutId);
+            window.clearTimeout(this.timeoutId);
             this.timeoutId = null;
         }
-        document.body.classList.remove("dtb-enabled");
+        activeDocument.body.classList.remove("dtb-enabled");
         logger.debug("Background manager stopped");
     }
 
@@ -64,8 +64,8 @@ export class BackgroundManager {
     start(settings: DTBSettings): void {
         this.stop();
 
-        if (!document.body.classList.contains("dtb-enabled")) {
-            document.body.classList.add("dtb-enabled");
+        if (!activeDocument.body.classList.contains("dtb-enabled")) {
+            activeDocument.body.classList.add("dtb-enabled");
         }
 
         // 立即执行一次更新
