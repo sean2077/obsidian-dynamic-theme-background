@@ -1,7 +1,5 @@
 # AI tools
 .serena
-.claude
-CLAUDE.md
 
 .internal/
 
@@ -27,3 +25,6 @@ data.json
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
+.claude/settings.local.json
+.worktrees/
+.claude/allow-trunk-edit
