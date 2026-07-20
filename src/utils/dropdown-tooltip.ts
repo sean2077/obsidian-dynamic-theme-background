@@ -163,7 +163,7 @@ export function addEnhancedDropdownTooltip(
     });
 
     // 设置初始选中项的 tooltip
-    setTimeout(updateTooltip, 0);
+    window.setTimeout(updateTooltip, 0);
 }
 
 /**

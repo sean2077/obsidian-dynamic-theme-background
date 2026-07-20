@@ -1,6 +1,7 @@
 import { App, Modal, Notice } from "obsidian";
 import { logger } from "../core/logger";
 import { generateId } from "../utils/utils";
+import { isRecord } from "../utils/type-guards";
 import { t } from "../i18n";
 import {
     apiManager,
@@ -8,7 +9,6 @@ import {
     ApiValueType,
     OptionalApiValueType,
     OptionalUiValueType,
-    UiValueType,
     WallpaperApiConfig,
     WallpaperApiParamDescriptor,
     WallpaperApiType,
@@ -400,7 +400,7 @@ export class WallpaperApiEditorModal extends Modal {
             let currentValue: OptionalUiValueType = getCurrentValue(descriptor.key) ?? descriptor.defaultValue;
             if (descriptor.fromApiValue && currentValue !== undefined) {
                 try {
-                    currentValue = descriptor.fromApiValue(currentValue as ApiValueType);
+                    currentValue = descriptor.fromApiValue(currentValue);
                 } catch (error) {
                     logger.warn(`Failed to convert value for ${descriptor.key}:`, error);
                     currentValue = descriptor.defaultValue;
@@ -606,8 +606,12 @@ export class WallpaperApiEditorModal extends Modal {
         // 解析额外参数JSON
         if (this.extraParamsTextarea.value.trim()) {
             try {
-                const extraParams = JSON.parse(this.extraParamsTextarea.value);
-                Object.assign(params, extraParams);
+                const extraParams: unknown = JSON.parse(this.extraParamsTextarea.value);
+                if (isRecord(extraParams)) {
+                    Object.assign(params, extraParams);
+                } else {
+                    new Notice(t("api_modal_invalid_json"));
+                }
             } catch {
                 new Notice(t("api_modal_invalid_json"));
             }
@@ -677,9 +681,9 @@ export class WallpaperApiEditorModal extends Modal {
                         finalValue = value.join(",");
                     }
                 } else if (descriptor?.toApiValue) {
-                    finalValue = descriptor.toApiValue(value as UiValueType);
+                    finalValue = descriptor.toApiValue(value);
                 } else {
-                    finalValue = value as ApiValueType;
+                    finalValue = value;
                 }
 
                 result[key] = processValue(finalValue, descriptor);

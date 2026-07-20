@@ -155,7 +155,7 @@ export class CustomApi extends BaseWallpaperApi {
             });
 
             // 解析 JSON 响应
-            const data = response.json;
+            const data: unknown = response.json;
             return this.transformCustomResponse(data);
         } catch (error) {
             logger.error("Custom API fetch error:", error);
@@ -178,7 +178,7 @@ export class CustomApi extends BaseWallpaperApi {
             }
 
             // 使用 jsonpath-plus 提取图片URL
-            const urls = JSONPath({
+            const urls: unknown = JSONPath<unknown>({
                 path: urlJsonPath,
                 json: data as object,
                 wrap: false,
@@ -190,15 +190,15 @@ export class CustomApi extends BaseWallpaperApi {
             }
 
             // 确保结果是数组
-            const urlArray = Array.isArray(urls) ? urls : [urls];
+            const urlArray: unknown[] = Array.isArray(urls) ? urls : [urls];
 
             // 过滤并转换为图片对象数组
             return urlArray
-                .filter((url: unknown) => url && typeof url === "string")
-                .map((url: unknown, index: number) => {
+                .filter((url): url is string => typeof url === "string" && url.length > 0)
+                .map((url, index) => {
                     return {
                         id: this.generateImageId(index),
-                        url: String(url),
+                        url,
                     };
                 });
         } catch (error) {

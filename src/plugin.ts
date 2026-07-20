@@ -10,6 +10,7 @@ import { getDefaultSettings } from "./default-settings";
 import { t } from "./i18n";
 import { DTBSettingTab, DTBSettingsView, DTB_SETTINGS_VIEW_TYPE } from "./settings";
 import type { BackgroundItem, DTBSettings } from "./types";
+import { isRecord } from "./utils";
 import { apiManager } from "./wallpaper-apis";
 
 export default class DynamicThemeBackgroundPlugin extends Plugin {
@@ -79,7 +80,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
 
     async loadSettings() {
         const defaultSettings = getDefaultSettings();
-        const saved = (await this.loadData()) ?? {};
+        const loaded: unknown = await this.loadData();
+        const saved = isRecord(loaded) ? loaded : {};
         this.settings = Object.assign({}, defaultSettings, saved);
     }
 

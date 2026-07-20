@@ -23,7 +23,7 @@ export class ImageFolderSuggestModal extends SuggestModal<string> {
     }
 
     renderSuggestion(folderPath: string, el: HTMLElement) {
-        el.createEl("div", { text: folderPath });
+        el.createDiv({ text: folderPath });
     }
 
     onChooseSuggestion(folderPath: string, _evt: MouseEvent | KeyboardEvent) {

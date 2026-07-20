@@ -317,7 +317,8 @@ export class Qihoo360Api extends BaseWallpaperApi {
                 method: "GET",
             });
 
-            const data: Qihoo360CategoryResponse = response.json;
+            const json: unknown = response.json;
+            const data = json as Qihoo360CategoryResponse;
 
             if (data.errno === "0" && data.data) {
                 this.categoriesCache = data.data;
@@ -348,7 +349,8 @@ export class Qihoo360Api extends BaseWallpaperApi {
                 method: "GET",
             });
 
-            const data: Qihoo360HotSearchResponse = response.json;
+            const json: unknown = response.json;
+            const data = json as Qihoo360HotSearchResponse;
 
             if (data.error === 0 && data.data) {
                 this.hotSearchCache = data.data;
@@ -381,7 +383,8 @@ export class Qihoo360Api extends BaseWallpaperApi {
             method: "GET",
         });
 
-        const data: Qihoo360WallpaperResponse = response.json;
+        const json: unknown = response.json;
+        const data = json as Qihoo360WallpaperResponse;
 
         if (data.errno === "0" && data.data) {
             return data.data.map((item, index) => this.convertToWallpaperImage(item, index));
@@ -411,7 +414,8 @@ export class Qihoo360Api extends BaseWallpaperApi {
             method: "GET",
         });
 
-        const data: Qihoo360WallpaperResponse = response.json;
+        const json: unknown = response.json;
+        const data = json as Qihoo360WallpaperResponse;
 
         if (data.errno === "0" && data.data) {
             return data.data.map((item, index) => this.convertToWallpaperImage(item, index));
@@ -446,7 +450,8 @@ export class Qihoo360Api extends BaseWallpaperApi {
             method: "GET",
         });
 
-        const data: Qihoo360WallpaperResponse = response.json;
+        const json: unknown = response.json;
+        const data = json as Qihoo360WallpaperResponse;
 
         if (data.errno === "0" && data.data) {
             return data.data.map((item, index) => this.convertToWallpaperImage(item, index));

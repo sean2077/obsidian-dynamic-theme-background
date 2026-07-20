@@ -30,7 +30,7 @@ export class StyleManager {
             // 没有激活背景时，仍然更新遮罩变量
             const bgColorLight = hexToRgba(settings.bgColorLight, settings.bgColorOpacityLight);
             const bgColorDark = hexToRgba(settings.bgColorDark, settings.bgColorOpacityDark);
-            document.documentElement.setCssProps({
+            activeDocument.documentElement.setCssProps({
                 "--dtb-bg-image": "none",
                 "--dtb-bg-color-light": bgColorLight,
                 "--dtb-bg-color-dark": bgColorDark,
@@ -57,7 +57,7 @@ export class StyleManager {
                     bgSize = "auto";
                 }
             }
-            document.documentElement.setCssProps({
+            activeDocument.documentElement.setCssProps({
                 "--dtb-bg-image": bgCssValue,
                 "--dtb-blur-depth": `${blurDepth}px`,
                 "--dtb-brightness": `${brightness4Bg}`,
