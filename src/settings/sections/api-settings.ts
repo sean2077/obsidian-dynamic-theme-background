@@ -95,6 +95,7 @@ export class ApiSettingsSection {
             });
 
         // 添加 API 提示
+        containerEl.addClass("dtb-hint-section");
         const hint = containerEl.createDiv("dtb-hint");
         hint.textContent = t("wallpaper_api_hint");
 

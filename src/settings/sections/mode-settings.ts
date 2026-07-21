@@ -100,6 +100,7 @@ export class ModeSettingsSection {
                 });
 
             // 添加时间规则提示
+            containerEl.addClass("dtb-hint-section");
             const hint = containerEl.createDiv("dtb-hint");
             hint.textContent = t("time_rule_hint");
 

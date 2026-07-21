@@ -1,7 +1,13 @@
-import { App, SuggestModal } from "obsidian";
+import { type App, SuggestModal, type TAbstractFile, TFile, TFolder } from "obsidian";
 
-export class ImagePathSuggestModal extends SuggestModal<string> {
-    onSubmit: (imagePath: string) => void;
+const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"]);
+
+function isImageFile(file: TFile): boolean {
+    return IMAGE_EXTENSIONS.has(file.extension.toLowerCase());
+}
+
+export class ImagePathSuggestModal extends SuggestModal<TAbstractFile> {
+    private readonly onSubmit: (imagePath: string) => void;
 
     constructor(app: App, onSubmit: (imagePath: string) => void) {
         super(app);
@@ -9,32 +15,56 @@ export class ImagePathSuggestModal extends SuggestModal<string> {
         this.setPlaceholder("https://example.com/image.jpg OR path/to/image.jpg");
     }
 
-    getSuggestions(query: string): string[] {
-        if (query.trim() === "") {
+    getSuggestions(query: string): TAbstractFile[] {
+        const normalizedQuery = query.trim().replace(/^\/+/, "");
+        if (normalizedQuery === "") {
             return [];
         }
-        if (query.startsWith("http://") || query.startsWith("https://") || query.startsWith("www.")) {
+        if (
+            normalizedQuery.startsWith("http://") ||
+            normalizedQuery.startsWith("https://") ||
+            normalizedQuery.startsWith("www.")
+        ) {
             return [];
         }
-        const files = this.app.vault.getFiles();
-        const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"];
-        return files
-            .filter((file) => imageExtensions.some((ext) => file.path.toLowerCase().endsWith(ext)))
-            .map((file) => file.path)
-            .filter((path) => path.toLowerCase().includes(query.toLowerCase()))
-            .sort()
+
+        const separatorIndex = normalizedQuery.lastIndexOf("/");
+        const folderPath = separatorIndex >= 0 ? normalizedQuery.slice(0, separatorIndex) : "";
+        const nameQuery = normalizedQuery.slice(separatorIndex + 1).toLowerCase();
+        const folder = folderPath === "" ? this.app.vault.getRoot() : this.app.vault.getFolderByPath(folderPath);
+        if (!folder) return [];
+
+        return folder.children
+            .filter((entry) => entry instanceof TFolder || (entry instanceof TFile && isImageFile(entry)))
+            .filter((entry) => entry.name.toLowerCase().includes(nameQuery))
+            .sort((left, right) => {
+                const folderOrder = Number(right instanceof TFolder) - Number(left instanceof TFolder);
+                return folderOrder || left.path.localeCompare(right.path);
+            })
             .slice(0, 10);
     }
 
-    renderSuggestion(imagePath: string, el: HTMLElement) {
+    renderSuggestion(entry: TAbstractFile, el: HTMLElement): void {
         const container = el.createDiv({ cls: "dtb-suggestion" });
         const icon = container.createSpan();
-        icon.textContent = "🖼️";
+        icon.textContent = entry instanceof TFolder ? "📁" : "🖼️";
         const text = container.createSpan();
-        text.textContent = imagePath;
+        text.textContent = entry.path;
     }
 
-    onChooseSuggestion(imagePath: string, _evt: MouseEvent | KeyboardEvent) {
-        this.onSubmit(imagePath);
+    selectSuggestion(entry: TAbstractFile, evt: MouseEvent | KeyboardEvent): void {
+        if (entry instanceof TFolder) {
+            this.inputEl.value = `${entry.path}/`;
+            this.inputEl.dispatchEvent(new InputEvent("input", { bubbles: true }));
+            this.inputEl.focus();
+            return;
+        }
+        super.selectSuggestion(entry, evt);
+    }
+
+    onChooseSuggestion(entry: TAbstractFile, _evt: MouseEvent | KeyboardEvent): void {
+        if (entry instanceof TFile && isImageFile(entry)) {
+            this.onSubmit(entry.path);
+        }
     }
 }

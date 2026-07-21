@@ -92,6 +92,7 @@ export class BgManagementSection {
             );
 
         // 添加拖拽提示
+        containerEl.addClass("dtb-hint-section");
         const dragHint = containerEl.createDiv("dtb-hint");
         dragHint.textContent = t("background_management_hint");
 
@@ -379,10 +380,7 @@ export class BgManagementSection {
                 const folder = this.plugin.app.vault.getFolderByPath(folderPath);
                 if (folder) {
                     // 只获取该文件夹下的直接子文件（不递归）
-                    folderFiles = this.plugin.app.vault.getFiles().filter((file) => {
-                        const fileDir = file.path.substring(0, file.path.lastIndexOf("/"));
-                        return fileDir === folderPath;
-                    });
+                    folderFiles = folder.children.filter((entry): entry is TFile => entry instanceof TFile);
                 } else {
                     new Notice(t("folder_not_found"));
                     return;

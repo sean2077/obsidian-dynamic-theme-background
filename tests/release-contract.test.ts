@@ -18,6 +18,10 @@ void test("release CI is tag-triggered and publishes verified changelog notes", 
     assert.match(workflow, /merge-base --is-ancestor/u);
     assert.match(workflow, /npm run release:verify/u);
     assert.match(workflow, /run: npm run check/u);
+    assert.match(workflow, /attestations: write/u);
+    assert.match(workflow, /id-token: write/u);
+    assert.match(workflow, /uses: actions\/attest@v4/u);
+    assert.match(workflow, /subject-path:\s*\|\s*main\.js\s*styles\.css/u);
     assert.match(workflow, /npm run release:notes/u);
     assert.match(workflow, /gh release create/u);
     assert.match(workflow, /gh release upload "\$RELEASE_TAG" main\.js manifest\.json styles\.css --clobber/u);
