@@ -1,3 +1,9 @@
+## [2.10.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.10.1...2.10.2) (2026-07-21)
+
+### Fixes
+
+* limit image discovery to configured folders, remove unsafe TypeScript and CSS patterns, and attest published runtime assets ([b48ac2d](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/b48ac2d1533b4cf45f94e1d52d6224f531309645))
+
 ## [2.10.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.10.0...2.10.1) (2026-07-21)
 
 ### Fixes
