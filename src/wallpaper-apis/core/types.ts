@@ -88,6 +88,8 @@ export interface WallpaperImage {
     width?: number;
     height?: number;
     downloadUrl?: string;
+    /** Provider compliance endpoint called when the image is selected. */
+    trackingUrl?: string;
 }
 
 /**

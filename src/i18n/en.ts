@@ -205,7 +205,7 @@ export default {
         "❌ DTB: failed to save current background, please check folder path and permissions",
     notice_save_background_overwrite_existing_file: "⚠️ DTB: File {filePath} already exists, do you want to overwrite?",
     notice_save_background_converted:
-        '🎉 DTB: Current background has been converted to value from "{oldPath}" to "{newPath}", the original link has been saved to the remoteUrl property as a backup, if the local file does not exist later, it will fall back to using the remote link',
+        '🎉 DTB: Saved the remote background as "{newPath}". Its source URL is retained internally as a fallback.',
 
     // ===== API 模态窗口 =====
     api_modal_invalid_json: "Invalid JSON in extra parameters",
@@ -215,6 +215,8 @@ export default {
     api_modal_cannot_test_invalid: "Cannot test due to invalid configuration",
     api_modal_test_successful: "🎉 API test successful!",
     api_modal_test_failed: "API test failed: {error}",
+    api_modal_test_rejected: "The provider rejected the configuration or could not connect",
+    api_modal_test_unexpected: "An unexpected error occurred; check the developer console",
     api_modal_api_url: "API URL",
     api_modal_headers_optional: "Headers (optional)",
     api_modal_add_header: "Add header",

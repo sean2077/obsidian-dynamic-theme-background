@@ -4,6 +4,7 @@
  */
 
 import type { BackgroundItem, DTBSettings } from "../types";
+import { logger } from "./logger";
 
 /**
  * API 状态信息
@@ -66,7 +67,7 @@ export class EventBus {
             try {
                 cb(payload);
             } catch (error) {
-                console.error(`DTB EventBus: error in listener for "${event}":`, error);
+                logger.error(`Event listener failed for "${event}"`, error);
             }
         }
     }

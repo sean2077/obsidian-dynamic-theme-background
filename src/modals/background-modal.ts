@@ -1,4 +1,5 @@
 import { App, Modal, Setting } from "obsidian";
+import { preserveSliderValueVisibility } from "../core/obsidian-compat";
 import { t } from "../i18n";
 import type DynamicThemeBackgroundPlugin from "../plugin";
 import type { BackgroundItem, DTBSettings } from "../types";
@@ -166,9 +167,7 @@ export class BackgroundModal extends Modal {
             .setName(t("blur_depth_name"))
             .setDesc(t("blur_depth_desc"))
             .addSlider((slider) =>
-                slider
-                    .setLimits(0, 30, 1)
-                    .setDynamicTooltip()
+                preserveSliderValueVisibility(slider.setLimits(0, 30, 1))
                     .setValue(this.blurDepth ?? this.bgItem.blurDepth ?? this.plugin.settings.blurDepth)
                     .onChange((value: number) => {
                         this.blurDepth = value;
@@ -190,9 +189,7 @@ export class BackgroundModal extends Modal {
             .setName(t("brightness_name"))
             .setDesc(t("brightness_desc"))
             .addSlider((slider) =>
-                slider
-                    .setLimits(0, 1.5, 0.01)
-                    .setDynamicTooltip()
+                preserveSliderValueVisibility(slider.setLimits(0, 1.5, 0.01))
                     .setValue(this.brightness4Bg ?? this.bgItem.brightness4Bg ?? this.plugin.settings.brightness4Bg)
                     .onChange((value: number) => {
                         this.brightness4Bg = value;
@@ -214,9 +211,7 @@ export class BackgroundModal extends Modal {
             .setName(t("saturate_name"))
             .setDesc(t("saturate_desc"))
             .addSlider((slider) =>
-                slider
-                    .setLimits(0, 2, 0.01)
-                    .setDynamicTooltip()
+                preserveSliderValueVisibility(slider.setLimits(0, 2, 0.01))
                     .setValue(this.saturate4Bg ?? this.bgItem.saturate4Bg ?? this.plugin.settings.saturate4Bg)
                     .onChange((value: number) => {
                         this.saturate4Bg = value;
@@ -245,9 +240,7 @@ export class BackgroundModal extends Modal {
                 })
         );
         overlayRow.addSlider((slider) =>
-            slider
-                .setLimits(0, 1, 0.01)
-                .setDynamicTooltip()
+            preserveSliderValueVisibility(slider.setLimits(0, 1, 0.01))
                 .setValue(
                     this.bgColorOpacityDark ?? this.bgItem.bgColorOpacityDark ?? this.plugin.settings.bgColorOpacityDark
                 )
@@ -265,9 +258,7 @@ export class BackgroundModal extends Modal {
                 })
         );
         overlayRow.addSlider((slider) =>
-            slider
-                .setLimits(0, 1, 0.01)
-                .setDynamicTooltip()
+            preserveSliderValueVisibility(slider.setLimits(0, 1, 0.01))
                 .setValue(
                     this.bgColorOpacityLight ??
                         this.bgItem.bgColorOpacityLight ??

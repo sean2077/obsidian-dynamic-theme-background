@@ -2,24 +2,20 @@
  * 文档: https://pixabay.com/api/docs/
  */
 
-import { Notice, requestUrl } from "obsidian";
+import { Notice } from "obsidian";
 import { logger } from "../../core/logger";
 import { t } from "../../i18n";
 import {
     apiRegistry,
     BaseWallpaperApi,
+    parsePixabayResponse,
+    PixabayResponse,
     WallpaperApiEndpoints,
     WallpaperApiParamDescriptor,
     WallpaperApiParams,
     WallpaperApiType,
     WallpaperImage,
 } from "../core";
-
-interface PixabayResponse {
-    hits?: Record<string, unknown>[];
-    total?: number;
-    totalHits?: number;
-}
 
 export class PixabayApi extends BaseWallpaperApi {
     type: WallpaperApiType = WallpaperApiType.Pixabay;
@@ -353,7 +349,9 @@ export class PixabayApi extends BaseWallpaperApi {
             this.totalCount = data.total ?? -1;
 
             // 缓存当前页的数据
-            this.wallpaperImageCache = data.hits.map((image: Record<string, unknown>) => this.transformImage(image));
+            this.wallpaperImageCache = this.limitItems(data.hits).map((image: Record<string, unknown>) =>
+                this.transformImage(image)
+            );
             this.curDataIndex = 0;
 
             return true;
@@ -408,10 +406,7 @@ export class PixabayApi extends BaseWallpaperApi {
         }
 
         const url = `${this.buildEndpointUrl("search")}?${queryParams.toString()}`;
-        logger.debug(`Fetching Pixabay search results from: ${url}`);
-        const response = await requestUrl({ url });
-        const data: unknown = response.json;
-        return data as PixabayResponse;
+        return parsePixabayResponse(await this.requestJson(url));
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

@@ -1,4 +1,5 @@
 import { Setting } from "obsidian";
+import { preserveSliderValueVisibility } from "../../core/obsidian-compat";
 import { t } from "../../i18n";
 import type DynamicThemeBackgroundPlugin from "../../plugin";
 import type { DTBSettings } from "../../types";
@@ -77,10 +78,7 @@ export class BasicSettingsSection {
             .setName(t("blur_depth_name"))
             .setDesc(t("blur_depth_desc"))
             .addSlider((slider) =>
-                slider
-                    .setLimits(0, 30, 1)
-                    .setValue(this.plugin.settings.blurDepth)
-                    .setDynamicTooltip()
+                preserveSliderValueVisibility(slider.setLimits(0, 30, 1).setValue(this.plugin.settings.blurDepth))
                     .onChange(async (value: number) => {
                         this.plugin.settings.blurDepth = value;
                         await this.plugin.saveSettings();
@@ -104,10 +102,9 @@ export class BasicSettingsSection {
             .setName(t("brightness_name"))
             .setDesc(t("brightness_desc"))
             .addSlider((slider) =>
-                slider
-                    .setLimits(0, 1.5, 0.01)
-                    .setValue(this.plugin.settings.brightness4Bg)
-                    .setDynamicTooltip()
+                preserveSliderValueVisibility(
+                    slider.setLimits(0, 1.5, 0.01).setValue(this.plugin.settings.brightness4Bg)
+                )
                     .onChange(async (value: number) => {
                         this.plugin.settings.brightness4Bg = value;
                         await this.plugin.saveSettings();
@@ -131,10 +128,9 @@ export class BasicSettingsSection {
             .setName(t("saturate_name"))
             .setDesc(t("saturate_desc"))
             .addSlider((slider) =>
-                slider
-                    .setLimits(0, 2, 0.01)
-                    .setValue(this.plugin.settings.saturate4Bg)
-                    .setDynamicTooltip()
+                preserveSliderValueVisibility(
+                    slider.setLimits(0, 2, 0.01).setValue(this.plugin.settings.saturate4Bg)
+                )
                     .onChange(async (value: number) => {
                         this.plugin.settings.saturate4Bg = value;
                         await this.plugin.saveSettings();
@@ -173,10 +169,11 @@ export class BasicSettingsSection {
             );
             // 暗主题：透明度
             setting.addSlider((slider) =>
-                slider
-                    .setLimits(0, 1, 0.01)
-                    .setValue(this.plugin.settings.bgColorOpacityDark ?? this.defaultSettings.bgColorOpacityDark)
-                    .setDynamicTooltip()
+                preserveSliderValueVisibility(
+                    slider
+                        .setLimits(0, 1, 0.01)
+                        .setValue(this.plugin.settings.bgColorOpacityDark ?? this.defaultSettings.bgColorOpacityDark)
+                )
                     .onChange(async (value: number) => {
                         this.plugin.settings.bgColorOpacityDark = value;
                         await this.plugin.saveSettings();
@@ -200,10 +197,11 @@ export class BasicSettingsSection {
             );
             // 亮主题：透明度
             setting.addSlider((slider) =>
-                slider
-                    .setLimits(0, 1, 0.01)
-                    .setValue(this.plugin.settings.bgColorOpacityLight ?? this.defaultSettings.bgColorOpacityLight)
-                    .setDynamicTooltip()
+                preserveSliderValueVisibility(
+                    slider
+                        .setLimits(0, 1, 0.01)
+                        .setValue(this.plugin.settings.bgColorOpacityLight ?? this.defaultSettings.bgColorOpacityLight)
+                )
                     .onChange(async (value: number) => {
                         this.plugin.settings.bgColorOpacityLight = value;
                         await this.plugin.saveSettings();

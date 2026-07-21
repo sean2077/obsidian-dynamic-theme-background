@@ -715,6 +715,7 @@ export class WallpaperApiEditorModal extends Modal {
 
     // 测试API配置
     async testApiConfig() {
+        let testApiId: string | null = null;
         try {
             new Notice(t("api_modal_testing_config"));
 
@@ -725,16 +726,24 @@ export class WallpaperApiEditorModal extends Modal {
             }
 
             // 使用临时 ID 避免覆盖同 ID 的已有实例
-            const testConfig = { ...config, id: generateId("api-test") };
+            testApiId = generateId("api-test");
+            const testConfig = { ...config, enabled: false, id: testApiId };
 
-            await apiManager.createApi(testConfig);
-            await apiManager.enableApi(testConfig.id);
+            await apiManager.createApi(testConfig, false);
+            const success = apiManager.getApiById(testApiId) ? await apiManager.enableApi(testApiId) : false;
+            if (!success) {
+                new Notice(t("api_modal_test_failed", { error: t("api_modal_test_rejected") }));
+                return;
+            }
 
             new Notice(t("api_modal_test_successful"));
-
-            apiManager.deleteApi(testConfig.id);
         } catch (error) {
-            new Notice(t("api_modal_test_failed", { error: (error as Error).message }));
+            logger.warn("API configuration test failed", error);
+            new Notice(t("api_modal_test_failed", { error: t("api_modal_test_unexpected") }));
+        } finally {
+            if (testApiId) {
+                await apiManager.deleteApi(testApiId);
+            }
         }
     }
 

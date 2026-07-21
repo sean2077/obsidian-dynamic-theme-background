@@ -38,7 +38,7 @@ export class ApiError extends Error {
             case ApiErrorType.CONFIGURATION_ERROR:
                 return `API configuration error. Please check your settings.`;
             default:
-                return `An unexpected error occurred: ${this.message}`;
+                return `An unexpected API error occurred. Please check the developer console.`;
         }
     }
 }

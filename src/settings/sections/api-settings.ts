@@ -76,13 +76,11 @@ export class ApiSettingsSection {
 
                     // 遍历默认 API，检查是否已存在
                     for (const apiConfig of defaultApis) {
-                        const existingApi = this.plugin.settings.wallpaperApis.find(
-                            (api) => api.id === apiConfig.id
-                        );
+                        const existingApi = this.plugin.settings.wallpaperApis.find((api) => api.id === apiConfig.id);
                         if (!existingApi) {
                             // 如果不存在，则添加并创建 API 实例
                             this.plugin.settings.wallpaperApis.push(apiConfig);
-                            void apiManager.createApi(apiConfig);
+                            void apiManager.createApi(apiConfig, this.plugin.settings.enabled);
                         }
                     }
                     new Notice(t("restore_default_apis_success"));
@@ -189,10 +187,7 @@ export class ApiSettingsSection {
                     } catch (error) {
                         logger.error(`Error ${value ? "enabling" : "disabling"} API:`, error);
                         const action = value ? t("action_enable") : t("action_disable");
-                        new Notice(
-                            t("notice_api_error_enable_disable", { action, apiName: apiConfig.name }),
-                            3000
-                        );
+                        new Notice(t("notice_api_error_enable_disable", { action, apiName: apiConfig.name }), 3000);
                     } finally {
                         // 重新启用toggle并移除loading样式
                         toggle.setDisabled(false);
@@ -260,7 +255,7 @@ export class ApiSettingsSection {
                 .addButton((button) =>
                     button.setButtonText(t("button_delete")).onClick(() => {
                         // 删除API实例
-                        apiManager.deleteApi(apiConfig.id);
+                        void apiManager.deleteApi(apiConfig.id);
                         // 删除插件设置中的API配置
                         this.plugin.settings.wallpaperApis = this.plugin.settings.wallpaperApis.filter(
                             (api) => api.id !== apiConfig.id
@@ -295,7 +290,7 @@ export class ApiSettingsSection {
 
         const modal = new WallpaperApiEditorModal(this.plugin.app, emptyConfig, (apiConfig) => {
             // 创建新的API实例
-            void apiManager.createApi(apiConfig);
+            void apiManager.createApi(apiConfig, this.plugin.settings.enabled);
             // 添加到插件设置中
             this.plugin.settings.wallpaperApis.push(apiConfig);
             void this.plugin.saveSettings();
@@ -310,7 +305,7 @@ export class ApiSettingsSection {
     private showEditWallpaperApiModal(apiConfig: WallpaperApiConfig, index: number) {
         const modal = new WallpaperApiEditorModal(this.plugin.app, apiConfig, (updatedConfig) => {
             // 有可能api类型也修改了，干脆重新创建API实例覆盖原来的
-            void apiManager.createApi(updatedConfig);
+            void apiManager.createApi(updatedConfig, this.plugin.settings.enabled);
 
             this.plugin.settings.wallpaperApis[index] = updatedConfig;
             void this.plugin.saveSettings();

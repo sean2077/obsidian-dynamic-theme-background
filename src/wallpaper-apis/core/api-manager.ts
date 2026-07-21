@@ -19,6 +19,8 @@ class WallpaperApiManager {
     stateManager = new ApiStateManager();
     // 存储所有API实例
     private apis = new Map<string, BaseWallpaperApi>();
+    private lifecycleQueue: Promise<void> = Promise.resolve();
+    private lifecycleRevision = 0;
 
     private constructor() {}
 
@@ -37,7 +39,7 @@ class WallpaperApiManager {
      * 创建API实例，注：如果设置API启用，则会异步启用实例
      * @param config API配置
      */
-    async createApi(config: WallpaperApiConfig): Promise<void> {
+    async createApi(config: WallpaperApiConfig, activate = config.enabled): Promise<void> {
         // 验证参数
         const validation = apiRegistry.validateParams(config.type, config.params);
         if (!validation.valid) {
@@ -61,12 +63,15 @@ class WallpaperApiManager {
         // 如果没有提供ID，则生成一个新的唯一标识符
         config.id ||= this.genApiId();
 
+        if (this.apis.has(config.id)) {
+            await this.deleteApi(config.id);
+        }
         const api = new ApiClass(config);
 
         this.apis.set(api.getId(), api);
 
         // 如果配置中启用了API，则异步启用实例
-        if (config.enabled) {
+        if (config.enabled && activate) {
             await this.enableApi(api.getId());
         }
     }
@@ -75,24 +80,52 @@ class WallpaperApiManager {
      * 删除API实例
      * @param apiId API实例唯一标识符
      */
-    deleteApi(apiId: string): void {
+    async deleteApi(apiId: string): Promise<void> {
         const api = this.apis.get(apiId);
-        if (api) {
-            void api.tryDisable(); // deinit 后再移除
-        }
         this.apis.delete(apiId);
         this.stateManager.cleanupByApiId(apiId);
+        if (api) await api.tryDisable();
     }
 
     /**
      * 删除所有API实例
      */
-    deleteAllApis(): void {
-        for (const api of this.apis.values()) {
-            void api.tryDisable();
-        }
+    async deleteAllApis(): Promise<void> {
+        this.lifecycleRevision += 1;
+        const pendingLifecycle = this.lifecycleQueue;
+        const apis = Array.from(this.apis.values());
         this.apis.clear();
         this.stateManager.cleanup();
+        await pendingLifecycle;
+        await Promise.all(apis.map((api) => api.tryDisable()));
+    }
+
+    activateConfiguredApis(): Promise<void> {
+        const revision = ++this.lifecycleRevision;
+        return this.scheduleLifecycle(revision, async (isCurrent) => {
+            for (const api of this.apis.values()) {
+                if (!isCurrent()) return;
+                if (api.getConfig().enabled && !api.getEnabled()) {
+                    await this.enableApi(api.getId());
+                }
+            }
+        });
+    }
+
+    suspendAllApis(): Promise<void> {
+        const revision = ++this.lifecycleRevision;
+        return this.scheduleLifecycle(revision, async () => {
+            await Promise.all(
+                Array.from(this.apis.values()).map(async (api) => {
+                    await api.tryDisable();
+                    this.stateManager.notify(api.getId(), {
+                        configEnabled: api.getConfig().enabled,
+                        instanceEnabled: false,
+                        isLoading: false,
+                    });
+                })
+            );
+        });
     }
 
     /**
@@ -159,6 +192,11 @@ class WallpaperApiManager {
         // 3. 异步尝试启用API实例
         try {
             const success = await api.tryEnable();
+
+            if (this.apis.get(apiId) !== api) {
+                await api.tryDisable();
+                return false;
+            }
 
             if (!success) {
                 // 4. 更新状态管理器
@@ -276,6 +314,21 @@ class WallpaperApiManager {
 
     private genApiId(): string {
         return generateId("api");
+    }
+
+    private scheduleLifecycle(
+        revision: number,
+        transition: (isCurrent: () => boolean) => Promise<void>
+    ): Promise<void> {
+        const execute = async () => {
+            if (revision !== this.lifecycleRevision) return;
+            await transition(() => revision === this.lifecycleRevision);
+        };
+        const scheduled = this.lifecycleQueue.then(execute, execute);
+        this.lifecycleQueue = scheduled.catch((error: unknown) => {
+            logger.error("Wallpaper API lifecycle transition failed", error);
+        });
+        return scheduled;
     }
 }
 

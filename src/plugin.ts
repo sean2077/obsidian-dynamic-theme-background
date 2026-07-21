@@ -5,12 +5,20 @@
 import { Notice, Plugin } from "obsidian";
 
 import { registerCommands } from "./commands";
-import { BackgroundManager, BackgroundPersistence, EventBus, StyleManager, TimeRuleScheduler, logger } from "./core";
+import { displayImperativeSettings } from "./core/obsidian-compat";
+import {
+    BackgroundManager,
+    BackgroundPersistence,
+    EventBus,
+    StyleManager,
+    TimeRuleScheduler,
+    logger,
+    normalizeSettings,
+} from "./core";
 import { getDefaultSettings } from "./default-settings";
 import { t } from "./i18n";
 import { DTBSettingTab, DTBSettingsView, DTB_SETTINGS_VIEW_TYPE } from "./settings";
 import type { BackgroundItem, DTBSettings } from "./types";
-import { isRecord } from "./utils";
 import { apiManager } from "./wallpaper-apis";
 
 export default class DynamicThemeBackgroundPlugin extends Plugin {
@@ -22,6 +30,8 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     styleManager!: StyleManager;
     private persistence!: BackgroundPersistence;
     bgManager!: BackgroundManager;
+    private lifecycleGeneration = 0;
+    private startGeneration = 0;
 
     // 界面元素
     statusBar: HTMLElement | null = null;
@@ -32,11 +42,18 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     // ============================================================================
 
     async onload() {
+        const generation = ++this.lifecycleGeneration;
         await this.loadSettings();
+        if (generation !== this.lifecycleGeneration) return;
 
         // 初始化核心服务
         this.scheduler = new TimeRuleScheduler(this.settings.timeRules);
         this.styleManager = new StyleManager(this.app);
+        this.registerDomEvent(window, "resize", () => {
+            if (this.settings.enabled) {
+                this.styleManager.refreshViewport(this.background, this.settings);
+            }
+        });
         this.persistence = new BackgroundPersistence(this.app);
         this.bgManager = new BackgroundManager(this.scheduler, this.styleManager, this.events, this, () => {
             void this.saveSettings();
@@ -56,33 +73,38 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         // 注册命令
         registerCommands(this);
 
-        // 启动背景管理器
-        if (this.settings.enabled) {
-            this.app.workspace.onLayoutReady(() => {
-                this.startBackgroundManager();
-            });
-        }
-
-        // Wallpaper API 管理器
-        for (const apiConfig of this.settings.wallpaperApis) {
-            void apiManager.createApi(apiConfig);
-        }
+        this.app.workspace.onLayoutReady(() => {
+            void this.initializeRuntime(generation);
+        });
 
         logger.debug("Plugin loaded");
     }
 
     onunload() {
-        this.stopBackgroundManager();
-        apiManager.deleteAllApis();
+        this.lifecycleGeneration += 1;
+        this.startGeneration += 1;
+        this.bgManager?.stop();
+        void apiManager.deleteAllApis();
         this.events.removeAllListeners();
+        this.settingTabs.clear();
+        this.statusBar = null;
         logger.debug("Plugin unloaded");
+    }
+
+    private async initializeRuntime(generation: number): Promise<void> {
+        for (const apiConfig of this.settings.wallpaperApis) {
+            if (generation !== this.lifecycleGeneration) return;
+            await apiManager.createApi(apiConfig, false);
+        }
+        if (generation === this.lifecycleGeneration && this.settings.enabled) {
+            this.startBackgroundManager();
+        }
     }
 
     async loadSettings() {
         const defaultSettings = getDefaultSettings();
         const loaded: unknown = await this.loadData();
-        const saved = isRecord(loaded) ? loaded : {};
-        this.settings = Object.assign({}, defaultSettings, saved);
+        this.settings = normalizeSettings(loaded, defaultSettings);
     }
 
     async saveSettings() {
@@ -104,12 +126,24 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     }
 
     startBackgroundManager() {
-        this.scheduler.updateRules(this.settings.timeRules);
-        this.bgManager.start(this.settings);
+        const generation = ++this.startGeneration;
+        this.bgManager.stop();
+        void this.startBackgroundManagerWhenReady(generation);
     }
 
     stopBackgroundManager() {
+        this.startGeneration += 1;
         this.bgManager?.stop();
+        void apiManager.suspendAllApis();
+    }
+
+    private async startBackgroundManagerWhenReady(generation: number): Promise<void> {
+        await apiManager.activateConfiguredApis();
+        if (generation !== this.startGeneration || !this.settings.enabled || this.lifecycleGeneration === 0) {
+            return;
+        }
+        this.scheduler.updateRules(this.settings.timeRules);
+        this.bgManager.start(this.settings);
     }
 
     /**
@@ -223,40 +257,51 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     }
 
     deactivateStatusBar() {
-        this.statusBar?.remove();
-        this.statusBar = null;
+        this.statusBar?.hide();
     }
 
     activateStatusBar() {
-        this.deactivateStatusBar();
+        if (this.statusBar) {
+            this.statusBar.show();
+            return;
+        }
         this.statusBar = this.addStatusBarItem();
         this.statusBar.setText("DTB");
         this.statusBar.addClass("dtb-status-bar");
         this.statusBar.setAttribute("title", t("status_bar_title"));
-        this.statusBar.addEventListener("click", (evt) => {
+        this.statusBar.setAttribute("aria-label", t("status_bar_title"));
+        this.statusBar.setAttribute("role", "button");
+        this.statusBar.setAttribute("tabindex", "0");
+        this.registerDomEvent(this.statusBar, "click", (evt) => {
             if (evt.button === 0) {
                 void this.applyRandomWallpaper();
             }
         });
-        this.statusBar.addEventListener("auxclick", (evt) => {
+        this.registerDomEvent(this.statusBar, "keydown", (evt) => {
+            if (evt.key === "Enter" || evt.key === " ") {
+                evt.preventDefault();
+                void this.applyRandomWallpaper();
+            }
+        });
+        this.registerDomEvent(this.statusBar, "auxclick", (evt) => {
             if (evt.button === 1) {
                 void this.activateView();
             }
         });
-        this.statusBar.addEventListener("contextmenu", (evt) => {
+        this.registerDomEvent(this.statusBar, "contextmenu", (evt) => {
             evt.preventDefault();
             void this.saveBackground();
         });
     }
 
     // ============================================================================
-    // 设置页刷新（保持兼容，后续 R3 将替换为纯事件驱动）
+    // 设置页刷新兼容入口
     // ============================================================================
 
     refreshActiveSettings() {
         this.settingTabs.forEach((tab) => {
             if (tab.isActive()) {
-                tab.display();
+                displayImperativeSettings(tab);
             }
         });
         this.events.emit("settings:changed", { key: "enabled", value: this.settings.enabled });

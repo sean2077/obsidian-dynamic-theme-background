@@ -188,8 +188,7 @@ export default {
     notice_save_background_success: "🎉 DTB: 当前背景已保存至 {folderPath}",
     notice_save_background_failed: "❌ DTB: 当前背景保存失败，请检查文件夹路径和权限",
     notice_save_background_overwrite_existing_file: "⚠️ DTB: 文件 {filePath} 已存在，是否覆盖？",
-    notice_save_background_converted:
-        '🎉 DTB: 当前背景 value 已由 "{oldPath}" 转换为 "{newPath}"，原链接已存至 remoteUrl 属性作为备份，如果后续本地文件不存在则会回退至使用远程链接',
+    notice_save_background_converted: "🎉 DTB: 远程背景已保存为“{newPath}”，源链接仅在内部保留以供回退。",
 
     // ===== API 模态窗口 =====
     api_modal_invalid_json: "额外参数中的 JSON 格式无效",
@@ -199,6 +198,8 @@ export default {
     api_modal_cannot_test_invalid: "由于配置无效无法测试",
     api_modal_test_successful: "🎉 API 测试成功！",
     api_modal_test_failed: "API 测试失败：{error}",
+    api_modal_test_rejected: "提供商拒绝了该配置或无法连接",
+    api_modal_test_unexpected: "发生意外错误，请检查开发者控制台",
     api_modal_api_url: "API 地址",
     api_modal_headers_optional: "请求头（可选）",
     api_modal_add_header: "添加请求头",
