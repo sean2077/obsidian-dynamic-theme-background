@@ -1,5 +1,16 @@
 ## [2.10.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.9.2...2.10.0) (2026-07-21)
 
+### Features
+
+* migrate API credentials to Obsidian SecretStorage ([fc7d780](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/fc7d780cba4f77d7906cca09614325800f756b43))
+
+### Fixes
+
+* prevent settings layout clipping ([52d5120](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/52d5120803d4c39759c28b3636034d90b991606e))
+* support accessible settings reordering ([f2b5ddd](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/f2b5ddd6107e6c01a4d66c436a56c2ff4d9e4ad5))
+* preserve settings integrity and compatibility ([57ca0e1](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/57ca0e101eee46dbabb17a2d30753803c71c5558))
+* harden runtime safety boundaries ([bdbe762](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/bdbe762390168ebf9ae7f247694e94e919e03555))
+
 ## [2.9.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.9.1...2.9.2) (2026-07-21)
 
 ## [2.9.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.9.0...2.9.1) (2026-07-20)

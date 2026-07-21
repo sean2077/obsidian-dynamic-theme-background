@@ -30,6 +30,9 @@ localized strings do not expand into ASCII escape sequences.
 | CSS lint | `npm run lint:css` | Applies the runtime selector and style rules to authored `styles.css`. |
 | Complete gate | `npm run check` | Runs build, TypeScript/Obsidian lint, runtime CSS lint, and deterministic tests. |
 | Research evaluator | `npm run evaluate` | Emits one JSON line with the frozen modernization score and hard-gate state. |
+| Prepare release | `npm run release:prepare -- <version>` | Bumps only the four version authorities; it does not edit notes, commit, tag, or push. |
+| Verify release | `npm run release:verify -- <version>` | Requires aligned version authorities and one non-empty CHANGELOG section. |
+| Extract release notes | `npm run release:notes -- <version> <output>` | Writes that exact CHANGELOG section to a new file without overwriting an existing path. |
 | TypeScript formatting | `npm run fmt` | Mutates all `src/**/*.ts`; inspect the resulting diff. |
 
 Automated tests cover pure policies and structural lifecycle/release contracts. They do not emulate Obsidian. For behavior changes, reload the plugin in a disposable test vault and exercise the affected flow. Select from these checks rather than claiming broad coverage:
@@ -71,4 +74,15 @@ Keep `README.md` and `README.zh.md` aligned for user-facing changes. Keep the tw
 
 ## Generated and release-owned files
 
-`main.js` is generated, ignored, and attached to GitHub releases with `manifest.json` and `styles.css`; do not hand-edit or commit it. `versions.json` preserves the most recent compatible plugin release whenever `minAppVersion` increases. Pushes to `main` or `master` install with `npm ci`, run `npm run check`, then run semantic-release, which derives the next version from Conventional Commits, updates `CHANGELOG.md`, `manifest.json`, `package.json`, `package-lock.json`, and `src/version.ts`, creates the release commit, and publishes the release assets. Ordinary feature and fix work should not pre-bump those version files.
+`main.js` is generated, ignored, and attached to GitHub releases with `manifest.json` and `styles.css`; do not hand-edit or commit it. `versions.json` preserves the most recent compatible plugin release whenever `minAppVersion` increases. Ordinary feature and fix work must not pre-bump release files.
+
+## Release workflow
+
+Releases use bare SemVer tags such as `2.10.1`. The committed CHANGELOG is the release-note authority. Select the next version from the latest reachable bare SemVer tag with the `semver-release` rules: breaking changes bump major, `feat` bumps minor, and other releasable Conventional Commits bump patch; an exact owner-selected version wins when valid.
+
+1. From an up-to-date, clean `master`, create a release worktree such as `bash .agents/tools/worktree.sh new release-2-10-1 --type chore --trunk master`.
+2. In that worktree, run `npm run release:prepare -- 2.10.1`. Add one newest-first `## [2.10.1]...` section to `CHANGELOG.md` with at least one user-facing note. If `minAppVersion` changed, update `versions.json` before continuing.
+3. Run `npm run release:verify -- 2.10.1` and `npm run check`, inspect and stage only the release files, then commit them as `release: 2.10.1`.
+4. Finish the worktree with `bash .agents/tools/worktree.sh done --trunk master`. This merges and pushes `master`; never push the tag first.
+5. At the resulting clean `master` tip, create an annotated tag with `git tag -a 2.10.1 -m "2.10.1"`, then push only that new tag with `git push origin 2.10.1`. Never move or recreate an existing tag.
+6. The tag-triggered Release workflow verifies that the tag commit is on `origin/master`, checks all version authorities and the non-empty CHANGELOG section, runs the full gate, extracts that section, uploads `main.js`, `manifest.json`, and `styles.css` to a draft GitHub Release, and publishes it only after every upload succeeds. Verify the workflow, tag/commit identity, release state, and all three assets before declaring completion.

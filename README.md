@@ -21,7 +21,7 @@
             src="https://img.shields.io/github/stars/sean2077/obsidian-dynamic-theme-background"
             alt="GitHub Stars" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/actions"><img
-            src="https://img.shields.io/github/actions/workflow/status/sean2077/obsidian-dynamic-theme-background/release.yml?branch=master"
+            src="https://img.shields.io/github/actions/workflow/status/sean2077/obsidian-dynamic-theme-background/release.yml"
             alt="Build Status" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/blob/master/LICENSE"><img
             src="https://img.shields.io/github/license/sean2077/obsidian-dynamic-theme-background" alt="License" /></a>

@@ -9,7 +9,7 @@ Dynamic Theme Background is a TypeScript/CSS Obsidian community plugin for deskt
 - Keep `src/plugin.ts` as the lifecycle and composition root; background transitions, scheduling, styling, persistence, and internal events belong in the focused services under `src/core/`.
 - Keep setting types, defaults, UI, persistence compatibility, and both source locale files aligned when configuration changes.
 - Keep provider credentials and custom-header values in Obsidian SecretStorage: persist only references, migrate legacy plaintext all-or-retain, and hydrate isolated runtime config clones.
-- Let semantic-release own normal version synchronization across `manifest.json`, `package.json`, `package-lock.json`, and `src/version.ts`; do not manually bump them outside a release task.
+- For releases, let `npm run release:prepare -- <version>` synchronize `manifest.json`, `package.json`, `package-lock.json`, and `src/version.ts`; add non-empty `CHANGELOG.md` notes, verify, merge the release worktree, then push the matching bare SemVer tag. The tag workflow only validates and publishes; see the development guide.
 - When `minAppVersion` increases, preserve the last compatible release in `versions.json` so older Obsidian clients can fall back safely.
 - Run `npm run check` for the complete automated gate; use `npm test`, `npm run build`, `npm run lint`, or `npm run lint:css` for focused iteration. Record the relevant manual Obsidian checks for behavior changes that require a real app, theme, or device.
 
