@@ -1,3 +1,5 @@
+## [2.10.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.9.2...2.10.0) (2026-07-21)
+
 ## [2.9.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.9.1...2.9.2) (2026-07-21)
 
 ## [2.9.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.9.0...2.9.1) (2026-07-20)
