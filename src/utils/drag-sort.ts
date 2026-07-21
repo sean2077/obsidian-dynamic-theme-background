@@ -21,6 +21,8 @@ export interface DragSortConfig<T> {
     reorderLabels?: { up: string; down: string };
     /** 排序完成后的回调函数 */
     onReorder: (items: T[]) => Promise<void> | void;
+    /** Publish replacement arrays owned outside this module; also used for rollback. */
+    setItems?: (items: T[]) => void;
 }
 
 export type ReorderDirection = -1 | 1;
@@ -161,7 +163,9 @@ export class DragSort<T> {
             const midpoint = rect.top + rect.height / 2;
             const insertAfter = e.clientY >= midpoint;
 
-            void this.reorderItems(draggedId, targetId, insertAfter);
+            void this.reorderItems(draggedId, targetId, insertAfter).catch((error) =>
+                logger.error("Reorder", error)
+            );
 
             // 清理样式
             element.classList.remove("dtb-drag-over-top", "dtb-drag-over-bottom");
@@ -252,11 +256,13 @@ export class DragSort<T> {
         const previousItems = [...this.config.items];
         this.reorderPending = true;
         this.config.items.splice(0, this.config.items.length, ...items);
+        this.config.setItems?.([...items]);
         try {
             await this.config.onReorder([...items]);
             return true;
         } catch (error) {
             this.config.items.splice(0, this.config.items.length, ...previousItems);
+            this.config.setItems?.([...previousItems]);
             throw error;
         } finally {
             this.reorderPending = false;

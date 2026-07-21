@@ -9,6 +9,8 @@ export const CURRENT_CREDENTIAL_STORAGE_VERSION = 1;
 
 const SECRET_ID_PREFIX = "dynamic-theme-background";
 const SECRET_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+const CREDENTIAL_PARAM_PATTERN =
+    /(?:^|[-_.])(?:api[-_]?(?:key|token)|access[-_]?(?:key|token)|client[-_]?(?:id|secret)|refresh[-_]?token|authorization|auth(?:[-_]?token)?|bearer(?:[-_]?token)?|password|passphrase|secret|token|key)(?:$|[-_.])/iu;
 
 export interface SecretStore {
     getSecret(id: string): string | null;
@@ -16,6 +18,11 @@ export interface SecretStore {
 }
 
 export type SensitiveParamResolver = (config: WallpaperApiConfig) => readonly string[];
+
+/** Recognizes conventional query-credential names that must never reach data.json. */
+export function isCredentialParameterKey(key: string): boolean {
+    return CREDENTIAL_PARAM_PATTERN.test(key.trim());
+}
 
 export interface CredentialMigrationResult {
     settings: DTBSettings;
@@ -42,7 +49,7 @@ function cloneSecretRefs(secretRefs: WallpaperApiSecretRefs | undefined): Wallpa
     };
 }
 
-function cloneConfig(config: WallpaperApiConfig): WallpaperApiConfig {
+export function cloneWallpaperApiConfig(config: WallpaperApiConfig): WallpaperApiConfig {
     return {
         ...config,
         endpoints: config.endpoints ? { ...config.endpoints } : undefined,
@@ -56,7 +63,7 @@ function cloneConfig(config: WallpaperApiConfig): WallpaperApiConfig {
 function cloneSettings(settings: DTBSettings): DTBSettings {
     return {
         ...settings,
-        wallpaperApis: settings.wallpaperApis.map(cloneConfig),
+        wallpaperApis: settings.wallpaperApis.map(cloneWallpaperApiConfig),
     };
 }
 
@@ -122,6 +129,18 @@ function compactSecretRefs(secretRefs: WallpaperApiSecretRefs): WallpaperApiSecr
     return params || headers ? { params, headers } : undefined;
 }
 
+function resolveCredentialFields(
+    config: WallpaperApiConfig,
+    resolveSensitiveParams: SensitiveParamResolver
+): string[] {
+    return Array.from(
+        new Set([
+            ...resolveSensitiveParams(config),
+            ...Object.keys(config.params).filter(isCredentialParameterKey),
+        ])
+    );
+}
+
 /**
  * Copies legacy credentials into SecretStorage and returns a sanitized settings clone.
  * The caller should persist the returned clone only after this function succeeds.
@@ -141,7 +160,7 @@ export function migrateSettingsCredentials(
             refs.params ??= {};
             refs.headers ??= {};
 
-            for (const field of resolveSensitiveParams(config)) {
+            for (const field of resolveCredentialFields(config, resolveSensitiveParams)) {
                 if (!(field in config.params)) continue;
                 const rawValue = config.params[field];
                 delete config.params[field];
@@ -210,7 +229,7 @@ function hydrateReferences(
 
 /** Returns a short-lived runtime clone containing the resolved credential values. */
 export function hydrateWallpaperApiConfig(config: WallpaperApiConfig, store: SecretStore): WallpaperApiConfig {
-    const hydrated = cloneConfig(config);
+    const hydrated = cloneWallpaperApiConfig(config);
     hydrated.headers ??= {};
     hydrateReferences(hydrated.params, hydrated.secretRefs?.params, config, store, "param");
     hydrateReferences(hydrated.headers, hydrated.secretRefs?.headers, config, store, "header");
@@ -226,7 +245,9 @@ export function assertSettingsCredentialsAreReferences(
     resolveSensitiveParams: SensitiveParamResolver
 ): void {
     for (const config of settings.wallpaperApis) {
-        const hasSensitiveParam = resolveSensitiveParams(config).some((field) => field in config.params);
+        const hasSensitiveParam = resolveCredentialFields(config, resolveSensitiveParams).some(
+            (field) => field in config.params
+        );
         const hasHeaders = Object.keys(config.headers ?? {}).length > 0;
         if (hasSensitiveParam || hasHeaders) {
             throw new Error("Refusing to persist plaintext credentials in wallpaper API settings");

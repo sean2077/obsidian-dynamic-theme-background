@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { normalizeSettings } from "../src/core/settings";
@@ -95,4 +96,19 @@ void test("unknown and prototype-sensitive top-level fields are not retained", (
     assert.equal("futureField" in normalized, false);
     assert.equal("polluted" in normalized, false);
     assert.equal(({} as { polluted?: boolean }).polluted, undefined);
+});
+
+void test("interval settings cannot overflow the host timer delay", () => {
+    const defaults = settingsFixture();
+
+    assert.equal(normalizeSettings({ intervalMinutes: -1 }, defaults).intervalMinutes, 60);
+    assert.equal(normalizeSettings({ intervalMinutes: 35_791 }, defaults).intervalMinutes, 35_791);
+    assert.equal(normalizeSettings({ intervalMinutes: 35_792 }, defaults).intervalMinutes, 60);
+});
+
+void test("default settings are produced as isolated values", () => {
+    const source = readFileSync("src/default-settings.ts", "utf8");
+
+    assert.doesNotMatch(source, /let DEFAULT_SETTINGS/u);
+    assert.match(source, /export function getDefaultSettings\(\): DTBSettings \{\s*return genDefaultSettings\(\);/u);
 });

@@ -79,6 +79,7 @@
 
 - Local images, colors, and gradients work without provider requests. Enabling a wallpaper provider, using a custom JSON endpoint, or applying/saving a remote image can contact the configured third party; that service's terms and privacy policy apply.
 - Provider keys, tokens, and every custom-header value are stored through Obsidian SecretStorage. The plugin's `data.json` contains only non-secret settings and SecretStorage IDs, not those credential values.
+- Custom API query credentials must use **Secret query parameters**. The raw **Extra parameters** JSON accepts only non-secret string, number, and boolean values; those parameters are appended to the custom endpoint at request time.
 - On the first load after upgrading, legacy plaintext credentials are copied to SecretStorage before `data.json` is replaced. If any secret write fails, the old `data.json` is left unchanged and plugin startup stops so credentials are not lost or partially migrated.
 - Secrets can be shared across plugins or configurations, so deleting a DTB API removes only its reference and does not delete the Obsidian-owned secret.
 - The plugin has no telemetry or analytics. Diagnostic logging sanitizes credential-bearing URLs and headers, bounds nested data, and does not intentionally log API keys or tokens.

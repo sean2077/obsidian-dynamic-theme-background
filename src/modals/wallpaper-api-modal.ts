@@ -1,4 +1,5 @@
 import { Modal, Notice, SecretComponent } from "obsidian";
+import { isCredentialParameterKey } from "../core/credential-storage";
 import { logger } from "../core/logger";
 import type DynamicThemeBackgroundPlugin from "../plugin";
 import { generateId } from "../utils/utils";
@@ -15,6 +16,12 @@ import {
     WallpaperApiType,
 } from "../wallpaper-apis";
 
+function isApiValue(value: unknown): value is ApiValueType {
+    return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+}
+
+type SecretInput = { key: HTMLInputElement; secretId: string };
+
 /**
  * 壁纸 API 编辑模态框类，用于在 Obsidian 插件中创建和编辑壁纸 API 配置。
  */
@@ -30,13 +37,15 @@ export class WallpaperApiEditorModal extends Modal {
     urlInput!: HTMLInputElement;
     // Headers配置
     headersContainer!: HTMLDivElement;
-    headerInputs: Array<{ key: HTMLInputElement; secretId: string }> = [];
+    headerInputs: SecretInput[] = [];
 
     // 参数配置容器的引用
     paramsSectionContainer!: HTMLElement;
     // 动态参数输入元素映射
     paramInputs: Map<string, HTMLElement> = new Map();
     secretParamRefs: Map<string, string> = new Map();
+    secretParamsContainer!: HTMLDivElement;
+    extraSecretParamInputs: SecretInput[] = [];
     // 额外参数输入
     extraParamsTextarea!: HTMLTextAreaElement;
 
@@ -149,7 +158,7 @@ export class WallpaperApiEditorModal extends Modal {
         // 渲染已有的 SecretStorage 引用
         if (this.apiConfig.secretRefs?.headers) {
             Object.entries(this.apiConfig.secretRefs.headers).forEach(([key, secretId]) => {
-                this.addHeaderInput(key, secretId);
+                this.addSecretInput("header", key, secretId);
             });
         }
 
@@ -159,41 +168,7 @@ export class WallpaperApiEditorModal extends Modal {
             type: "button",
             cls: "dtb-button",
         });
-        addHeaderBtn.onclick = () => this.addHeaderInput();
-    }
-
-    // 添加header输入行
-    private addHeaderInput(key = "", secretId = "") {
-        const headerRow = this.headersContainer.createDiv("dtb-list-row");
-
-        const keyInput = headerRow.createEl("input", {
-            type: "text",
-            value: key,
-            placeholder: t("api_modal_header_key"),
-            cls: "dtb-input",
-        });
-
-        const secretContainer = headerRow.createDiv("dtb-secret-control");
-        secretContainer.setAttribute("aria-label", t("api_modal_header_secret"));
-        const headerInput = { key: keyInput, secretId };
-        new SecretComponent(this.app, secretContainer).setValue(secretId).onChange((value) => {
-            headerInput.secretId = value;
-        });
-
-        const removeBtn = headerRow.createEl("button", {
-            text: "×",
-            type: "button",
-            cls: "dtb-remove-button",
-        });
-        removeBtn.onclick = () => {
-            headerRow.remove();
-            const index = this.headerInputs.findIndex((h) => h.key === keyInput);
-            if (index > -1) {
-                this.headerInputs.splice(index, 1);
-            }
-        };
-
-        this.headerInputs.push(headerInput);
+        addHeaderBtn.onclick = () => this.addSecretInput("header");
     }
 
     // 创建参数配置部分
@@ -207,6 +182,7 @@ export class WallpaperApiEditorModal extends Modal {
         // 清除现有的参数输入
         this.paramInputs.clear();
         this.secretParamRefs.clear();
+        this.extraSecretParamInputs = [];
 
         // 使用保存的容器引用而不是DOM查询
         if (!this.paramsSectionContainer) return;
@@ -218,7 +194,7 @@ export class WallpaperApiEditorModal extends Modal {
         this.createParamsSectionHeader();
 
         // 创建参数输入
-        const selectedType = this.typeSelect?.value || this.apiConfig.type;
+        const selectedType = (this.typeSelect?.value as WallpaperApiType) || this.apiConfig.type;
         const paramDescriptors = this.getParamDescriptorsForType(selectedType);
 
         if (paramDescriptors.length > 0) {
@@ -227,6 +203,9 @@ export class WallpaperApiEditorModal extends Modal {
 
         // 额外参数JSON输入
         this.createExtraParamsInput(this.paramsSectionContainer);
+        if (selectedType === WallpaperApiType.Custom) {
+            this.createSecretParamsSection(this.paramsSectionContainer, paramDescriptors);
+        }
     }
 
     // 创建参数部分的标题和文档链接
@@ -340,6 +319,64 @@ export class WallpaperApiEditorModal extends Modal {
             placeholder: t("api_modal_extra_params_placeholder"),
             cls: "dtb-textarea",
         });
+    }
+
+    private createSecretParamsSection(
+        container: HTMLElement,
+        descriptors: WallpaperApiParamDescriptor[]
+    ): void {
+        container.createEl("label", { text: t("api_modal_secret_params_optional") });
+        container.createEl("small", {
+            text: t("api_modal_secret_params_desc"),
+            cls: "dtb-field-description",
+        });
+        this.secretParamsContainer = container.createDiv("dtb-list-container");
+
+        const descriptorSecretKeys = new Set(
+            descriptors.filter((descriptor) => descriptor.type === "password").map((descriptor) => descriptor.key)
+        );
+        if ((this.typeSelect.value as WallpaperApiType) === this.apiConfig.type) {
+            for (const [key, secretId] of Object.entries(this.apiConfig.secretRefs?.params ?? {})) {
+                if (!descriptorSecretKeys.has(key)) this.addSecretInput("param", key, secretId);
+            }
+        }
+
+        const addButton = container.createEl("button", {
+            text: t("api_modal_add_secret_param"),
+            type: "button",
+            cls: "dtb-button",
+        });
+        addButton.onclick = () => this.addSecretInput("param");
+    }
+
+    private addSecretInput(kind: "header" | "param", key = "", secretId = ""): void {
+        const inputs = kind === "header" ? this.headerInputs : this.extraSecretParamInputs;
+        const container = kind === "header" ? this.headersContainer : this.secretParamsContainer;
+        const row = container.createDiv("dtb-list-row");
+        const keyInput = row.createEl("input", {
+            type: "text",
+            value: key,
+            placeholder: t(kind === "header" ? "api_modal_header_key" : "api_modal_secret_param_key"),
+            cls: "dtb-input",
+        });
+        const secretContainer = row.createDiv("dtb-secret-control");
+        secretContainer.setAttribute("aria-label", t("api_modal_header_secret"));
+        const input = { key: keyInput, secretId };
+        new SecretComponent(this.app, secretContainer).setValue(secretId).onChange((value) => {
+            input.secretId = value;
+        });
+
+        const removeButton = row.createEl("button", {
+            text: "×",
+            type: "button",
+            cls: "dtb-remove-button",
+        });
+        removeButton.onclick = () => {
+            row.remove();
+            const index = inputs.indexOf(input);
+            if (index >= 0) inputs.splice(index, 1);
+        };
+        inputs.push(input);
     }
 
     // 创建自定义设置部分
@@ -610,7 +647,7 @@ export class WallpaperApiEditorModal extends Modal {
     }
 
     // 构建API配置对象
-    buildApiConfig(): WallpaperApiConfig {
+    buildApiConfig(): WallpaperApiConfig | null {
         const selectedType = this.typeSelect.value;
 
         // 收集动态参数
@@ -637,13 +674,28 @@ export class WallpaperApiEditorModal extends Modal {
         if (this.extraParamsTextarea.value.trim()) {
             try {
                 const extraParams: unknown = JSON.parse(this.extraParamsTextarea.value);
-                if (isRecord(extraParams)) {
-                    Object.assign(params, extraParams);
-                } else {
+                if (!isRecord(extraParams)) {
                     new Notice(t("api_modal_invalid_json"));
+                    return null;
+                }
+                for (const [key, value] of Object.entries(extraParams)) {
+                    if (!isApiValue(value)) {
+                        new Notice(t("api_modal_invalid_extra_param", { key }));
+                        return null;
+                    }
+                    if (paramDescriptorMap.has(key)) {
+                        new Notice(t("api_modal_duplicate_param", { key }));
+                        return null;
+                    }
+                    if (isCredentialParameterKey(key)) {
+                        new Notice(t("api_modal_sensitive_extra_param", { key }));
+                        return null;
+                    }
+                    params[key] = value;
                 }
             } catch {
                 new Notice(t("api_modal_invalid_json"));
+                return null;
             }
         }
         for (const descriptor of paramDescriptors) {
@@ -663,6 +715,21 @@ export class WallpaperApiEditorModal extends Modal {
         this.secretParamRefs.forEach((secretId, key) => {
             if (secretId) paramSecretRefs[key] = secretId;
         });
+        const configuredParamKeys = new Set([...Object.keys(params), ...Object.keys(paramSecretRefs)]);
+        for (const { key: keyInput, secretId } of this.extraSecretParamInputs) {
+            const key = keyInput.value.trim();
+            if (!key && !secretId) continue;
+            if (!key || !secretId) {
+                new Notice(t("api_modal_secret_missing"));
+                return null;
+            }
+            if (configuredParamKeys.has(key)) {
+                new Notice(t("api_modal_duplicate_param", { key }));
+                return null;
+            }
+            paramSecretRefs[key] = secretId;
+            configuredParamKeys.add(key);
+        }
         const hasParamSecrets = Object.keys(paramSecretRefs).length > 0;
         const hasHeaderSecrets = Object.keys(headerSecretRefs).length > 0;
 
@@ -761,7 +828,7 @@ export class WallpaperApiEditorModal extends Modal {
     // 保存API配置
     async saveApiConfig(): Promise<void> {
         const config = this.buildApiConfig();
-        if (!this.prepareValidatedConfig(config)) {
+        if (!config || !this.prepareValidatedConfig(config)) {
             return;
         }
         await this.onSubmit(config);
@@ -775,6 +842,10 @@ export class WallpaperApiEditorModal extends Modal {
             new Notice(t("api_modal_testing_config"));
 
             const storedConfig = this.buildApiConfig();
+            if (!storedConfig) {
+                new Notice(t("api_modal_cannot_test_invalid"));
+                return;
+            }
             const runtimeConfig = this.prepareValidatedConfig(storedConfig);
             if (!runtimeConfig) {
                 new Notice(t("api_modal_cannot_test_invalid"));

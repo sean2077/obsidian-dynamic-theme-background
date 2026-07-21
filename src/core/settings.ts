@@ -1,4 +1,5 @@
 import type { BackgroundItem, DTBSettings, TimeRule } from "../types";
+import { MAX_INTERVAL_MINUTES, MIN_INTERVAL_MINUTES } from "../constants";
 import { WallpaperApiType } from "../wallpaper-apis/core/types";
 import type { ApiValueType, WallpaperApiConfig } from "../wallpaper-apis/core/types";
 import { isRecord } from "../utils/type-guards";
@@ -172,7 +173,12 @@ export function normalizeSettings(loaded: unknown, defaults: DTBSettings): DTBSe
                 ? (loaded.mode as DTBSettings["mode"])
                 : fallback.mode,
         timeRules: arrayOrDefault(loaded.timeRules, fallback.timeRules, isTimeRule),
-        intervalMinutes: numberOrDefault(loaded.intervalMinutes, fallback.intervalMinutes, 1),
+        intervalMinutes: numberOrDefault(
+            loaded.intervalMinutes,
+            fallback.intervalMinutes,
+            MIN_INTERVAL_MINUTES,
+            MAX_INTERVAL_MINUTES
+        ),
         localBackgroundFolder: stringOrDefault(loaded.localBackgroundFolder, fallback.localBackgroundFolder),
         backgrounds,
         currentIndex,

@@ -146,7 +146,7 @@ process.stdout.write(
             importantCount,
             transitionAllCount,
         },
-        passed,
+        pass: passed,
         score,
         scores,
         target: BASELINE.target,

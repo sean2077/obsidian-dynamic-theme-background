@@ -4,6 +4,7 @@ import test from "node:test";
 
 void test("release CI installs the lockfile and runs the shared gate first", () => {
     const workflow = readFileSync(".github/workflows/release.yml", "utf8");
+    const evaluator = readFileSync("tools/quality/evaluate.mjs", "utf8");
     const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
         allowScripts?: Record<string, boolean>;
         scripts?: Record<string, string>;
@@ -15,6 +16,8 @@ void test("release CI installs the lockfile and runs the shared gate first", () 
     assert.doesNotMatch(workflow, /npm install/u);
     assert.equal(packageJson.scripts?.check, "npm run build && npm run lint && npm run lint:css && npm test");
     assert.deepEqual(packageJson.allowScripts, { "esbuild@0.28.1": true });
+    assert.match(evaluator, /pass:\s*passed/u);
+    assert.doesNotMatch(evaluator, /\n\s*passed,/u);
 });
 
 void test("version authorities and mobile compatibility stay aligned", () => {
@@ -35,6 +38,12 @@ void test("version authorities and mobile compatibility stay aligned", () => {
     assert.equal(manifest.minAppVersion, "1.11.4");
     assert.equal(packageJson.devDependencies?.obsidian, "^1.13.1");
     assert.match(readFileSync(".gitignore", "utf8"), /^main\.js$/mu);
+});
+
+void test("older Obsidian releases retain a compatible plugin fallback", () => {
+    const versions = JSON.parse(readFileSync("versions.json", "utf8")) as Record<string, string>;
+
+    assert.equal(versions["2.9.2"], "1.7.2");
 });
 
 void test("developer and agent guidance names tests and the complete gate", () => {

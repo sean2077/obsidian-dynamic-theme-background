@@ -41,14 +41,12 @@ void test("ignores disabled, malformed, out-of-range, and zero-length rules", ()
     assert.equal(scheduler.parseTimeRule(rule("bad", "1:00", "02:00")), null);
 });
 
-void test("resolves overlaps deterministically by start then configuration order", () => {
-    const first = rule("first", "00:00", "04:00");
-    const second = rule("second", "00:00", "03:00");
-    const night = rule("night", "22:00", "06:00");
-    const scheduler = new TimeRuleScheduler([first, second, night]);
+void test("resolves overlaps by configuration order", () => {
+    const early = rule("early", "00:00", "04:00");
+    const overnight = rule("overnight", "22:00", "06:00");
 
-    assert.equal(scheduler.getCurrentRule(localDate(1, 0))?.id, "first");
-    assert.equal(scheduler.getCurrentRule(localDate(4, 0))?.id, "night");
+    assert.equal(new TimeRuleScheduler([overnight, early]).getCurrentRule(localDate(1, 0))?.id, "overnight");
+    assert.equal(new TimeRuleScheduler([early, overnight]).getCurrentRule(localDate(1, 0))?.id, "early");
 });
 
 void test("returns the next distinct boundary today or tomorrow", () => {

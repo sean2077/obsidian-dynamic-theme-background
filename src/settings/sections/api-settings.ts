@@ -3,7 +3,9 @@
  * 从 DTBSettingTab 中提取的独立 section 类，负责壁纸 API 的显示、添加、编辑、删除和拖拽排序
  */
 import { Notice, Setting } from "obsidian";
+import { cloneWallpaperApiConfig } from "../../core";
 import { logger } from "../../core/logger";
+import { redactSensitiveText } from "../../core/network-policy";
 import { t } from "../../i18n";
 import { WallpaperApiEditorModal } from "../../modals";
 import type DynamicThemeBackgroundPlugin from "../../plugin";
@@ -80,8 +82,9 @@ export class ApiSettingsSection {
                         const existingApi = this.plugin.settings.wallpaperApis.find((api) => api.id === apiConfig.id);
                         if (!existingApi) {
                             // 如果不存在，则添加并创建 API 实例
-                            this.plugin.settings.wallpaperApis.push(apiConfig);
-                            await this.plugin.createWallpaperApi(apiConfig, this.plugin.settings.enabled);
+                            const restoredConfig = cloneWallpaperApiConfig(apiConfig);
+                            this.plugin.settings.wallpaperApis.push(restoredConfig);
+                            await this.plugin.createWallpaperApi(restoredConfig, this.plugin.settings.enabled);
                         }
                     }
                     new Notice(t("restore_default_apis_success"));
@@ -114,8 +117,10 @@ export class ApiSettingsSection {
             items: this.plugin.settings.wallpaperApis,
             getItemId: (api) => api.id,
             reorderLabels: { up: t("move_item_up"), down: t("move_item_down") },
-            onReorder: async (reorderedApis) => {
-                this.plugin.settings.wallpaperApis = reorderedApis;
+            setItems: (apis) => {
+                this.plugin.settings.wallpaperApis = apis;
+            },
+            onReorder: async () => {
                 await this.plugin.saveSettings();
                 this.displayWallpaperApis();
             },
@@ -362,7 +367,8 @@ export class ApiSettingsSection {
                 new Notice(t("notice_api_failed_fetch", { apiName: api.getName() }));
             }
         } catch (error) {
-            new Notice(t("notice_api_error_fetch", { apiName: api.getName(), error: (error as Error).message }));
+            const message = error instanceof Error ? redactSensitiveText(error.message) : "Remote request failed";
+            new Notice(t("notice_api_error_fetch", { apiName: api.getName(), error: message }));
             logger.error("Error fetching wallpaper:", error);
         }
     }

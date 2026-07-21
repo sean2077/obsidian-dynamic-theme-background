@@ -33,16 +33,32 @@ void test("image and response bounds fail closed", () => {
 });
 
 void test("log sanitization removes query and header credentials", () => {
-    const text = redactSensitiveText("https://api.example.test?q=sky&client_id=secret-token&key=second");
-    assert.doesNotMatch(text, /secret-token|second/u);
+    const text = redactSensitiveText(
+        "https://api.example.test?q=sky&client_id=secret-token&access_token=second&password=third#x-api-key=fifth Basic fourth"
+    );
+    assert.doesNotMatch(text, /secret-token|second|third|fourth|fifth/u);
     assert.deepEqual(
         sanitizeForLog({
             Authorization: "Bearer secret",
-            nested: { api_key: "hidden", query: "safe" },
+            nested: {
+                accessKey: "hidden-access-key",
+                api_key: "hidden",
+                bearerToken: "hidden-token",
+                clientSecret: "hidden-client-secret",
+                password: "also-hidden",
+                query: "safe",
+            },
         }),
         {
             Authorization: "[REDACTED]",
-            nested: { api_key: "[REDACTED]", query: "safe" },
+            nested: {
+                accessKey: "[REDACTED]",
+                api_key: "[REDACTED]",
+                bearerToken: "[REDACTED]",
+                clientSecret: "[REDACTED]",
+                password: "[REDACTED]",
+                query: "safe",
+            },
         }
     );
 });

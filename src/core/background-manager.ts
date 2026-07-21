@@ -4,7 +4,13 @@
 
 import { Notice, type Plugin } from "obsidian";
 
-import { FALLBACK_CHECK_MS, MIN_DELAY_MS, MS_PER_MINUTE } from "../constants";
+import {
+    FALLBACK_CHECK_MS,
+    MAX_INTERVAL_MINUTES,
+    MIN_DELAY_MS,
+    MIN_INTERVAL_MINUTES,
+    MS_PER_MINUTE,
+} from "../constants";
 import { t } from "../i18n";
 import type { BackgroundItem, DTBSettings } from "../types";
 import { apiManager } from "../wallpaper-apis";
@@ -34,6 +40,7 @@ export class BackgroundManager {
     private onSettingsMutated: (() => void) | null;
     private plugin: Plugin;
     private running = false;
+    private scheduleGeneration = 0;
     private scheduler: TimeRuleScheduler;
     private styleManager: StyleManager;
     private timeoutId: number | null = null;
@@ -55,6 +62,7 @@ export class BackgroundManager {
 
     stop(): void {
         this.running = false;
+        this.scheduleGeneration += 1;
         this.updates.invalidate();
         if (this.intervalId !== null) {
             window.clearInterval(this.intervalId);
@@ -71,17 +79,22 @@ export class BackgroundManager {
 
     start(settings: DTBSettings): void {
         this.stop();
+        const scheduleGeneration = this.scheduleGeneration;
         this.running = true;
         activeDocument.body.classList.add("dtb-enabled");
 
         void this.update(settings, true);
 
         if (settings.mode === "time-based") {
-            this.startTimeBasedMode(settings);
+            this.startTimeBasedMode(settings, scheduleGeneration);
         } else if (settings.mode === "interval") {
-            const intervalMs = settings.intervalMinutes * MS_PER_MINUTE;
+            const intervalMinutes =
+                Math.min(MAX_INTERVAL_MINUTES, Math.max(MIN_INTERVAL_MINUTES, settings.intervalMinutes)) ||
+                MIN_INTERVAL_MINUTES;
+            const intervalMs = intervalMinutes * MS_PER_MINUTE;
             this.intervalId = this.plugin.registerInterval(
                 window.setInterval(() => {
+                    if (!this.isCurrentSchedule(scheduleGeneration)) return;
                     void this.update(settings, false);
                 }, intervalMs)
             );
@@ -96,14 +109,14 @@ export class BackgroundManager {
         }
     }
 
-    private startTimeBasedMode(settings: DTBSettings): void {
+    private startTimeBasedMode(settings: DTBSettings, generation: number): void {
         const scheduleNext = () => {
-            if (!this.running) return;
+            if (!this.isCurrentSchedule(generation)) return;
             const nextRuleChange = this.scheduler.getNextChangeTime();
             if (nextRuleChange !== null) {
                 const delay = Math.max(nextRuleChange - Date.now(), MIN_DELAY_MS);
                 this.timeoutId = window.setTimeout(() => {
-                    if (!this.running) return;
+                    if (!this.isCurrentSchedule(generation)) return;
                     void this.update(settings, false);
                     const currentRuleId = this.scheduler.getCurrentRule()?.id ?? null;
                     if (currentRuleId !== this.lastActiveRuleId) {
@@ -119,7 +132,7 @@ export class BackgroundManager {
                 });
             } else {
                 this.timeoutId = window.setTimeout(() => {
-                    if (!this.running) return;
+                    if (!this.isCurrentSchedule(generation)) return;
                     void this.update(settings, false);
                     scheduleNext();
                 }, FALLBACK_CHECK_MS);
@@ -128,6 +141,10 @@ export class BackgroundManager {
         };
 
         scheduleNext();
+    }
+
+    private isCurrentSchedule(generation: number): boolean {
+        return generation === this.scheduleGeneration;
     }
 
     async update(settings: DTBSettings, forceUpdate = true): Promise<void> {
