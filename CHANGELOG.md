@@ -1,3 +1,9 @@
+## [2.10.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.10.0...2.10.1) (2026-07-21)
+
+### Fixes
+
+* publish releases only after all required plugin files pass verification and upload successfully ([2bce517](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/2bce5178494c6a76ae76cee929f3a4a61c9b77fd))
+
 ## [2.10.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.9.2...2.10.0) (2026-07-21)
 
 ### Features
