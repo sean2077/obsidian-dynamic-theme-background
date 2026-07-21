@@ -114,8 +114,10 @@ export class ApiSettingsSection {
             items: this.plugin.settings.wallpaperApis,
             getItemId: (api) => api.id,
             reorderLabels: { up: t("move_item_up"), down: t("move_item_down") },
-            onReorder: async (reorderedApis) => {
-                this.plugin.settings.wallpaperApis = reorderedApis;
+            setItems: (apis) => {
+                this.plugin.settings.wallpaperApis = apis;
+            },
+            onReorder: async () => {
                 await this.plugin.saveSettings();
                 this.displayWallpaperApis();
             },

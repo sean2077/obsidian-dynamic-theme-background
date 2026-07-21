@@ -153,8 +153,10 @@ export class ModeSettingsSection {
             items: this.plugin.settings.timeRules,
             getItemId: (rule) => rule.id,
             reorderLabels: { up: t("move_item_up"), down: t("move_item_down") },
-            onReorder: async (reorderedRules) => {
-                this.plugin.settings.timeRules = reorderedRules;
+            setItems: (rules) => {
+                this.plugin.settings.timeRules = rules;
+            },
+            onReorder: async () => {
                 await this.plugin.saveSettings();
                 this.plugin.startBackgroundManager();
                 this.displayTimeRules();

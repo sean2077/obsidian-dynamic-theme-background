@@ -111,7 +111,7 @@ export class BgManagementSection {
             items: this.plugin.settings.backgrounds,
             getItemId: (bg) => bg.id,
             reorderLabels: { up: t("move_item_up"), down: t("move_item_down") },
-            onReorder: async (reorderedBackgrounds) => {
+            setItems: (reorderedBackgrounds) => {
                 const activeBackgroundId = this.plugin.background?.id;
                 this.plugin.settings.backgrounds = reorderedBackgrounds;
                 if (activeBackgroundId) {
@@ -120,6 +120,8 @@ export class BgManagementSection {
                     );
                     if (activeIndex >= 0) this.plugin.settings.currentIndex = activeIndex;
                 }
+            },
+            onReorder: async () => {
                 await this.plugin.saveSettings();
                 // 这里仅需刷新背景列表和时间规则列表
                 this.displayBackgrounds();

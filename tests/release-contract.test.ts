@@ -37,6 +37,12 @@ void test("version authorities and mobile compatibility stay aligned", () => {
     assert.match(readFileSync(".gitignore", "utf8"), /^main\.js$/mu);
 });
 
+void test("older Obsidian releases retain a compatible plugin fallback", () => {
+    const versions = JSON.parse(readFileSync("versions.json", "utf8")) as Record<string, string>;
+
+    assert.equal(versions["2.9.2"], "1.7.2");
+});
+
 void test("developer and agent guidance names tests and the complete gate", () => {
     const development = readFileSync("docs/development.md", "utf8");
     const agents = readFileSync("AGENTS.md", "utf8");

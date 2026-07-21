@@ -18,6 +18,8 @@ This guide holds lower-frequency implementation detail referenced by the root `A
 Install the locked dependency set with `npm ci`. The project pins approval for
 esbuild's reviewed install script; after dependency upgrades, run
 `npm install-scripts ls` and review any newly reported script before approving it.
+The bundle follows Obsidian's official `es2021` sample target and emits UTF-8 so
+localized strings do not expand into ASCII escape sequences.
 
 | Task | Command | Notes |
 |---|---|---|
@@ -45,7 +47,7 @@ Automated tests cover pure policies and structural lifecycle/release contracts. 
 
 Persisted data passes through `src/core/settings.ts`, which clones defaults and validates scalar and nested values before runtime use. When the schema changes, update the type, default, normalizer, relevant settings UI, tests, and `src/i18n/en.ts` plus `src/i18n/zh-cn.ts`.
 
-Provider password fields and every user-defined header value are persisted as SecretStorage IDs under `secretRefs`. `src/core/credential-storage.ts` owns lossless legacy migration, the plaintext save guard, and short-lived runtime hydration; `src/plugin.ts` is the only composition boundary that supplies `app.secretStorage`. Never pass a persisted provider config directly to `WallpaperApiManager` or write hydrated values back to plugin settings.
+Provider password fields, credential-like custom query parameters, and every user-defined header value are persisted as SecretStorage IDs under `secretRefs`. `src/core/credential-storage.ts` owns lossless legacy migration, the plaintext save guard, and short-lived runtime hydration; `src/plugin.ts` is the only composition boundary that supplies `app.secretStorage`. Never pass a persisted provider config directly to `WallpaperApiManager` or write hydrated values back to plugin settings.
 
 Obsidian 1.13+ renders `DTBSettingTab.getSettingDefinitions()` as declarative pages. Keep `display()` and the alternate settings view as the Obsidian 1.11.4–1.12 compatibility path; new 1.13-only calls must stay behind `requireApiVersion` guards in `src/core/obsidian-compat.ts`.
 
@@ -57,7 +59,7 @@ Create or update the command module under `src/commands/`, then keep the central
 
 A provider change can span the provider type/config contract, implementation and registry call, barrel export, settings descriptors, and localized labels. Route requests through the shared `BaseWallpaperApi.requestJson` policy so protocol, timeout, response-size, result-count, and credential-redaction rules remain consistent. Treat its result as `unknown` and parse it through the provider-specific validators in `src/wallpaper-apis/core/provider-responses.ts` before using a typed model. Keep enable/disable state notifications and failure rollback behavior consistent with `WallpaperApiManager`.
 
-Custom providers use the no-evaluation JSONPath subset in `src/core/safe-json-path.ts`: properties, quoted keys, indexes, positive-step slices, unions, wildcards, and recursive descent. Filters and script expressions are intentionally rejected.
+Custom providers append validated primitive `params` to the endpoint query. Query credentials must enter through `secretRefs.params` so only the hydrated runtime clone contains their values. Custom providers use the no-evaluation JSONPath subset in `src/core/safe-json-path.ts`: properties, quoted keys, indexes, positive-step slices, unions, wildcards, and recursive descent. Filters and script expressions are intentionally rejected.
 
 ### Runtime styling
 
@@ -69,4 +71,4 @@ Keep `README.md` and `README.zh.md` aligned for user-facing changes. Keep the tw
 
 ## Generated and release-owned files
 
-`main.js` is generated, ignored, and attached to GitHub releases with `manifest.json` and `styles.css`; do not hand-edit or commit it. Pushes to `main` or `master` install with `npm ci`, run `npm run check`, then run semantic-release, which derives the next version from Conventional Commits, updates `CHANGELOG.md`, `manifest.json`, `package.json`, `package-lock.json`, and `src/version.ts`, creates the release commit, and publishes the release assets. Ordinary feature and fix work should not pre-bump those version files.
+`main.js` is generated, ignored, and attached to GitHub releases with `manifest.json` and `styles.css`; do not hand-edit or commit it. `versions.json` preserves the most recent compatible plugin release whenever `minAppVersion` increases. Pushes to `main` or `master` install with `npm ci`, run `npm run check`, then run semantic-release, which derives the next version from Conventional Commits, updates `CHANGELOG.md`, `manifest.json`, `package.json`, `package-lock.json`, and `src/version.ts`, creates the release commit, and publishes the release assets. Ordinary feature and fix work should not pre-bump those version files.

@@ -7,12 +7,17 @@ interface Item {
     id: string;
 }
 
-function createSort(items: Item[], onReorder: (reordered: Item[]) => Promise<void> | void): DragSort<Item> {
+function createSort(
+    items: Item[],
+    onReorder: (reordered: Item[]) => Promise<void> | void,
+    setItems?: (items: Item[]) => void
+): DragSort<Item> {
     return new DragSort<Item>({
         container: {} as HTMLElement,
         items,
         getItemId: (item) => item.id,
         onReorder,
+        setItems,
     });
 }
 
@@ -67,4 +72,22 @@ void test("accessible reorder restores its local order when persistence rejects"
         ["a", "b"]
     );
     assert.equal(sort.canMove(items[0], 1), true);
+});
+
+void test("reorder restores an external collection when persistence rejects", async () => {
+    const items = [{ id: "a" }, { id: "b" }];
+    let publishedItems = items;
+    const sort = createSort(
+        items,
+        () => Promise.reject(new Error("save failed")),
+        (nextItems) => {
+            publishedItems = nextItems;
+        }
+    );
+
+    await assert.rejects(sort.moveItem(items[0], 1), /save failed/u);
+    assert.deepEqual(
+        publishedItems.map((item) => item.id),
+        ["a", "b"]
+    );
 });

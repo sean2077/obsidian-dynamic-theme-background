@@ -211,6 +211,10 @@ export default {
 
     // ===== API 模态窗口 =====
     api_modal_invalid_json: "Invalid JSON in extra parameters",
+    api_modal_invalid_extra_param: 'Extra parameter "{key}" must be a string, number, or boolean.',
+    api_modal_duplicate_param: 'Parameter "{key}" is configured more than once.',
+    api_modal_sensitive_extra_param:
+        'Move credential parameter "{key}" to Secret query parameters so it is not stored in data.json.',
     api_modal_enter_api_name: "Please enter an API name",
     api_modal_invalid_params: "Invalid API parameters: {errors}",
     api_modal_testing_config: "Testing API configuration...",
@@ -224,13 +228,18 @@ export default {
     api_modal_add_header: "Add header",
     api_modal_header_key: "Header key",
     api_modal_header_secret: "Obsidian secret",
-    api_modal_secret_missing: "Choose an Obsidian secret for every required credential and header.",
+    api_modal_secret_missing: "Choose an Obsidian secret for every required credential, query parameter, and header.",
     api_modal_api_parameters: "API parameters",
     api_modal_api_documentation: "📖 API documentation",
     api_modal_token_url: "🔑 Token URL",
     api_modal_extra_params: "Extra parameters (JSON)",
     api_modal_extra_params_desc: "Additional parameters not covered above, in JSON format",
     api_modal_extra_params_placeholder: '{\n  "customParam": "value",\n  "anotherParam": 123\n}',
+    api_modal_secret_params_optional: "Secret query parameters (optional)",
+    api_modal_secret_params_desc:
+        "Choose SecretStorage entries for query credentials. Values are added only to runtime requests.",
+    api_modal_add_secret_param: "Add secret parameter",
+    api_modal_secret_param_key: "Parameter name",
     api_modal_test_api: "Test API",
     api_modal_save: "Save",
     api_modal_title_edit: "Edit wallpaper API",

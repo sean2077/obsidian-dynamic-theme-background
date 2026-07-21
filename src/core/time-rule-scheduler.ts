@@ -6,7 +6,6 @@ import type { TimeRule } from "../types";
 
 interface CompiledRule {
     endTime: number;
-    order: number;
     rule: TimeRule;
     startTime: number;
 }
@@ -22,15 +21,12 @@ export class TimeRuleScheduler {
 
     updateRules(rules: TimeRule[]): void {
         this.rules = rules
-            .map((rule, order) => {
+            .map((rule) => {
                 if (!rule.enabled) return null;
                 const parsed = this.parseTimeRule(rule);
-                return parsed && parsed.startTime !== parsed.endTime
-                    ? { ...parsed, order, rule }
-                    : null;
+                return parsed && parsed.startTime !== parsed.endTime ? { ...parsed, rule } : null;
             })
-            .filter((rule): rule is CompiledRule => rule !== null)
-            .sort((left, right) => left.startTime - right.startTime || left.order - right.order);
+            .filter((rule): rule is CompiledRule => rule !== null);
     }
 
     /**

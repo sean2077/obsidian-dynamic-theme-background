@@ -7,6 +7,7 @@ import {
     MissingSecretReferenceError,
     assertSettingsCredentialsAreReferences,
     hydrateWallpaperApiConfig,
+    isCredentialParameterKey,
     migrateSettingsCredentials,
 } from "../src/core/credential-storage";
 import type { SecretStore, SensitiveParamResolver } from "../src/core/credential-storage";
@@ -75,6 +76,32 @@ function settingsFixture(): DTBSettings {
     };
 }
 
+function customCredentialSettings(): DTBSettings {
+    const settings = settingsFixture();
+    settings.credentialStorageVersion = CURRENT_CREDENTIAL_STORAGE_VERSION;
+    settings.wallpaperApis = [
+        {
+            id: "custom-query-api",
+            type: WallpaperApiType.Custom,
+            enabled: false,
+            name: "Custom query API",
+            baseUrl: "https://example.com/images",
+            params: { api_key: "custom-query-secret", page: 2 },
+            customSettings: { imageUrlJsonPath: "$.images[*].url" },
+        },
+    ];
+    return settings;
+}
+
+void test("credential query names cover common custom-provider variants without matching ordinary keys", () => {
+    for (const key of ["apiKey", "x-api-key", "unsplash_access_key", "auth_token", "refreshToken"]) {
+        assert.equal(isCredentialParameterKey(key), true, key);
+    }
+    for (const key of ["monkey", "keyboard", "page", "category"]) {
+        assert.equal(isCredentialParameterKey(key), false, key);
+    }
+});
+
 void test("credential migration replaces password parameters and every custom header with references", () => {
     const source = settingsFixture();
     const store = new FakeSecretStore();
@@ -114,6 +141,19 @@ void test("credential migration is idempotent and reuses an occupied ID only for
     assert.equal(second.migrated, false);
     assert.deepEqual(second.settings, first.settings);
     assert.equal(store.setCalls, callsAfterFirst);
+});
+
+void test("credential-like custom parameters migrate even after the original storage migration", () => {
+    const store = new FakeSecretStore();
+    const result = migrateSettingsCredentials(customCredentialSettings(), store, () => []);
+    const config = result.settings.wallpaperApis[0];
+    const secretRef = config.secretRefs?.params?.api_key;
+
+    assert.equal(result.migrated, true);
+    assert.deepEqual(config.params, { page: 2 });
+    assert.ok(secretRef);
+    assert.equal(store.getSecret(secretRef), "custom-query-secret");
+    assertSettingsCredentialsAreReferences(result.settings, () => []);
 });
 
 void test("a failed SecretStorage write leaves the persisted source fully recoverable", () => {
@@ -217,4 +257,11 @@ void test("the persistence guard rejects both legacy password fields and custom 
     const source = settingsFixture();
 
     assert.throws(() => assertSettingsCredentialsAreReferences(source, sensitiveParams), /plaintext credentials/u);
+});
+
+void test("the persistence guard rejects credential-like custom query parameters", () => {
+    assert.throws(
+        () => assertSettingsCredentialsAreReferences(customCredentialSettings(), () => []),
+        /plaintext credentials/u
+    );
 });

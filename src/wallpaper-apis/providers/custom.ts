@@ -8,6 +8,7 @@ import { generateId } from "../../utils/utils";
 import {
     apiRegistry,
     BaseWallpaperApi,
+    buildWallpaperApiUrl,
     WallpaperApiEndpoints,
     WallpaperApiParamDescriptor,
     WallpaperApiParams,
@@ -145,7 +146,7 @@ export class CustomApi extends BaseWallpaperApi {
             }
 
             return this.transformCustomResponse(
-                await this.requestJson(this.baseUrl, {
+                await this.requestJson(buildWallpaperApiUrl(this.baseUrl, this.params), {
                     allowInsecureHttp: true,
                     headers: this.config.headers,
                 })
