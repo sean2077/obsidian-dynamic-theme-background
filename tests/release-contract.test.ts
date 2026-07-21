@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
-void test("release CI installs the lockfile and runs the shared gate first", () => {
+void test("release CI is tag-triggered and publishes verified changelog notes", () => {
     const workflow = readFileSync(".github/workflows/release.yml", "utf8");
     const evaluator = readFileSync("tools/quality/evaluate.mjs", "utf8");
     const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
@@ -11,10 +11,25 @@ void test("release CI installs the lockfile and runs the shared gate first", () 
     };
 
     assert.match(workflow, /node-version: 22/u);
+    assert.match(workflow, /tags:\s*\n\s*- "\[0-9\]\*\.\[0-9\]\*\.\[0-9\]\*"/u);
+    assert.doesNotMatch(workflow, /branches:/u);
     assert.match(workflow, /run: npm ci/u);
+    assert.match(workflow, /git cat-file -t/u);
+    assert.match(workflow, /merge-base --is-ancestor/u);
+    assert.match(workflow, /npm run release:verify/u);
     assert.match(workflow, /run: npm run check/u);
+    assert.match(workflow, /npm run release:notes/u);
+    assert.match(workflow, /gh release create/u);
+    assert.match(workflow, /gh release upload "\$RELEASE_TAG" main\.js manifest\.json styles\.css --clobber/u);
+    assert.match(workflow, /--draft=false/u);
+    assert.match(workflow, /main\.js,manifest\.json,styles\.css/u);
+    assert.doesNotMatch(workflow, /semantic-release/iu);
     assert.doesNotMatch(workflow, /npm install/u);
+    assert.equal(existsSync(".releaserc.yml"), false);
     assert.equal(packageJson.scripts?.check, "npm run build && npm run lint && npm run lint:css && npm test");
+    assert.equal(packageJson.scripts?.["release:prepare"], "node tools/release/prepare.mjs");
+    assert.equal(packageJson.scripts?.["release:verify"], "node tools/release/verify.mjs");
+    assert.equal(packageJson.scripts?.["release:notes"], "node tools/release/notes.mjs");
     assert.deepEqual(packageJson.allowScripts, { "esbuild@0.28.1": true });
     assert.match(evaluator, /pass:\s*passed/u);
     assert.doesNotMatch(evaluator, /\n\s*passed,/u);
@@ -25,6 +40,10 @@ void test("version authorities and mobile compatibility stay aligned", () => {
         devDependencies?: Record<string, string>;
         version: string;
     };
+    const packageLock = JSON.parse(readFileSync("package-lock.json", "utf8")) as {
+        packages: Record<string, { version: string }>;
+        version: string;
+    };
     const manifest = JSON.parse(readFileSync("manifest.json", "utf8")) as {
         isDesktopOnly: boolean;
         minAppVersion: string;
@@ -33,6 +52,8 @@ void test("version authorities and mobile compatibility stay aligned", () => {
     const versionSource = readFileSync("src/version.ts", "utf8");
 
     assert.equal(packageJson.version, manifest.version);
+    assert.equal(packageLock.version, manifest.version);
+    assert.equal(packageLock.packages[""].version, manifest.version);
     assert.match(versionSource, new RegExp(`"${manifest.version}"`, "u"));
     assert.equal(manifest.isDesktopOnly, false);
     assert.equal(manifest.minAppVersion, "1.11.4");
@@ -52,7 +73,10 @@ void test("developer and agent guidance names tests and the complete gate", () =
 
     assert.match(development, /`npm test`/u);
     assert.match(development, /`npm run check`/u);
+    assert.match(development, /`npm run release:prepare -- <version>`/u);
+    assert.match(development, /annotated tag/u);
     assert.match(agents, /Run `npm run check`/u);
+    assert.match(agents, /`npm run release:prepare -- <version>`/u);
     assert.doesNotMatch(agents, /There is no automated test script/u);
 });
 

@@ -14,6 +14,9 @@
         "lint:fix": "eslint . --fix",
         "lint:css": "stylelint \"styles.css\"",
         "fix:css": "stylelint \"styles.css\" --fix",
+        "release:notes": "node tools/release/notes.mjs",
+        "release:prepare": "node tools/release/prepare.mjs",
+        "release:verify": "node tools/release/verify.mjs",
         "test": "node tools/quality/test.mjs"
     },
     "keywords": [],
