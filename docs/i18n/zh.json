@@ -117,13 +117,13 @@
         },
         "marketplace": {
             "title": "社区市场",
-            "status": "审核中",
+            "status": "已上架",
             "steps": [
                 "设置 → 社区插件 → <strong>浏览</strong>",
-                "（通过后）搜索 <strong>Dynamic Theme Background</strong> / <strong>DTB</strong>",
+                "搜索 <strong>Dynamic Theme Background</strong> / <strong>DTB</strong>",
                 "安装并启用"
             ],
-            "note": "当前在官方审核队列。待通过前可使用 BRAT 或 手动 安装。跟踪 PR: <code class=\"repo-inline-code\">obsidian-releases</code>"
+            "note": "已在 Obsidian 官方社区插件市场上架。<a href=\"https://community.obsidian.md/plugins/dynamic-theme-background\" target=\"_blank\" rel=\"noopener noreferrer\">查看插件页面</a>。"
         },
         "brat": {
             "title": "BRAT (Beta)",
@@ -133,7 +133,7 @@
                 "BRAT → Add beta plugin → 粘贴仓库地址：<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>",
                 "在设置中启用插件"
             ],
-            "note": "在 Marketplace 上架前最快体验最新功能的方式。"
+            "note": "使用 BRAT 测试尚未进入官方市场的 Beta 或预发布版本。"
         },
         "manual": {
             "title": "手动安装",
