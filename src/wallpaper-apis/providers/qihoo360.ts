@@ -2,68 +2,23 @@
  * 基于360壁纸API文档实现
  */
 
-import { Notice, requestUrl } from "obsidian";
+import { Notice } from "obsidian";
 import { logger } from "../../core/logger";
 import { generateId } from "../../utils/utils";
 import { t } from "../../i18n";
 import {
     apiRegistry,
     BaseWallpaperApi,
+    parseQihoo360CategoryResponse,
+    parseQihoo360HotSearchResponse,
+    parseQihoo360WallpaperResponse,
+    Qihoo360Wallpaper,
     WallpaperApiEndpoints,
     WallpaperApiParamDescriptor,
     WallpaperApiParams,
     WallpaperApiType,
     WallpaperImage,
 } from "../core";
-
-// 360壁纸API响应接口
-interface Qihoo360CategoryResponse {
-    errno: string;
-    errmsg: string;
-    total: string;
-    data: Array<{
-        id: string;
-        name: string;
-        order_num: string;
-        tag: string;
-        create_time: string;
-    }>;
-}
-
-interface Qihoo360WallpaperResponse {
-    errno: string;
-    errmsg: string;
-    total: string;
-    data: Array<{
-        pid?: string;
-        id?: string;
-        cid: string;
-        url: string;
-        fav_total?: string;
-        utag?: string;
-        resolution?: string;
-        url_mobile?: string;
-        url_thumb?: string;
-        url_mid?: string;
-        img_1920_1080?: string;
-        img_1600_900?: string;
-        img_1440_900?: string;
-        img_1366_768?: string;
-        img_1280_800?: string;
-        img_1280_1024?: string;
-        img_1024_768?: string;
-        img_800_600?: string;
-        img_640_480?: string;
-        // 支持更多分辨率字段
-        [key: string]: string | undefined;
-    }>;
-}
-
-interface Qihoo360HotSearchResponse {
-    error: number;
-    total: number;
-    data: string[];
-}
 
 export class Qihoo360Api extends BaseWallpaperApi {
     type: WallpaperApiType = WallpaperApiType.Qihoo360;
@@ -90,7 +45,7 @@ export class Qihoo360Api extends BaseWallpaperApi {
             search: "/index.php?c=WallPaper&a=search",
             category: "/index.php?c=WallPaperAndroid&a=getAppsByCategory",
             newest: "/index.php?c=WallPaper&a=getAppsByOrder&order=create_time&from=360chrome",
-            hotSearch: "http://openbox.mobilem.360.cn/html/api/wallpaperhot.html",
+            hotSearch: "https://openbox.mobilem.360.cn/html/api/wallpaperhot.html",
         };
     }
 
@@ -310,15 +265,11 @@ export class Qihoo360Api extends BaseWallpaperApi {
     private async loadCategories(): Promise<void> {
         try {
             const url = this.buildEndpointUrl("categories");
-            logger.debug("360壁纸API: 获取分类列表", url);
-
-            const response = await requestUrl({
-                url: url,
-                method: "GET",
-            });
-
-            const json: unknown = response.json;
-            const data = json as Qihoo360CategoryResponse;
+            const data = parseQihoo360CategoryResponse(
+                await this.requestJson(url, {
+                    allowInsecureHttp: true,
+                })
+            );
 
             if (data.errno === "0" && data.data) {
                 this.categoriesCache = data.data;
@@ -342,15 +293,7 @@ export class Qihoo360Api extends BaseWallpaperApi {
             if (!url) {
                 throw new Error("hotSearch endpoint not configured");
             }
-            logger.debug("360壁纸API: 获取热门搜索", url);
-
-            const response = await requestUrl({
-                url: url,
-                method: "GET",
-            });
-
-            const json: unknown = response.json;
-            const data = json as Qihoo360HotSearchResponse;
+            const data = parseQihoo360HotSearchResponse(await this.requestJson(url));
 
             if (data.error === 0 && data.data) {
                 this.hotSearchCache = data.data;
@@ -376,18 +319,14 @@ export class Qihoo360Api extends BaseWallpaperApi {
         });
 
         const url = `${this.baseUrl}/index.php?${params.toString()}`;
-        logger.debug("360壁纸API: 获取最新壁纸", url);
-
-        const response = await requestUrl({
-            url: url,
-            method: "GET",
-        });
-
-        const json: unknown = response.json;
-        const data = json as Qihoo360WallpaperResponse;
+        const data = parseQihoo360WallpaperResponse(
+            await this.requestJson(url, {
+                allowInsecureHttp: true,
+            })
+        );
 
         if (data.errno === "0" && data.data) {
-            return data.data.map((item, index) => this.convertToWallpaperImage(item, index));
+            return this.limitItems(data.data).map((item, index) => this.convertToWallpaperImage(item, index));
         } else {
             throw new Error(`API返回错误: ${data.errmsg}`);
         }
@@ -407,18 +346,14 @@ export class Qihoo360Api extends BaseWallpaperApi {
         });
 
         const url = `${this.baseUrl}/index.php?${params.toString()}`;
-        logger.debug("360壁纸API: 获取分类壁纸", url);
-
-        const response = await requestUrl({
-            url: url,
-            method: "GET",
-        });
-
-        const json: unknown = response.json;
-        const data = json as Qihoo360WallpaperResponse;
+        const data = parseQihoo360WallpaperResponse(
+            await this.requestJson(url, {
+                allowInsecureHttp: true,
+            })
+        );
 
         if (data.errno === "0" && data.data) {
-            return data.data.map((item, index) => this.convertToWallpaperImage(item, index));
+            return this.limitItems(data.data).map((item, index) => this.convertToWallpaperImage(item, index));
         } else {
             throw new Error(`API返回错误: ${data.errmsg}`);
         }
@@ -443,18 +378,14 @@ export class Qihoo360Api extends BaseWallpaperApi {
         });
 
         const url = `${this.baseUrl}/index.php?${params.toString()}`;
-        logger.debug("360壁纸API: 搜索壁纸", url);
-
-        const response = await requestUrl({
-            url: url,
-            method: "GET",
-        });
-
-        const json: unknown = response.json;
-        const data = json as Qihoo360WallpaperResponse;
+        const data = parseQihoo360WallpaperResponse(
+            await this.requestJson(url, {
+                allowInsecureHttp: true,
+            })
+        );
 
         if (data.errno === "0" && data.data) {
-            return data.data.map((item, index) => this.convertToWallpaperImage(item, index));
+            return this.limitItems(data.data).map((item, index) => this.convertToWallpaperImage(item, index));
         } else {
             throw new Error(`API返回错误: ${data.errmsg}`);
         }
@@ -463,7 +394,7 @@ export class Qihoo360Api extends BaseWallpaperApi {
     /**
      * 转换API响应为WallpaperImage格式
      */
-    private convertToWallpaperImage(item: Qihoo360WallpaperResponse["data"][number], _index: number): WallpaperImage {
+    private convertToWallpaperImage(item: Qihoo360Wallpaper, _index: number): WallpaperImage {
         // 获取首选分辨率设置
         const preferredResolution = this.params.preferredResolution || "auto";
         let imageUrl = item.url;

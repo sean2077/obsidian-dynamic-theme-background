@@ -2,24 +2,22 @@
  * 文档: https://unsplash.com/documentation
  */
 
-import { Notice, requestUrl } from "obsidian";
+import { Notice } from "obsidian";
 import { logger } from "../../core/logger";
 import { t } from "../../i18n";
+import { isRecord } from "../../utils/type-guards";
 import {
     apiRegistry,
     BaseWallpaperApi,
+    parseUnsplashPhotoArray,
+    parseUnsplashSearchResponse,
+    UnsplashSearchResponse,
     WallpaperApiEndpoints,
     WallpaperApiParamDescriptor,
     WallpaperApiParams,
     WallpaperApiType,
     WallpaperImage,
 } from "../core";
-
-interface UnsplashSearchResponse {
-    results?: Record<string, unknown>[];
-    total?: number;
-    total_pages?: number;
-}
 
 export class UnsplashApi extends BaseWallpaperApi {
     type: WallpaperApiType = WallpaperApiType.Unsplash;
@@ -276,7 +274,9 @@ export class UnsplashApi extends BaseWallpaperApi {
             this.totalCount = data.total ?? -1;
 
             // 缓存当前页的数据
-            this.wallpaperImageCache = data.results.map((photo: Record<string, unknown>) => this.transformPhoto(photo));
+            this.wallpaperImageCache = this.limitItems(data.results).map((photo: Record<string, unknown>) =>
+                this.transformPhoto(photo)
+            );
             this.curDataIndex = 0;
 
             return true;
@@ -297,7 +297,9 @@ export class UnsplashApi extends BaseWallpaperApi {
             }
 
             // 缓存随机图片数据
-            this.wallpaperImageCache = photos.map((photo: Record<string, unknown>) => this.transformPhoto(photo));
+            this.wallpaperImageCache = this.limitItems(photos).map((photo: Record<string, unknown>) =>
+                this.transformPhoto(photo)
+            );
             this.curDataIndex = 0;
 
             return true;
@@ -312,7 +314,6 @@ export class UnsplashApi extends BaseWallpaperApi {
         const queryParams = new URLSearchParams();
 
         // 必需参数
-        queryParams.append("client_id", String(this.params.client_id ?? ""));
         queryParams.append("query", String(this.params.query ?? ""));
         queryParams.append("page", String(page));
         queryParams.append("per_page", String(this.params.per_page ?? this.perPage));
@@ -335,10 +336,11 @@ export class UnsplashApi extends BaseWallpaperApi {
         }
 
         const url = `${this.buildEndpointUrl("search")}?${queryParams.toString()}`;
-        logger.debug(`Fetching Unsplash search results from: ${url}`);
-        const response = await requestUrl({ url });
-        const data: unknown = response.json;
-        return data as UnsplashSearchResponse;
+        return parseUnsplashSearchResponse(
+            await this.requestJson(url, {
+                headers: this.getAuthorizationHeader(),
+            })
+        );
     }
 
     // 随机图片请求
@@ -346,7 +348,6 @@ export class UnsplashApi extends BaseWallpaperApi {
         const queryParams = new URLSearchParams();
 
         // 必需参数
-        queryParams.append("client_id", String(this.params.client_id ?? ""));
         queryParams.append("count", String(count));
 
         // 可选参数
@@ -364,16 +365,36 @@ export class UnsplashApi extends BaseWallpaperApi {
         }
 
         const url = `${this.buildEndpointUrl("random")}?${queryParams.toString()}`;
-        logger.debug(`Fetching Unsplash random photos from: ${url}`);
-        const response = await requestUrl({ url });
-        const data: unknown = response.json;
-        return data as Record<string, unknown>[];
+        return parseUnsplashPhotoArray(
+            await this.requestJson(url, {
+                headers: this.getAuthorizationHeader(),
+            })
+        );
+    }
+
+    protected async onImagesSelected(images: WallpaperImage[]): Promise<void> {
+        await Promise.all(
+            images.map((image) =>
+                image.trackingUrl
+                    ? this.requestJson(image.trackingUrl, {
+                          headers: this.getAuthorizationHeader(),
+                      })
+                    : Promise.resolve()
+            )
+        );
+    }
+
+    private getAuthorizationHeader(): Record<string, string> {
+        return {
+            Authorization: `Client-ID ${String(this.params.client_id ?? "")}`,
+        };
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformPhoto(photo: Record<string, unknown>): WallpaperImage {
-        const user = (photo.user as Record<string, unknown>) ?? {};
-        const urls = (photo.urls as Record<string, unknown>) ?? {};
+        const user = isRecord(photo.user) ? photo.user : {};
+        const urls = isRecord(photo.urls) ? photo.urls : {};
+        const links = isRecord(photo.links) ? photo.links : {};
 
         return {
             id: this.safeString(photo.id),
@@ -383,6 +404,7 @@ export class UnsplashApi extends BaseWallpaperApi {
             author: this.safeString(user.name) || this.safeString(user.username),
             description: this.safeString(photo.description) || this.safeString(photo.alt_description),
             downloadUrl: this.safeString(urls.full) || this.safeString(urls.raw),
+            trackingUrl: this.safeString(links.download_location) || undefined,
         };
     }
 }

@@ -1,88 +1,99 @@
 /**
- * 背景持久化服务
- * 负责远程图片下载保存到 vault
+ * Validates and stores remote backgrounds in the vault without delete-first
+ * overwrite behavior.
  */
 
-import { type App, Notice, requestUrl } from "obsidian";
+import { type App, Notice, TFolder, requestUrl } from "obsidian";
 
 import { t } from "../i18n";
 import { confirm } from "../modals";
 import type { BackgroundItem } from "../types";
 import { logger } from "./logger";
+import { REQUEST_TIMEOUT_MS, assertRemoteUrl, withTimeout } from "./network-policy";
+import {
+    type BinaryStore,
+    buildImagePath,
+    inspectImageResponse,
+    normalizeVaultFolder,
+    writeImage,
+} from "./persistence-policy";
 
 export interface SaveResult {
     success: true;
-    /** 更新后的 BackgroundItem（value 替换为本地路径, remoteUrl 为备份） */
     updatedBg: BackgroundItem;
 }
 
 export interface SaveError {
-    success: false;
     error: string;
+    success: false;
+}
+
+function responseContentType(headers: Record<string, string>): string | undefined {
+    return Object.entries(headers).find(([name]) => name.toLowerCase() === "content-type")?.[1];
 }
 
 export class BackgroundPersistence {
     constructor(private app: App) {}
 
-    /**
-     * 保存远程图片到本地 vault
-     * 返回新的 BackgroundItem（不修改输入对象）
-     */
     async saveRemoteImage(bg: BackgroundItem, folderPath: string): Promise<SaveResult | SaveError> {
-        if (!folderPath) {
-            return { success: false, error: "no_folder_path" };
-        }
-
-        // 规范化文件名
-        const imageName = bg.name.replace(/[\\/:*?"<>|]/g, "_") + ".jpg";
-        const localPath = `${folderPath}/${imageName}`;
-
-        // 判断路径是否存在
-        const file = this.app.vault.getFileByPath(localPath);
-        if (file) {
-            const overwrite = await confirm(
-                this.app,
-                t("notice_save_background_overwrite_existing_file", { filePath: localPath })
-            );
-            if (!overwrite) {
-                return { success: false, error: "cancelled" };
-            }
-        }
-
-        // 下载远程图片
+        let folder: string;
+        let remoteUrl: string;
         try {
-            const response = await requestUrl({ url: bg.value });
-            if (response.status < 200 || response.status >= 300) {
-                new Notice(t("notice_save_background_failed"), response.status);
-                return { success: false, error: `HTTP ${response.status}` };
-            }
-            const arrayBuffer = response.arrayBuffer;
+            folder = normalizeVaultFolder(folderPath);
+            remoteUrl = assertRemoteUrl(bg.value, { allowInsecureHttp: true });
+        } catch {
+            return { error: "invalid_path_or_url", success: false };
+        }
+        if (!(this.app.vault.getAbstractFileByPath(folder) instanceof TFolder)) {
+            return { error: "invalid_folder", success: false };
+        }
 
-            // 覆盖旧文件
-            if (file) {
-                await this.app.fileManager.trashFile(file);
+        try {
+            const response = await withTimeout(requestUrl({ method: "GET", url: remoteUrl }), REQUEST_TIMEOUT_MS, {
+                clearTimeout: (handle) => window.clearTimeout(handle as number),
+                setTimeout: (callback, delay) => window.setTimeout(callback, delay),
+            });
+            const extension = inspectImageResponse(
+                responseContentType(response.headers),
+                response.arrayBuffer.byteLength
+            );
+            const localPath = buildImagePath(folder, bg.name, extension);
+            const result = await writeImage(this.createStore(), localPath, response.arrayBuffer, (path) =>
+                confirm(
+                    this.app,
+                    t("notice_save_background_overwrite_existing_file", {
+                        filePath: path,
+                    })
+                )
+            );
+            if (result === "cancelled") {
+                return { error: "cancelled", success: false };
             }
-            await this.app.vault.createBinary(localPath, arrayBuffer);
 
-            // 创建新的 BackgroundItem（不修改原对象）
             const updatedBg: BackgroundItem = {
                 ...bg,
                 remoteUrl: bg.value,
                 value: localPath,
             };
-
-            new Notice(
-                t("notice_save_background_converted", {
-                    oldPath: bg.value,
-                    newPath: localPath,
-                }),
-                5000
-            );
-
+            new Notice(t("notice_save_background_converted", { newPath: localPath }), 5000);
             return { success: true, updatedBg };
         } catch (error) {
-            logger.error("Error saving remote image:", error);
-            return { success: false, error: String(error) };
+            logger.error("Error saving remote image", error);
+            return { error: "download_or_write_failed", success: false };
         }
+    }
+
+    private createStore(): BinaryStore {
+        return {
+            create: async (path, data) => {
+                await this.app.vault.createBinary(path, data);
+            },
+            exists: (path) => this.app.vault.getFileByPath(path) !== null,
+            replace: async (path, data) => {
+                const file = this.app.vault.getFileByPath(path);
+                if (!file) throw new Error("Existing image disappeared before replace");
+                await this.app.vault.modifyBinary(file, data);
+            },
+        };
     }
 }

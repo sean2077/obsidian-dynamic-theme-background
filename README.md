@@ -75,6 +75,13 @@
 - Middle Click → Open settings
 - Right Click → Save current background
 
+## Network and Privacy
+
+- Local images, colors, and gradients work without provider requests. Enabling a wallpaper provider, using a custom JSON endpoint, or applying/saving a remote image can contact the configured third party; that service's terms and privacy policy apply.
+- Provider keys, tokens, and custom headers are stored in the plugin's `data.json` under the vault configuration so Obsidian 1.7.2 remains supported. This file is not encrypted: do not publish it, review vault-sync destinations, and rotate any credential that may have been exposed.
+- The plugin has no telemetry or analytics. Diagnostic logging sanitizes credential-bearing URLs and headers, bounds nested data, and does not intentionally log API keys or tokens.
+- Saving a remote wallpaper is an explicit action and writes only to the validated vault-relative folder selected in plugin settings.
+
 ## Notes
 
 - Optimized for dark themes; light themes may need parameter adjustments

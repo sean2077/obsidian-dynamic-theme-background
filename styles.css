@@ -161,7 +161,11 @@
     border-radius: 10px;
     padding: 0.75rem !important;
     background: var(--background-primary-alt);
-    transition: all var(--dtb-anim-normal-curve);
+    transition:
+        background-color var(--dtb-anim-normal-curve),
+        border-color var(--dtb-anim-normal-curve),
+        box-shadow var(--dtb-anim-normal-curve),
+        transform var(--dtb-anim-normal-curve);
     position: relative;
     overflow: hidden;
     display: flex !important;
@@ -182,7 +186,7 @@
     height: 100%;
     background: var(--interactive-accent);
     opacity: 0;
-    transition: all var(--dtb-anim-normal-curve);
+    transition: opacity var(--dtb-anim-normal-curve);
     border-radius: 0 2px 2px 0;
 }
 
@@ -206,7 +210,7 @@
 .dtb-item:active,
 .dtb-section-container .setting-item:active {
     transform: translateY(-1px) scale(0.99);
-    transition: all var(--dtb-anim-quick-curve);
+    transition: transform var(--dtb-anim-quick-curve);
 }
 
 /* 设置项信息区域 - 紧凑优化 */
@@ -521,7 +525,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all var(--dtb-anim-fast-curve);
+    transition:
+        box-shadow var(--dtb-anim-fast-curve),
+        transform var(--dtb-anim-fast-curve);
     box-shadow: var(--dtb-shadow-base);
 }
 .theme-light .dtb-hint {
@@ -549,7 +555,11 @@
     border-radius: 6px;
     border: 1px solid var(--background-modifier-border);
     background: var(--background-secondary);
-    transition: all var(--dtb-anim-fast-curve);
+    transition:
+        background-color var(--dtb-anim-fast-curve),
+        border-color var(--dtb-anim-fast-curve),
+        box-shadow var(--dtb-anim-fast-curve),
+        transform var(--dtb-anim-fast-curve);
     white-space: nowrap;
 }
 .dtb-link:hover {
@@ -596,7 +606,11 @@
     cursor: pointer;
     font-size: 0.8rem;
     font-weight: 500;
-    transition: all var(--dtb-anim-fast-curve);
+    transition:
+        background-color var(--dtb-anim-fast-curve),
+        border-color var(--dtb-anim-fast-curve),
+        box-shadow var(--dtb-anim-fast-curve),
+        transform var(--dtb-anim-fast-curve);
     position: relative;
     overflow: hidden;
 }
@@ -615,8 +629,8 @@
 /* 按钮悬停效果 */
 .dtb-button:hover,
 .dtb-button-container button:hover {
-    background: var(--interactive-hover) !important;
-    border-color: var(--interactive-accent) !important;
+    background: var(--interactive-hover);
+    border-color: var(--interactive-accent);
     transform: translateY(-2px);
     box-shadow: var(--dtb-shadow-hover);
 }
@@ -643,7 +657,10 @@
     border-radius: 10px;
     padding: 0.8rem 1.5rem;
     font-weight: 600;
-    transition: all var(--dtb-anim-fast-curve);
+    transition:
+        border-color var(--dtb-anim-fast-curve),
+        box-shadow var(--dtb-anim-fast-curve),
+        transform var(--dtb-anim-fast-curve);
     border: 2px solid transparent;
     background: linear-gradient(135deg, var(--interactive-accent), var(--interactive-accent-hover));
     color: var(--text-on-accent);
@@ -696,7 +713,9 @@
 /* 可拖拽元素的基础样式 */
 .dtb-draggable {
     cursor: grab;
-    transition: all var(--dtb-anim-fast-curve);
+    transition:
+        opacity var(--dtb-anim-fast-curve),
+        transform var(--dtb-anim-fast-curve);
 }
 .dtb-draggable:hover {
     transform: translateY(-1px);
@@ -717,7 +736,10 @@
     user-select: none;
     font-weight: bold;
     line-height: 1;
-    transition: all var(--dtb-anim-fast-curve);
+    transition:
+        background-color var(--dtb-anim-fast-curve),
+        color var(--dtb-anim-fast-curve),
+        transform var(--dtb-anim-fast-curve);
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -734,9 +756,9 @@
 
 /* 拖拽放置区域样式 - 顶部（通用） */
 .dtb-drag-over-top {
-    border-top: 3px solid var(--interactive-accent) !important;
-    border-top-left-radius: 10px !important;
-    border-top-right-radius: 10px !important;
+    border-top: 3px solid var(--interactive-accent);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     margin-top: 6px;
     position: relative;
 }
@@ -755,9 +777,9 @@
 }
 /* 拖拽放置区域样式 - 底部（通用） */
 .dtb-drag-over-bottom {
-    border-bottom: 3px solid var(--interactive-accent) !important;
-    border-bottom-left-radius: 10px !important;
-    border-bottom-right-radius: 10px !important;
+    border-bottom: 3px solid var(--interactive-accent);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
     margin-bottom: 6px;
     position: relative;
 }
@@ -832,7 +854,10 @@
     border-radius: 8px;
     border: 2px solid var(--background-modifier-border);
     box-shadow: var(--dtb-shadow-base);
-    transition: all var(--dtb-anim-fast-curve);
+    transition:
+        border-color var(--dtb-anim-fast-curve),
+        box-shadow var(--dtb-anim-fast-curve),
+        transform var(--dtb-anim-fast-curve);
     position: relative;
     overflow: hidden;
     /* 默认背景样式 */
@@ -1091,6 +1116,51 @@
         box-shadow:
             0 0 16px 4px #91eac9,
             0 0 4px 2px #fff8;
+    }
+}
+
+.dtb-button:focus-visible,
+.dtb-button-container button:focus-visible,
+.dtb-large-button:focus-visible,
+.dtb-large-button-container button:focus-visible,
+.dtb-link:focus-visible,
+.dtb-remove-button:focus-visible,
+.dtb-status-bar:focus-visible {
+    outline: 2px solid var(--interactive-accent);
+    outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+    .dtb-button,
+    .dtb-button-container button,
+    .dtb-large-button,
+    .dtb-large-button-container button,
+    .dtb-link,
+    .dtb-remove-button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dtb-item,
+    .dtb-section-container .setting-item,
+    .dtb-button,
+    .dtb-button-container button,
+    .dtb-large-button,
+    .dtb-large-button-container button,
+    .dtb-link,
+    .dtb-draggable,
+    .dtb-drag-handle,
+    .dtb-bg-preview,
+    .dtb-status-bar {
+        transition-duration: 0.01ms;
+    }
+
+    .dtb-loading-spinner,
+    .dtb-api-status-dot.loading,
+    .dtb-status-dot {
+        animation: none;
     }
 }
 

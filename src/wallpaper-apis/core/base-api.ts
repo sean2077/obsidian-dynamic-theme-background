@@ -3,7 +3,17 @@
  * 简化设计：移除接口冗余，只保留必要的抽象类
  */
 
+import { requestUrl } from "obsidian";
+
 import { logger } from "../../core/logger";
+import {
+    MAX_IMAGE_RESULTS,
+    REQUEST_TIMEOUT_MS,
+    assertRemoteUrl,
+    assertResponseSize,
+    isAllowedImageUrl,
+    withTimeout,
+} from "../../core/network-policy";
 import { generateId } from "../../utils/utils";
 import type {
     WallpaperApiConfig,
@@ -290,6 +300,41 @@ export abstract class BaseWallpaperApi {
         return url;
     }
 
+    protected async requestJson(
+        url: string,
+        options: {
+            allowInsecureHttp?: boolean;
+            headers?: Record<string, string>;
+        } = {}
+    ): Promise<unknown> {
+        const safeUrl = assertRemoteUrl(url, {
+            allowInsecureHttp: options.allowInsecureHttp,
+        });
+        const response = await withTimeout(
+            requestUrl({
+                headers: options.headers,
+                method: "GET",
+                url: safeUrl,
+            }),
+            REQUEST_TIMEOUT_MS,
+            {
+                clearTimeout: (handle) => window.clearTimeout(handle as number),
+                setTimeout: (callback, delay) => window.setTimeout(callback, delay),
+            }
+        );
+        assertResponseSize(response.arrayBuffer.byteLength);
+        const json: unknown = response.json;
+        return json;
+    }
+
+    protected limitItems<T>(items: T[]): T[] {
+        return items.slice(0, MAX_IMAGE_RESULTS);
+    }
+
+    protected onImagesSelected(_images: WallpaperImage[]): Promise<void> {
+        return Promise.resolve();
+    }
+
     /**
      * 使用 URLSearchParams 构建查询字符串
      *
@@ -331,10 +376,12 @@ export abstract class BaseWallpaperApi {
     // ============================================================================
 
     async getImages(imageNum = 1): Promise<WallpaperImage[] | null> {
+        const requested = Math.min(Math.trunc(imageNum), 20);
+        if (requested < 1) return null;
         const images: WallpaperImage[] = [];
 
-        while (images.length < imageNum) {
-            const remaining = imageNum - images.length;
+        while (images.length < requested) {
+            const remaining = requested - images.length;
             const available = this.wallpaperImageCache.length - this.curDataIndex;
 
             if (available > 0) {
@@ -343,8 +390,11 @@ export abstract class BaseWallpaperApi {
                 this.curDataIndex += slice.length;
             }
 
-            if (images.length < imageNum) {
+            if (images.length < requested) {
                 const updated = await this.updateImageCache();
+                this.wallpaperImageCache = this.limitItems(this.wallpaperImageCache).filter((image) =>
+                    isAllowedImageUrl(image.url)
+                );
                 if (!updated || this.wallpaperImageCache.length === 0) {
                     break; // 获取失败或没有更多图片
                 }
@@ -352,6 +402,8 @@ export abstract class BaseWallpaperApi {
             }
         }
 
-        return images.length > 0 ? images : null;
+        if (images.length === 0) return null;
+        await this.onImagesSelected(images);
+        return images;
     }
 }

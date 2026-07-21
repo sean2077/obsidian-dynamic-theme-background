@@ -2,27 +2,20 @@
  * 文档: https://wallhaven.cc/help/api
  */
 
-import { Notice, requestUrl } from "obsidian";
+import { Notice } from "obsidian";
 import { logger } from "../../core/logger";
 import { t } from "../../i18n";
 import {
     apiRegistry,
     BaseWallpaperApi,
+    parseWallhavenResponse,
+    WallhavenResponse,
     WallpaperApiEndpoints,
     WallpaperApiParamDescriptor,
     WallpaperApiParams,
     WallpaperApiType,
     WallpaperImage,
 } from "../core";
-
-interface WallhavenResponse {
-    data?: Record<string, unknown>[];
-    meta?: {
-        last_page?: number;
-        per_page?: number;
-        total?: number;
-    };
-}
 
 export class WallhavenApi extends BaseWallpaperApi {
     type: WallpaperApiType = WallpaperApiType.Wallhaven;
@@ -105,7 +98,7 @@ export class WallhavenApi extends BaseWallpaperApi {
                     result += arr.includes("general") ? "1" : "0";
                     result += arr.includes("anime") ? "1" : "0";
                     result += arr.includes("people") ? "1" : "0";
-                    return result || (defaultParams.categories);
+                    return result || defaultParams.categories;
                 },
                 fromApiValue: (apiValue) => {
                     const str = apiValue?.toString() ?? (defaultParams.categories as string);
@@ -133,7 +126,7 @@ export class WallhavenApi extends BaseWallpaperApi {
                     result += arr.includes("sfw") ? "1" : "0";
                     result += arr.includes("sketchy") ? "1" : "0";
                     result += arr.includes("nsfw") ? "1" : "0";
-                    return result || (defaultParams.purity);
+                    return result || defaultParams.purity;
                 },
                 fromApiValue: (apiValue) => {
                     const str = apiValue?.toString() ?? (defaultParams.purity as string);
@@ -344,7 +337,9 @@ export class WallhavenApi extends BaseWallpaperApi {
                 return false;
             }
             // 为避免爆内存，这里应仅缓存当前页的数据
-            this.wallpaperImageCache = data.data.map((img: Record<string, unknown>) => this.transformImage(img));
+            this.wallpaperImageCache = this.limitItems(data.data).map((image: Record<string, unknown>) =>
+                this.transformImage(image)
+            );
             this.curDataIndex = 0;
             return true;
         } catch (error) {
@@ -356,12 +351,14 @@ export class WallhavenApi extends BaseWallpaperApi {
     // 搜索请求, 返回 response.json
     private async fetchSearchResults(page = this.currentPage): Promise<WallhavenResponse> {
         // 合并参数并使用基类方法构建查询字符串
-        const allParams = { ...this.params, page };
+        const { apikey, ...params } = this.params;
+        const allParams = { ...params, page };
         const url = `${this.buildEndpointUrl("search")}?${this.buildUrlParams(allParams)}`;
-        logger.debug(`Fetching Wallhaven search results from: ${url}`);
-        const response = await requestUrl({ url });
-        const data: unknown = response.json;
-        return data as WallhavenResponse;
+        return parseWallhavenResponse(
+            await this.requestJson(url, {
+                headers: apikey ? { "X-API-Key": String(apikey) } : undefined,
+            })
+        );
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage

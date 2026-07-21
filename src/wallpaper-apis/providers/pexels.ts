@@ -2,23 +2,21 @@
  * 文档: https://www.pexels.com/api/documentation/
  */
 
-import { Notice, requestUrl } from "obsidian";
+import { Notice } from "obsidian";
 import { logger } from "../../core/logger";
 import { t } from "../../i18n";
+import { isRecord } from "../../utils/type-guards";
 import {
     apiRegistry,
     BaseWallpaperApi,
+    parsePexelsResponse,
+    PexelsResponse,
     WallpaperApiEndpoints,
     WallpaperApiParamDescriptor,
     WallpaperApiParams,
     WallpaperApiType,
     WallpaperImage,
 } from "../core";
-
-interface PexelsResponse {
-    photos?: Record<string, unknown>[];
-    total_results?: number;
-}
 
 export class PexelsApi extends BaseWallpaperApi {
     type: WallpaperApiType = WallpaperApiType.Pexels;
@@ -280,7 +278,9 @@ export class PexelsApi extends BaseWallpaperApi {
             this.totalCount = data.total_results ?? -1;
 
             // 缓存当前页的数据
-            this.wallpaperImageCache = data.photos.map((photo: Record<string, unknown>) => this.transformPhoto(photo));
+            this.wallpaperImageCache = this.limitItems(data.photos).map((photo: Record<string, unknown>) =>
+                this.transformPhoto(photo)
+            );
             this.curDataIndex = 0;
 
             return true;
@@ -302,7 +302,9 @@ export class PexelsApi extends BaseWallpaperApi {
             }
 
             // 缓存当前页的数据
-            this.wallpaperImageCache = data.photos.map((photo: Record<string, unknown>) => this.transformPhoto(photo));
+            this.wallpaperImageCache = this.limitItems(data.photos).map((photo: Record<string, unknown>) =>
+                this.transformPhoto(photo)
+            );
             this.curDataIndex = 0;
 
             return true;
@@ -336,14 +338,13 @@ export class PexelsApi extends BaseWallpaperApi {
         }
 
         const url = `${this.buildEndpointUrl("search")}?${queryParams.toString()}`;
-        const response = await requestUrl({
-            url,
-            headers: {
-                Authorization: String(this.params.api_key || ""),
-            },
-        });
-        const data: unknown = response.json;
-        return data as PexelsResponse;
+        return parsePexelsResponse(
+            await this.requestJson(url, {
+                headers: {
+                    Authorization: String(this.params.api_key || ""),
+                },
+            })
+        );
     }
 
     // 精选图片请求
@@ -354,20 +355,18 @@ export class PexelsApi extends BaseWallpaperApi {
         queryParams.append("per_page", String(this.params.per_page || this.perPage));
 
         const url = `${this.buildEndpointUrl("curated")}?${queryParams.toString()}`;
-        logger.debug(`Fetching Pexels curated photos from: ${url}`);
-        const response = await requestUrl({
-            url,
-            headers: {
-                Authorization: String(this.params.api_key || ""),
-            },
-        });
-        const data: unknown = response.json;
-        return data as PexelsResponse;
+        return parsePexelsResponse(
+            await this.requestJson(url, {
+                headers: {
+                    Authorization: String(this.params.api_key || ""),
+                },
+            })
+        );
     }
 
     // 辅助方法：转换 API 返回的图片数据为 WallpaperImage
     private transformPhoto(photo: Record<string, unknown>): WallpaperImage {
-        const src = (photo.src as Record<string, unknown>) ?? {};
+        const src = isRecord(photo.src) ? photo.src : {};
 
         return {
             id: this.safeString(photo.id),

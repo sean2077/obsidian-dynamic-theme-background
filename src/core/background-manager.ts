@@ -1,6 +1,5 @@
 /**
- * 背景生命周期管理器
- * 负责背景切换调度、模式选择和定时器管理
+ * Background lifecycle, selection, and scheduling coordinator.
  */
 
 import { Notice, type Plugin } from "obsidian";
@@ -9,24 +8,36 @@ import { FALLBACK_CHECK_MS, MIN_DELAY_MS, MS_PER_MINUTE } from "../constants";
 import { t } from "../i18n";
 import type { BackgroundItem, DTBSettings } from "../types";
 import { apiManager } from "../wallpaper-apis";
+import { selectBackgroundPlan, type BackgroundSelectionPlan } from "./background-selection";
 import type { EventBus } from "./event-bus";
+import { LatestOperation } from "./latest-operation";
 import { logger } from "./logger";
 import type { StyleManager } from "./style-manager";
 import type { TimeRuleScheduler } from "./time-rule-scheduler";
 
+interface RandomWallpaperResult {
+    apiName: string | null;
+    background: BackgroundItem | null;
+    status: "disabled" | "failed" | "success" | "unavailable";
+}
+
+interface BackgroundSelection extends BackgroundSelectionPlan {
+    fetch?: RandomWallpaperResult;
+}
+
 export class BackgroundManager {
+    background: BackgroundItem | null = null;
+
+    private events: EventBus;
+    private intervalId: number | null = null;
+    private lastActiveRuleId: string | null = null;
+    private onSettingsMutated: (() => void) | null;
+    private plugin: Plugin;
+    private running = false;
     private scheduler: TimeRuleScheduler;
     private styleManager: StyleManager;
-    private events: EventBus;
-    private plugin: Plugin;
-
-    // 状态
-    background: BackgroundItem | null = null;
-    private intervalId: number | null = null;
     private timeoutId: number | null = null;
-    private lastActiveRuleId: string | null = null;
-    private isUpdating = false;
-    private onSettingsMutated: (() => void) | null = null;
+    private updates = new LatestOperation();
 
     constructor(
         scheduler: TimeRuleScheduler,
@@ -42,33 +53,27 @@ export class BackgroundManager {
         this.onSettingsMutated = onSettingsMutated ?? null;
     }
 
-    /**
-     * 停止背景管理器
-     */
     stop(): void {
-        if (this.intervalId) {
+        this.running = false;
+        this.updates.invalidate();
+        if (this.intervalId !== null) {
             window.clearInterval(this.intervalId);
             this.intervalId = null;
         }
-        if (this.timeoutId) {
+        if (this.timeoutId !== null) {
             window.clearTimeout(this.timeoutId);
             this.timeoutId = null;
         }
         activeDocument.body.classList.remove("dtb-enabled");
+        this.styleManager.clear();
         logger.debug("Background manager stopped");
     }
 
-    /**
-     * 启动背景管理器
-     */
     start(settings: DTBSettings): void {
         this.stop();
+        this.running = true;
+        activeDocument.body.classList.add("dtb-enabled");
 
-        if (!activeDocument.body.classList.contains("dtb-enabled")) {
-            activeDocument.body.classList.add("dtb-enabled");
-        }
-
-        // 立即执行一次更新
         void this.update(settings, true);
 
         if (settings.mode === "time-based") {
@@ -80,10 +85,9 @@ export class BackgroundManager {
                     void this.update(settings, false);
                 }, intervalMs)
             );
-
             logger.debug("Background manager started (interval mode)", {
+                interval: `${intervalMs / 1000}s`,
                 mode: settings.mode,
-                interval: intervalMs / 1000 + "s",
             });
         } else {
             logger.debug("Background manager started (manual mode)", {
@@ -92,42 +96,33 @@ export class BackgroundManager {
         }
     }
 
-    /**
-     * 时段规则模式调度
-     */
     private startTimeBasedMode(settings: DTBSettings): void {
         const scheduleNext = () => {
+            if (!this.running) return;
             const nextRuleChange = this.scheduler.getNextChangeTime();
-            if (nextRuleChange) {
-                const delay = nextRuleChange - Date.now();
-                const actualDelay = Math.max(delay, MIN_DELAY_MS);
-
+            if (nextRuleChange !== null) {
+                const delay = Math.max(nextRuleChange - Date.now(), MIN_DELAY_MS);
                 this.timeoutId = window.setTimeout(() => {
+                    if (!this.running) return;
                     void this.update(settings, false);
-                    // 只在活跃规则变化时才刷新 UI
-                    const currentRule = this.scheduler.getCurrentRule();
-                    const currentRuleId = currentRule?.id ?? null;
+                    const currentRuleId = this.scheduler.getCurrentRule()?.id ?? null;
                     if (currentRuleId !== this.lastActiveRuleId) {
                         this.lastActiveRuleId = currentRuleId;
                         this.events.emit("time-rules:changed", {});
                     }
                     scheduleNext();
-                }, actualDelay);
-
+                }, delay);
                 logger.debug("Next background change scheduled", {
+                    delay: `${Math.round(delay / 1000)}s`,
                     mode: settings.mode,
-                    delay: Math.round(actualDelay / 1000) + "s",
                     nextTime: new Date(nextRuleChange).toLocaleTimeString(),
                 });
             } else {
-                this.timeoutId = window.setTimeout(
-                    () => {
-                        void this.update(settings, false);
-                        scheduleNext();
-                    },
-                    FALLBACK_CHECK_MS
-                );
-
+                this.timeoutId = window.setTimeout(() => {
+                    if (!this.running) return;
+                    void this.update(settings, false);
+                    scheduleNext();
+                }, FALLBACK_CHECK_MS);
                 logger.debug("No next rule found, checking again in 24 hours");
             }
         };
@@ -135,132 +130,137 @@ export class BackgroundManager {
         scheduleNext();
     }
 
-    /**
-     * 按设定规则更新背景
-     */
     async update(settings: DTBSettings, forceUpdate = true): Promise<void> {
-        if (!settings.enabled) return;
+        if (!settings.enabled || !this.running) return;
+        if (!forceUpdate && this.updates.isRunning) return;
 
-        // 防止并发更新
-        if (this.isUpdating) return;
-        this.isUpdating = true;
-
-        try {
-            let needsUpdate = false;
-            switch (settings.mode) {
-                case "time-based": {
-                    const rule = this.scheduler.getCurrentRule();
-                    if (rule) {
-                        needsUpdate = this.background?.id !== rule.backgroundId;
-                        if (needsUpdate) {
-                            this.background =
-                                settings.backgrounds.find((bg) => bg.id === rule.backgroundId) ?? null;
-                        }
-                    } else {
-                        this.background = null;
-                        needsUpdate = true;
-                    }
-                    logger.debug("TimeRule mode - current time rule", rule, needsUpdate);
-                    break;
-                }
-                case "interval": {
-                    const randomBg = await this.fetchRandomWallpaper(settings);
-                    if (randomBg) {
-                        this.background = randomBg;
-                        needsUpdate = true;
-                    } else if (settings.backgrounds.length > 0) {
-                        settings.currentIndex =
-                            (settings.currentIndex + 1) % settings.backgrounds.length;
-                        this.background = settings.backgrounds[settings.currentIndex];
-                        this.onSettingsMutated?.();
-                        needsUpdate = true;
-                    }
-                    break;
-                }
-                default: {
-                    this.background = settings.backgrounds[settings.currentIndex] ?? null;
-                }
+        await this.updates.run(
+            () => this.selectBackground(settings),
+            (selection) => {
+                this.commitSelection(selection, settings, forceUpdate);
             }
-
-            if (forceUpdate || needsUpdate) {
-                this.styleManager.applyBackground(this.background, settings);
-                this.events.emit("backgrounds:changed", {});
-            }
-        } finally {
-            this.isUpdating = false;
-        }
+        );
     }
 
-    /**
-     * 应用随机壁纸
-     */
     async applyRandom(settings: DTBSettings): Promise<void> {
-        const bg = await this.fetchRandomWallpaper(settings);
+        if (!settings.enabled || !this.running) return;
+        await this.updates.run(
+            () => this.selectIntervalBackground(settings),
+            (selection) => {
+                this.commitSelection(selection, settings, true);
+            }
+        );
+    }
 
-        if (bg) {
-            this.background = bg;
-        } else if (settings.backgrounds.length > 0) {
-            settings.currentIndex = (settings.currentIndex + 1) % settings.backgrounds.length;
-            this.background = settings.backgrounds[settings.currentIndex];
+    private async selectBackground(settings: DTBSettings): Promise<BackgroundSelection> {
+        if (settings.mode === "interval") {
+            return this.selectIntervalBackground(settings);
+        }
+        if (settings.mode === "time-based") {
+            const rule = this.scheduler.getCurrentRule();
+            logger.debug("Time-rule mode selected current rule", rule);
+            return selectBackgroundPlan({
+                backgrounds: settings.backgrounds,
+                currentBackground: this.background,
+                currentIndex: settings.currentIndex,
+                mode: settings.mode,
+                ruleBackgroundId: rule?.backgroundId,
+            });
+        }
+        return selectBackgroundPlan({
+            backgrounds: settings.backgrounds,
+            currentBackground: this.background,
+            currentIndex: settings.currentIndex,
+            mode: settings.mode,
+        });
+    }
+
+    private async selectIntervalBackground(settings: DTBSettings): Promise<BackgroundSelection> {
+        const fetch = await this.fetchRandomWallpaper(settings);
+        return {
+            ...selectBackgroundPlan({
+                backgrounds: settings.backgrounds,
+                currentBackground: this.background,
+                currentIndex: settings.currentIndex,
+                intervalBackground: fetch.background,
+                mode: "interval",
+            }),
+            fetch,
+        };
+    }
+
+    private commitSelection(selection: BackgroundSelection, settings: DTBSettings, forceUpdate: boolean): void {
+        if (selection.nextIndex !== undefined) {
+            settings.currentIndex = selection.nextIndex;
             this.onSettingsMutated?.();
         }
+        this.background = selection.background;
 
-        this.styleManager.applyBackground(this.background, settings);
-        this.events.emit("backgrounds:changed", {});
+        if (selection.fetch?.status === "success" && selection.fetch.apiName) {
+            new Notice(
+                t("notice_api_success_applied", {
+                    apiName: selection.fetch.apiName,
+                })
+            );
+        } else if (selection.fetch?.status === "failed" && selection.fetch.apiName) {
+            new Notice(
+                t("notice_api_failed_fetch", {
+                    apiName: selection.fetch.apiName,
+                })
+            );
+        }
+
+        if (forceUpdate || selection.needsUpdate) {
+            this.styleManager.applyBackground(this.background, settings);
+            this.events.emit("backgrounds:changed", {});
+        }
     }
 
-    /**
-     * 从壁纸 API 获取随机图片
-     */
-    private async fetchRandomWallpaper(settings: DTBSettings): Promise<BackgroundItem | null> {
+    private async fetchRandomWallpaper(settings: DTBSettings): Promise<RandomWallpaperResult> {
         if (!settings.enableRandomWallpaper) {
-            return null;
+            return {
+                apiName: null,
+                background: null,
+                status: "disabled",
+            };
         }
 
         const enabledApis = apiManager.getEnabledApis();
         if (enabledApis.length === 0) {
             logger.warn("No enabled APIs found");
-            return null;
+            return {
+                apiName: null,
+                background: null,
+                status: "unavailable",
+            };
         }
 
         const selectedApi = enabledApis[Math.floor(Math.random() * enabledApis.length)];
+        const apiName = selectedApi.getName();
+        const loadingNotice = new Notice(t("notice_api_fetching", { apiName }), 0);
 
         try {
-            const loadingNotice = new Notice(
-                t("notice_api_fetching", { apiName: selectedApi.getName() }),
-                0
-            );
-
-            const wallpaperImages = await apiManager.getRandomWallpapers(selectedApi.getId());
-            loadingNotice.hide();
-
-            if (!wallpaperImages || wallpaperImages.length === 0) {
-                logger.warn(`No images returned from API: ${selectedApi.getName()}`);
-                return null;
+            const images = await apiManager.getRandomWallpapers(selectedApi.getId());
+            const image = images?.[Math.floor(Math.random() * images.length)] ?? null;
+            if (!image?.url) {
+                logger.warn(`No wallpaper image returned from API: ${apiName}`);
+                return { apiName, background: null, status: "failed" };
             }
-            const randomImage = wallpaperImages[Math.floor(Math.random() * wallpaperImages.length)];
-            if (randomImage?.url) {
-                new Notice(t("notice_api_success_applied", { apiName: selectedApi.getName() }));
-                return {
+            return {
+                apiName,
+                background: {
                     id: selectedApi.generateBackgroundId(),
                     name: selectedApi.generateBackgroundName(),
                     type: "image",
-                    value: randomImage.url,
-                };
-            } else {
-                new Notice(t("notice_api_failed_fetch", { apiName: selectedApi.getName() }));
-                logger.warn(`No wallpaper image returned from API: ${selectedApi.getName()}`);
-                return null;
-            }
+                    value: image.url,
+                },
+                status: "success",
+            };
         } catch (error) {
-            new Notice(
-                t("notice_api_error_fetch", {
-                    apiName: selectedApi.getName(),
-                    error: (error as Error).message,
-                })
-            );
-            logger.error("Error fetching random wallpaper:", error);
-            return null;
+            logger.error("Error fetching random wallpaper", error instanceof Error ? error.name : "Unknown error");
+            return { apiName, background: null, status: "failed" };
+        } finally {
+            loadingNotice.hide();
         }
     }
 }

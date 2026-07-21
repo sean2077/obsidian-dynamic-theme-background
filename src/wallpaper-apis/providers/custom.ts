@@ -2,9 +2,8 @@
  * 支持自定义的图片 API，可以通过 JSON Path 配置图片 URL 的提取方式
  */
 
-import { JSONPath } from "jsonpath-plus";
-import { requestUrl } from "obsidian";
 import { logger } from "../../core/logger";
+import { queryJsonPath } from "../../core/safe-json-path";
 import { generateId } from "../../utils/utils";
 import {
     apiRegistry,
@@ -62,7 +61,7 @@ export class CustomApi extends BaseWallpaperApi {
                 required: true,
                 placeholder: "$.data.images[*].url or $.url or $[*].imageUrl",
                 description:
-                    "JSONPath expression to extract image URL(s) from API response. Supports standard JSONPath syntax.",
+                    "Safe JSONPath subset: properties, quoted keys, indexes, slices, unions, wildcards, and recursive descent. Filters and scripts are rejected.",
             },
         ];
     }
@@ -145,18 +144,12 @@ export class CustomApi extends BaseWallpaperApi {
                 throw new Error("Invalid parameters");
             }
 
-            // 构建请求 URL
-            const url = `${this.baseUrl}`;
-
-            // 发起 GET 请求
-            const response = await requestUrl({
-                url,
-                method: "GET",
-            });
-
-            // 解析 JSON 响应
-            const data: unknown = response.json;
-            return this.transformCustomResponse(data);
+            return this.transformCustomResponse(
+                await this.requestJson(this.baseUrl, {
+                    allowInsecureHttp: true,
+                    headers: this.config.headers,
+                })
+            );
         } catch (error) {
             logger.error("Custom API fetch error:", error);
             throw error;
@@ -177,12 +170,8 @@ export class CustomApi extends BaseWallpaperApi {
                 return [];
             }
 
-            // 使用 jsonpath-plus 提取图片URL
-            const urls: unknown = JSONPath<unknown>({
-                path: urlJsonPath,
-                json: data as object,
-                wrap: false,
-            });
+            // 使用受限、无求值的路径查询提取图片 URL
+            const urls = queryJsonPath(data, urlJsonPath, 100);
 
             if (!urls || (Array.isArray(urls) && urls.length === 0)) {
                 logger.warn("Custom API: No URLs found at path:", urlJsonPath);
@@ -190,10 +179,8 @@ export class CustomApi extends BaseWallpaperApi {
             }
 
             // 确保结果是数组
-            const urlArray: unknown[] = Array.isArray(urls) ? urls : [urls];
-
             // 过滤并转换为图片对象数组
-            return urlArray
+            return this.limitItems(urls)
                 .filter((url): url is string => typeof url === "string" && url.length > 0)
                 .map((url, index) => {
                     return {

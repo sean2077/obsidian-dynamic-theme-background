@@ -12,6 +12,7 @@ export default defineConfig(
         ".agents",
         ".claude",
         ".codex",
+        ".internal",
         ".worktrees",
         "docs",
         "node_modules",
@@ -28,7 +29,12 @@ export default defineConfig(
             },
             parserOptions: {
                 projectService: {
-                    allowDefaultProject: ["eslint.config.mts", "manifest.json"],
+                    allowDefaultProject: [
+                        "eslint.config.mts",
+                        "manifest.json",
+                        "tools/quality/evaluate.mjs",
+                        "tools/quality/test.mjs",
+                    ],
                 },
                 tsconfigRootDir: import.meta.dirname,
                 extraFileExtensions: [".json"],
@@ -43,19 +49,22 @@ export default defineConfig(
             "@typescript-eslint/await-thenable": "error",
             "@typescript-eslint/require-await": "error",
             "@typescript-eslint/no-misused-promises": "error",
-            "@typescript-eslint/no-unused-vars": [
-                "error",
-                { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-            ],
+            "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
             "obsidianmd/settings-tab/prefer-setting-definitions": "off",
-            "obsidianmd/ui/sentence-case": [
-                "error",
-                sentenceCaseOptions,
-            ],
-            "obsidianmd/ui/sentence-case-locale-module": [
-                "error",
-                { ...sentenceCaseOptions, allowAutoFix: true },
-            ],
+            "obsidianmd/ui/sentence-case": ["error", sentenceCaseOptions],
+            "obsidianmd/ui/sentence-case-locale-module": ["error", { ...sentenceCaseOptions, allowAutoFix: true }],
+        },
+    },
+    {
+        files: ["tests/**/*.ts", "tools/**/*.mjs"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+        rules: {
+            "obsidianmd/no-global-this": "off",
+            "obsidianmd/no-nodejs-modules": "off",
         },
     }
 );

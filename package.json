@@ -7,11 +7,14 @@
     "scripts": {
         "dev": "node esbuild.config.mjs",
         "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+        "check": "npm run build && npm run lint && npm run lint:css && npm test",
+        "evaluate": "node tools/quality/evaluate.mjs",
         "fmt": "prettier --write src/**/*.ts",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
-        "lint:css": "stylelint \"**/*.css\"",
-        "fix:css": "stylelint \"**/*.css\" --fix"
+        "lint:css": "stylelint \"styles.css\"",
+        "fix:css": "stylelint \"styles.css\" --fix",
+        "test": "node tools/quality/test.mjs"
     },
     "keywords": [],
     "author": "sean2077",
@@ -19,8 +22,7 @@
     "devDependencies": {
         "@eslint/js": "^9.39.4",
         "@types/node": "^24.10.1",
-        "all-contributors-cli": "^6.26.1",
-        "esbuild": "^0.27.0",
+        "esbuild": "^0.28.1",
         "eslint": "^9.39.4",
         "eslint-plugin-obsidianmd": "^0.4.1",
         "globals": "^17.6.0",
@@ -36,7 +38,7 @@
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.59.1"
     },
-    "dependencies": {
-        "jsonpath-plus": "^10.3.0"
+    "allowScripts": {
+        "esbuild@0.28.1": true
     }
 }
