@@ -121,6 +121,7 @@ export class BackgroundModal extends Modal {
         // 背景单独的模糊度、亮度、饱和度、遮罩颜色和透明度、填充方式设置
         contentEl.createEl("h4", { text: t("appearance_settings_title") });
         // 提示：重置仅清空当前背景的覆盖值，继承全局设置
+        contentEl.addClass("dtb-hint-section");
         const hint = contentEl.createDiv({ cls: "dtb-hint" });
         hint.setText(t("per_bg_reset_hint"));
         const appearanceContainer = contentEl.createDiv();

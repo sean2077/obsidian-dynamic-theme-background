@@ -26,7 +26,7 @@ localized strings do not expand into ASCII escape sequences.
 | Development bundle | `npm run dev` | Starts the esbuild watcher and writes generated `main.js`. |
 | Production/type check | `npm run build` | Runs TypeScript checking, then a minified production bundle. |
 | Deterministic tests | `npm test` | Bundles `tests/**/*.test.ts` with the existing esbuild dependency, then runs Node's built-in test runner. |
-| Project lint | `npm run lint` | Scans the manifest and TypeScript sources with the current Obsidian-specific and promise-safety rules. |
+| Project lint | `npm run lint` | Scans the manifest and TypeScript sources with the current Obsidian-specific, promise-safety, and unsafe-value rules. |
 | CSS lint | `npm run lint:css` | Applies the runtime selector and style rules to authored `styles.css`. |
 | Complete gate | `npm run check` | Runs build, TypeScript/Obsidian lint, runtime CSS lint, and deterministic tests. |
 | Research evaluator | `npm run evaluate` | Emits one JSON line with the frozen modernization score and hard-gate state. |
@@ -41,7 +41,8 @@ Automated tests cover pure policies and structural lifecycle/release contracts. 
 - exercise the affected manual, interval, or time-rule background path;
 - save settings, reload the plugin, and confirm existing saved data still behaves correctly;
 - in a disposable vault with legacy provider credentials, reload once and confirm provider parameters and custom headers still work while `data.json` contains only SecretStorage references; also test a missing reference and confirm that provider stays unavailable without hiding its editable row;
-- inspect both light and dark themes when CSS variables or overlays change;
+- inspect both light and dark themes when CSS variables or overlays change, including settings widths below 1100 px and the mobile layout;
+- add a local background by navigating into a nested folder with Browse, then import a folder and confirm that only its direct image children are added;
 - exercise provider success, failure, and local-background fallback when wallpaper API behavior changes.
 
 ## Change maps and invariants
@@ -85,4 +86,4 @@ Releases use bare SemVer tags such as `2.10.1`. The committed CHANGELOG is the r
 3. Run `npm run release:verify -- 2.10.1` and `npm run check`, inspect and stage only the release files, then commit them as `release: 2.10.1`.
 4. Finish the worktree with `bash .agents/tools/worktree.sh done --trunk master`. This merges and pushes `master`; never push the tag first.
 5. At the resulting clean `master` tip, create an annotated tag with `git tag -a 2.10.1 -m "2.10.1"`, then push only that new tag with `git push origin 2.10.1`. Never move or recreate an existing tag.
-6. The tag-triggered Release workflow verifies that the tag commit is on `origin/master`, checks all version authorities and the non-empty CHANGELOG section, runs the full gate, extracts that section, uploads `main.js`, `manifest.json`, and `styles.css` to a draft GitHub Release, and publishes it only after every upload succeeds. Verify the workflow, tag/commit identity, release state, and all three assets before declaring completion.
+6. The tag-triggered Release workflow verifies that the tag commit is on `origin/master`, checks all version authorities and the non-empty CHANGELOG section, runs the full gate, creates GitHub provenance attestations for the generated `main.js` and authored `styles.css`, extracts that section, uploads `main.js`, `manifest.json`, and `styles.css` to a draft GitHub Release, and publishes it only after every upload succeeds. Verify the workflow, tag/commit identity, release state, all three assets, and both attestations before declaring completion. After downloading the release assets, use `gh attestation verify main.js --repo sean2077/obsidian-dynamic-theme-background` and the equivalent command for `styles.css`.

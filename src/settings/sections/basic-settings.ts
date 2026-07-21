@@ -71,6 +71,7 @@ export class BasicSettingsSection {
         // 外观设置
         new Setting(containerEl).setName(t("appearance_settings_title")).setHeading();
         // 外观设置提示（全局外观优先级说明）
+        containerEl.addClass("dtb-hint-section");
         const appearanceHint = containerEl.createDiv("dtb-hint");
         appearanceHint.textContent = t("appearance_settings_hint");
         // 背景模糊度设置
