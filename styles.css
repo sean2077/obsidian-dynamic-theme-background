@@ -169,8 +169,8 @@
     position: relative;
     overflow: hidden;
     display: flex !important;
-    flex-direction: row !important;
-    align-items: flex-start !important;
+    flex-direction: row;
+    align-items: flex-start;
     gap: 1rem !important;
     box-shadow: var(--dtb-shadow-base);
 }
@@ -366,13 +366,6 @@
 
 /* 响应式设计 (Responsive Design) */
 @media (max-width: 600px) {
-    .dtb-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.6rem;
-        padding: 0.8rem;
-    }
-
     .dtb-flex-container,
     .dtb-flex-container-center,
     .dtb-flex-container-spaced {
@@ -1060,6 +1053,64 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
+}
+
+@media (max-width: 1100px) {
+    .dtb-item,
+    .dtb-section-container .setting-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem !important;
+        padding: 0.8rem !important;
+    }
+
+    .dtb-section-container .setting-item .setting-item-info {
+        margin-right: 0;
+    }
+
+    .dtb-section-container .setting-item .setting-item-control {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .dtb-bg-content {
+        flex-wrap: wrap;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .dtb-bg-content > .dtb-button-container {
+        flex: 1 0 100%;
+        justify-content: flex-end;
+    }
+
+    .dtb-bg-name {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 600px) {
+    .dtb-section-header {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .dtb-links {
+        flex-wrap: wrap;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .dtb-bg-content {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        min-width: 0;
+        gap: 0.75rem;
+    }
 }
 
 /* ===== 炫酷状态栏图标样式 ===== */
