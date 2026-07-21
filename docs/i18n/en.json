@@ -117,13 +117,13 @@
         },
         "marketplace": {
             "title": "Community Marketplace",
-            "status": "Pending Review",
+            "status": "Available",
             "steps": [
                 "Settings → Community plugins → <strong>Browse</strong>",
-                "(After approval) Search <strong>Dynamic Theme Background</strong> / <strong>DTB</strong>",
+                "Search <strong>Dynamic Theme Background</strong> / <strong>DTB</strong>",
                 "Install & enable"
             ],
-            "note": "Currently in Obsidian review queue. Until approved, use BRAT or Manual. Track PR in <code class=\"repo-inline-code\">obsidian-releases</code>."
+            "note": "Available from the official Obsidian Community Plugins catalog. <a href=\"https://community.obsidian.md/plugins/dynamic-theme-background\" target=\"_blank\" rel=\"noopener noreferrer\">View listing</a>."
         },
         "brat": {
             "title": "BRAT (Beta)",
@@ -133,7 +133,7 @@
                 "BRAT → Add beta plugin → Paste repo URL:<br><code>https://github.com/sean2077/obsidian-dynamic-theme-background</code>",
                 "Enable plugin in settings"
             ],
-            "note": "Fastest way to try latest code before Marketplace approval."
+            "note": "Use BRAT to test beta or prerelease builds before they reach the Marketplace."
         },
         "manual": {
             "title": "Manual Install",

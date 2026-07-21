@@ -8,7 +8,7 @@
 **🇺🇸 English ｜ [🇨🇳 中文版](README.zh.md)**
 
 <p align="center">
-    <a href="https://obsidian.md/"><img
+    <a href="https://community.obsidian.md/plugins/dynamic-theme-background"><img
             src="https://img.shields.io/badge/Obsidian%20Plugin-1e1e1e?logo=obsidian&logoColor=white"
             alt="Obsidian Plugin" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases/latest"><img
@@ -48,9 +48,11 @@
 
 > Requires Obsidian 1.11.4 or later.
 
-### Marketplace (Pending)
+### Obsidian Community Plugins
 
-> Currently in Obsidian review queue. Track: [obsidian-releases#7359](https://github.com/obsidianmd/obsidian-releases/pull/7359)
+1. Open **Settings → Community plugins → Browse**
+2. Search for [Dynamic Theme Background](https://community.obsidian.md/plugins/dynamic-theme-background)
+3. Select **Install**, then **Enable**
 
 ### BRAT
 

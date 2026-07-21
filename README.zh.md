@@ -8,7 +8,7 @@
 **[🇺🇸 English](README.md) ｜ 🇨🇳 中文版**
 
 <p align="center">
-    <a href="https://obsidian.md/"><img
+    <a href="https://community.obsidian.md/plugins/dynamic-theme-background"><img
             src="https://img.shields.io/badge/Obsidian%20Plugin-1e1e1e?logo=obsidian&logoColor=white"
             alt="Obsidian Plugin" /></a>
     <a href="https://github.com/sean2077/obsidian-dynamic-theme-background/releases/latest"><img
@@ -48,9 +48,11 @@
 
 > 需要 Obsidian 1.11.4 或更高版本。
 
-### 社区市场（审核中）
+### Obsidian 社区插件市场
 
-> 当前在官方审核队列。跟踪进度：[obsidian-releases#7359](https://github.com/obsidianmd/obsidian-releases/pull/7359)
+1. 打开**设置 → 社区插件 → 浏览**
+2. 搜索 [Dynamic Theme Background](https://community.obsidian.md/plugins/dynamic-theme-background)
+3. 点击**安装**，然后**启用**
 
 ### BRAT
 
