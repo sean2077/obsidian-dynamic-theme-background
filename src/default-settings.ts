@@ -4,6 +4,7 @@
  */
 
 import { t } from "./i18n";
+import { CURRENT_CREDENTIAL_STORAGE_VERSION } from "./core/credential-storage";
 import type { DTBSettings } from "./types";
 import { apiRegistry, WallpaperApiType } from "./wallpaper-apis";
 
@@ -11,6 +12,7 @@ let DEFAULT_SETTINGS: DTBSettings;
 
 function genDefaultSettings(): DTBSettings {
     DEFAULT_SETTINGS = {
+        credentialStorageVersion: CURRENT_CREDENTIAL_STORAGE_VERSION,
         enabled: true,
         statusBarEnabled: true, // 是否激活状态栏
 

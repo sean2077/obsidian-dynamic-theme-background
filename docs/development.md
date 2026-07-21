@@ -6,7 +6,7 @@ This guide holds lower-frequency implementation detail referenced by the root `A
 
 - `src/main.ts` is the bundle entry and re-exports the plugin class from `src/plugin.ts`.
 - `src/plugin.ts` is the lifecycle and composition root: it loads and saves settings, constructs services, registers commands and UI, and exposes compatibility proxies used by existing surfaces.
-- `src/core/` owns focused runtime modules: lifecycle coordination, time rules, settings normalization, network and persistence policy, DOM/CSS application, remote image storage, and typed internal notifications.
+- `src/core/` owns focused runtime modules: lifecycle coordination, time rules, settings normalization and credential migration, network and persistence policy, DOM/CSS application, remote image storage, and typed internal notifications.
 - `src/types.ts` and `src/default-settings.ts` define the settings contract and defaults; `src/settings/settings-tab.ts` composes the focused sections under `src/settings/sections/`, while `settings-view.ts` owns the alternate settings view.
 - `src/commands/index.ts` is the command registration point.
 - `src/wallpaper-apis/core/` owns provider contracts, validation, registry, state, and lifecycle; provider modules under `src/wallpaper-apis/providers/` self-register and are exported through `providers/index.ts`.
@@ -35,6 +35,7 @@ Automated tests cover pure policies and structural lifecycle/release contracts. 
 - enable and disable the plugin, confirming timers and the `.dtb-enabled` body class are cleaned up;
 - exercise the affected manual, interval, or time-rule background path;
 - save settings, reload the plugin, and confirm existing saved data still behaves correctly;
+- in a disposable vault with legacy provider credentials, reload once and confirm provider parameters and custom headers still work while `data.json` contains only SecretStorage references; also test a missing reference and confirm that provider stays unavailable without hiding its editable row;
 - inspect both light and dark themes when CSS variables or overlays change;
 - exercise provider success, failure, and local-background fallback when wallpaper API behavior changes.
 
@@ -43,6 +44,10 @@ Automated tests cover pure policies and structural lifecycle/release contracts. 
 ### Settings and translations
 
 Persisted data passes through `src/core/settings.ts`, which clones defaults and validates scalar and nested values before runtime use. When the schema changes, update the type, default, normalizer, relevant settings UI, tests, and `src/i18n/en.ts` plus `src/i18n/zh-cn.ts`.
+
+Provider password fields and every user-defined header value are persisted as SecretStorage IDs under `secretRefs`. `src/core/credential-storage.ts` owns lossless legacy migration, the plaintext save guard, and short-lived runtime hydration; `src/plugin.ts` is the only composition boundary that supplies `app.secretStorage`. Never pass a persisted provider config directly to `WallpaperApiManager` or write hydrated values back to plugin settings.
+
+Obsidian 1.13+ renders `DTBSettingTab.getSettingDefinitions()` as declarative pages. Keep `display()` and the alternate settings view as the Obsidian 1.11.4–1.12 compatibility path; new 1.13-only calls must stay behind `requireApiVersion` guards in `src/core/obsidian-compat.ts`.
 
 ### Commands
 

@@ -3,7 +3,9 @@
  * 协调各设置区块的展示和刷新
  */
 import { App, PluginSettingTab } from "obsidian";
+import type { Setting, SettingDefinitionItem } from "obsidian";
 
+import { displayImperativeSettings, refreshDualSettings } from "../core/obsidian-compat";
 import { getDefaultSettings } from "../default-settings";
 import { t } from "../i18n";
 import type DynamicThemeBackgroundPlugin from "../plugin";
@@ -18,6 +20,7 @@ export class DTBSettingTab extends PluginSettingTab {
 
     private componentId: string;
     private active!: boolean;
+    private declarativeActive = false;
 
     // 设置区块
     private basicSection?: BasicSettingsSection;
@@ -46,11 +49,46 @@ export class DTBSettingTab extends PluginSettingTab {
     hide(): void {
         this.cleanup();
         this.active = false;
+        this.declarativeActive = false;
         this.plugin.settingTabs.delete(this.componentId);
     }
 
+    getSettingDefinitions(): SettingDefinitionItem[] {
+        return [
+            {
+                name: t("settings_title"),
+                searchable: false,
+                render: (setting) => {
+                    this.activateSurface(true);
+                    setting.settingEl.empty();
+                    this.displayHeader(setting.settingEl);
+                },
+            },
+            {
+                type: "page",
+                name: t("basic_settings_title"),
+                items: [this.basicSettingsDefinition()],
+            },
+            {
+                type: "page",
+                name: t("mode_settings_title"),
+                items: [this.modeSettingsDefinition()],
+            },
+            {
+                type: "page",
+                name: t("bg_management_title"),
+                items: [this.backgroundSettingsDefinition()],
+            },
+            {
+                type: "page",
+                name: t("wallpaper_api_management_title"),
+                items: [this.apiSettingsDefinition()],
+            },
+        ];
+    }
+
     display(): void {
-        this.active = true;
+        this.activateSurface(false);
         this.cleanup();
 
         const { containerEl } = this;
@@ -87,6 +125,14 @@ export class DTBSettingTab extends PluginSettingTab {
         this.apiSection.display(apiEl);
     }
 
+    refresh(): void {
+        if (this.declarativeActive) {
+            refreshDualSettings(this);
+        } else {
+            displayImperativeSettings(this);
+        }
+    }
+
     // ============================================================================
     // 针对性刷新（plugin.ts 调用）
     // ============================================================================
@@ -106,6 +152,85 @@ export class DTBSettingTab extends PluginSettingTab {
     // ============================================================================
     // 内部方法
     // ============================================================================
+
+    private activateSurface(declarative: boolean): void {
+        this.active = true;
+        this.declarativeActive = declarative;
+        this.plugin.settingTabs.set(this.componentId, this);
+    }
+
+    private basicSettingsDefinition(): SettingDefinitionItem {
+        return {
+            name: t("basic_settings_title"),
+            searchable: false,
+            render: (setting: Setting) => {
+                setting.settingEl.empty();
+                const section = new BasicSettingsSection(this.plugin, this.defaultSettings);
+                this.basicSection = section;
+                section.display(setting.settingEl);
+                return () => {
+                    section.cleanup();
+                    if (this.basicSection === section) this.basicSection = undefined;
+                };
+            },
+        };
+    }
+
+    private modeSettingsDefinition(): SettingDefinitionItem {
+        return {
+            name: t("mode_settings_title"),
+            searchable: false,
+            render: (setting: Setting) => {
+                setting.settingEl.empty();
+                const section = new ModeSettingsSection(this.plugin, this.defaultSettings);
+                this.modeSection = section;
+                section.display(setting.settingEl);
+                return () => {
+                    section.cleanup();
+                    if (this.modeSection === section) this.modeSection = undefined;
+                };
+            },
+        };
+    }
+
+    private backgroundSettingsDefinition(): SettingDefinitionItem {
+        return {
+            name: t("bg_management_title"),
+            searchable: false,
+            render: (setting: Setting) => {
+                setting.settingEl.empty();
+                const section = new BgManagementSection(this.plugin, this.defaultSettings, {
+                    onChanged: () => this.modeSection?.displayTimeRules(),
+                });
+                this.bgSection = section;
+                section.display(setting.settingEl);
+                return () => {
+                    section.cleanup();
+                    if (this.bgSection === section) this.bgSection = undefined;
+                };
+            },
+        };
+    }
+
+    private apiSettingsDefinition(): SettingDefinitionItem {
+        return {
+            name: t("wallpaper_api_management_title"),
+            searchable: false,
+            render: (setting: Setting) => {
+                setting.settingEl.empty();
+                const section = new ApiSettingsSection(this.plugin, this.defaultSettings, {
+                    onBackgroundsChanged: () => this.bgSection?.displayBackgrounds(),
+                    onTimeRulesChanged: () => this.modeSection?.displayTimeRules(),
+                });
+                this.apiSection = section;
+                section.display(setting.settingEl);
+                return () => {
+                    section.cleanup();
+                    if (this.apiSection === section) this.apiSection = undefined;
+                };
+            },
+        };
+    }
 
     private displayHeader(containerEl: HTMLElement) {
         const headerContainer = containerEl.createDiv("dtb-section-header");

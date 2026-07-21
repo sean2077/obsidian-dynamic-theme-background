@@ -218,10 +218,11 @@ export default {
     api_modal_test_rejected: "The provider rejected the configuration or could not connect",
     api_modal_test_unexpected: "An unexpected error occurred; check the developer console",
     api_modal_api_url: "API URL",
-    api_modal_headers_optional: "Headers (optional)",
+    api_modal_headers_optional: "Header secrets (optional)",
     api_modal_add_header: "Add header",
     api_modal_header_key: "Header key",
-    api_modal_header_value: "Header value",
+    api_modal_header_secret: "Obsidian secret",
+    api_modal_secret_missing: "Choose an Obsidian secret for every required credential and header.",
     api_modal_api_parameters: "API parameters",
     api_modal_api_documentation: "📖 API documentation",
     api_modal_token_url: "🔑 Token URL",
@@ -242,6 +243,10 @@ export default {
     api_modal_image_url_json_path: "Image URL JSON path",
     api_modal_no_description: "No description provided.",
     api_modal_unnamed_api: "Unnamed API",
+    notice_api_secret_missing: "A referenced Obsidian secret is missing. Edit the API configuration.",
+    notice_api_secret_unavailable: "Wallpaper API credentials are unavailable. Edit the API configuration.",
+    notice_credential_migration_failed:
+        "DTB could not move API credentials to Obsidian SecretStorage. Existing settings were left unchanged and plugin startup stopped.",
     api_initialized_notice: "{apiName} initialized: {count} wallpapers found across {pages} pages.",
 
     // ===== 状态文本 =====

@@ -6,6 +6,7 @@
 import type { WallpaperApiConfig } from "./wallpaper-apis";
 
 export interface DTBSettings {
+    credentialStorageVersion: number;
     enabled: boolean;
     statusBarEnabled: boolean; // 是否激活状态栏
 

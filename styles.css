@@ -334,6 +334,10 @@
     flex: 1;
     margin-bottom: 0;
 }
+.dtb-secret-control {
+    flex: 1;
+    min-width: 0;
+}
 
 /* 通用按钮容器样式 */
 .dtb-flex-container-end {

@@ -201,10 +201,11 @@ export default {
     api_modal_test_rejected: "提供商拒绝了该配置或无法连接",
     api_modal_test_unexpected: "发生意外错误，请检查开发者控制台",
     api_modal_api_url: "API 地址",
-    api_modal_headers_optional: "请求头（可选）",
+    api_modal_headers_optional: "请求头密钥（可选）",
     api_modal_add_header: "添加请求头",
     api_modal_header_key: "请求头键",
-    api_modal_header_value: "请求头值",
+    api_modal_header_secret: "Obsidian 密钥",
+    api_modal_secret_missing: "请为每个必需凭据和请求头选择一个 Obsidian 密钥。",
     api_modal_api_parameters: "API 参数",
     api_modal_api_documentation: "📖 API 文档",
     api_modal_token_url: "🔑 Token 获取地址",
@@ -225,6 +226,10 @@ export default {
     api_modal_image_url_json_path: "图片 URL JSON 路径",
     api_modal_no_description: "未提供描述。",
     api_modal_unnamed_api: "未命名的 API",
+    notice_api_secret_missing: "引用的 Obsidian 密钥不存在，请编辑 API 配置。",
+    notice_api_secret_unavailable: "壁纸 API 凭据不可用，请编辑 API 配置。",
+    notice_credential_migration_failed:
+        "DTB 无法将 API 凭据迁移到 Obsidian SecretStorage。原设置保持不变，插件启动已停止。",
     api_initialized_notice: "{apiName} 初始化完成：在 {pages} 页中找到 {count} 张壁纸。",
 
     // ===== 状态文本 =====

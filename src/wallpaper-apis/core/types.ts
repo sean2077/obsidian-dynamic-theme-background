@@ -77,6 +77,15 @@ export interface WallpaperApiParams {
 }
 
 /**
+ * SecretStorage IDs for values that are hydrated into a short-lived runtime config.
+ * The referenced secret values must never be persisted in this object.
+ */
+export interface WallpaperApiSecretRefs {
+    params?: Record<string, string>;
+    headers?: Record<string, string>;
+}
+
+/**
  * 壁纸图片接口
  */
 export interface WallpaperImage {
@@ -103,8 +112,9 @@ export interface WallpaperApiConfig {
     description?: string; // API实例描述
     baseUrl: string; // API基础域名或服务地址 (如: https://wallhaven.cc/api/v1)
     endpoints?: WallpaperApiEndpoints; // 具体的端点配置，如果不提供则使用默认端点
-    headers?: Record<string, string>; // 请求头
+    headers?: Record<string, string>; // 仅用于迁移旧数据和运行时请求；不得保存到 data.json
     params: WallpaperApiParams;
+    secretRefs?: WallpaperApiSecretRefs; // 持久化的 SecretStorage 引用
 
     // 自定义设置
     customSettings?: {

@@ -7,7 +7,8 @@ void test("runtime startup is layout-ready, ordered, and generation guarded", ()
     const apiManager = readFileSync("src/wallpaper-apis/core/api-manager.ts", "utf8");
 
     assert.match(plugin, /onLayoutReady\(\(\) =>/u);
-    assert.match(plugin, /await apiManager\.createApi\(apiConfig, false\)/u);
+    assert.match(plugin, /await this\.createWallpaperApi\(apiConfig, false\)/u);
+    assert.match(plugin, /await apiManager\.createApi\(runtimeConfig, activate\)/u);
     assert.match(plugin, /await apiManager\.activateConfiguredApis\(\)/u);
     assert.match(plugin, /generation !== this\.startGeneration/u);
     assert.match(plugin, /void apiManager\.suspendAllApis\(\)/u);

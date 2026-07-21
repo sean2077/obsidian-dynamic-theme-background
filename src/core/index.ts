@@ -1,4 +1,10 @@
 export { BackgroundManager } from "./background-manager";
+export {
+    MissingSecretReferenceError,
+    assertSettingsCredentialsAreReferences,
+    hydrateWallpaperApiConfig,
+    migrateSettingsCredentials,
+} from "./credential-storage";
 export { selectBackgroundPlan } from "./background-selection";
 export type { BackgroundSelectionPlan } from "./background-selection";
 export { BackgroundPersistence } from "./background-persistence";

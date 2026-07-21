@@ -19,6 +19,7 @@ void test("release CI installs the lockfile and runs the shared gate first", () 
 
 void test("version authorities and mobile compatibility stay aligned", () => {
     const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
+        devDependencies?: Record<string, string>;
         version: string;
     };
     const manifest = JSON.parse(readFileSync("manifest.json", "utf8")) as {
@@ -31,7 +32,8 @@ void test("version authorities and mobile compatibility stay aligned", () => {
     assert.equal(packageJson.version, manifest.version);
     assert.match(versionSource, new RegExp(`"${manifest.version}"`, "u"));
     assert.equal(manifest.isDesktopOnly, false);
-    assert.equal(manifest.minAppVersion, "1.7.2");
+    assert.equal(manifest.minAppVersion, "1.11.4");
+    assert.equal(packageJson.devDependencies?.obsidian, "^1.13.1");
     assert.match(readFileSync(".gitignore", "utf8"), /^main\.js$/mu);
 });
 
@@ -49,7 +51,8 @@ void test("both READMEs disclose network, credential-storage, and telemetry boun
     for (const path of ["README.md", "README.zh.md"]) {
         const readme = readFileSync(path, "utf8");
         assert.match(readme, /data\.json/u);
-        assert.match(readme, /Obsidian 1\.7\.2/u);
+        assert.match(readme, /Obsidian 1\.11\.4/u);
+        assert.match(readme, /SecretStorage/u);
         assert.match(readme, /telemetry|遥测/u);
         assert.match(readme, /third party|第三方/u);
     }
