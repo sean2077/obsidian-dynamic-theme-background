@@ -6,6 +6,7 @@ import type { DTBSettings } from "../src/types";
 
 function settingsFixture(): DTBSettings {
     return {
+        credentialStorageVersion: 1,
         enabled: true,
         statusBarEnabled: true,
         blurDepth: 0,

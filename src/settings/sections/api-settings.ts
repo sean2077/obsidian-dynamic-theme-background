@@ -15,6 +15,7 @@ import {
     WallpaperApiConfig,
     WallpaperApiType,
     apiManager,
+    apiRegistry,
 } from "../../wallpaper-apis";
 
 export class ApiSettingsSection {
@@ -70,7 +71,7 @@ export class ApiSettingsSection {
             .addExtraButton((button) => {
                 button.setIcon("refresh-cw");
                 button.setTooltip(t("restore_default_apis_tooltip"));
-                button.onClick(() => {
+                button.onClick(async () => {
                     // 重新生成默认设置以获取最新的默认 API
                     const defaultApis = this.defaultSettings.wallpaperApis;
 
@@ -80,12 +81,12 @@ export class ApiSettingsSection {
                         if (!existingApi) {
                             // 如果不存在，则添加并创建 API 实例
                             this.plugin.settings.wallpaperApis.push(apiConfig);
-                            void apiManager.createApi(apiConfig, this.plugin.settings.enabled);
+                            await this.plugin.createWallpaperApi(apiConfig, this.plugin.settings.enabled);
                         }
                     }
                     new Notice(t("restore_default_apis_success"));
 
-                    void this.plugin.saveSettings();
+                    await this.plugin.saveSettings();
                     this.display(this.container);
                 });
             });
@@ -108,28 +109,32 @@ export class ApiSettingsSection {
         container.empty();
 
         // 初始化 API 拖拽排序
-        this.apiDragSort = new DragSort<WallpaperApiConfig>({
+        const apiDragSort = new DragSort<WallpaperApiConfig>({
             container,
             items: this.plugin.settings.wallpaperApis,
             getItemId: (api) => api.id,
-            itemClass: "dtb-draggable",
-            idDataAttribute: "apiId",
+            reorderLabels: { up: t("move_item_up"), down: t("move_item_down") },
             onReorder: async (reorderedApis) => {
                 this.plugin.settings.wallpaperApis = reorderedApis;
                 await this.plugin.saveSettings();
                 this.displayWallpaperApis();
             },
         });
+        this.apiDragSort = apiDragSort;
 
         // API 列表
         this.plugin.settings.wallpaperApis.forEach((apiConfig: WallpaperApiConfig, index: number) => {
             const apiInstance = apiManager.getApiById(apiConfig.id);
             if (!apiInstance) {
                 logger.warn(`API instance not found for ${apiConfig.name}`);
-                return;
             }
 
-            const setting = new Setting(container).setName(apiConfig.name).setDesc(apiInstance.getDescription());
+            const description =
+                apiInstance?.getDescription() ??
+                apiConfig.description ??
+                apiRegistry.getDefaultDescription(apiConfig.type) ??
+                t("notice_api_secret_unavailable");
+            const setting = new Setting(container).setName(apiConfig.name).setDesc(description);
 
             // 在设置项的控件区域直接添加类型标签
             setting.controlEl.createSpan({ text: apiConfig.type ?? "Unknown", cls: "dtb-badge" });
@@ -141,7 +146,11 @@ export class ApiSettingsSection {
             const statusDot = statusIndicator.createDiv("dtb-api-status-dot");
             const statusText = statusIndicator.createSpan();
             // 根据API的启用状态设置初始状态
-            if (apiInstance.getEnabled()) {
+            if (!apiInstance) {
+                statusDot.addClass("error");
+                statusText.textContent = t("status_error");
+                statusText.title = t("notice_api_secret_unavailable");
+            } else if (apiInstance.getEnabled()) {
                 statusDot.addClass("enabled");
                 statusText.textContent = t("status_enabled");
             } else {
@@ -153,7 +162,7 @@ export class ApiSettingsSection {
             let toggleComponent: { setValue: (value: boolean) => void; getValue: () => boolean } | null = null;
             setting.addToggle((toggle) => {
                 toggleComponent = toggle; // 保存 toggle 引用
-                const toggleEl = toggle.setValue(apiInstance.getEnabled());
+                const toggleEl = toggle.setValue(apiInstance?.getEnabled() ?? false).setDisabled(!apiInstance);
 
                 // 使用智能API管理方法
                 toggleEl.onChange(async (value) => {
@@ -243,8 +252,9 @@ export class ApiSettingsSection {
                     button
                         .setButtonText(t("button_add"))
                         .setTooltip(t("add_api_bg_tooltip"))
+                        .setDisabled(!apiInstance)
                         .onClick(async () => {
-                            await this.fetchWallpaperFromApi(apiInstance);
+                            if (apiInstance) await this.fetchWallpaperFromApi(apiInstance);
                         })
                 )
                 .addButton((button) =>
@@ -265,15 +275,10 @@ export class ApiSettingsSection {
                     })
                 );
 
-            // 设置拖拽属性
-            setting.settingEl.addClass("dtb-draggable");
-            setting.settingEl.dataset.apiId = apiConfig.id;
-
             // 添加通用条目样式类
             setting.settingEl.addClass("dtb-button-container"); // 按钮样式
 
-            // 启用拖拽功能
-            this.apiDragSort?.enableDragForElement(setting.settingEl, apiConfig);
+            apiDragSort.enableDragForElement(setting.settingEl, apiConfig, setting.controlEl);
         });
     }
 
@@ -288,12 +293,11 @@ export class ApiSettingsSection {
             params: {},
         };
 
-        const modal = new WallpaperApiEditorModal(this.plugin.app, emptyConfig, (apiConfig) => {
-            // 创建新的API实例
-            void apiManager.createApi(apiConfig, this.plugin.settings.enabled);
+        const modal = new WallpaperApiEditorModal(this.plugin, emptyConfig, async (apiConfig) => {
             // 添加到插件设置中
             this.plugin.settings.wallpaperApis.push(apiConfig);
-            void this.plugin.saveSettings();
+            await this.plugin.saveSettings();
+            await this.plugin.createWallpaperApi(apiConfig, this.plugin.settings.enabled);
             // 这里仅需刷新 api 列表
             this.displayWallpaperApis();
         });
@@ -303,12 +307,11 @@ export class ApiSettingsSection {
 
     // 显示编辑壁纸API的模态窗口
     private showEditWallpaperApiModal(apiConfig: WallpaperApiConfig, index: number) {
-        const modal = new WallpaperApiEditorModal(this.plugin.app, apiConfig, (updatedConfig) => {
-            // 有可能api类型也修改了，干脆重新创建API实例覆盖原来的
-            void apiManager.createApi(updatedConfig, this.plugin.settings.enabled);
-
+        const modal = new WallpaperApiEditorModal(this.plugin, apiConfig, async (updatedConfig) => {
             this.plugin.settings.wallpaperApis[index] = updatedConfig;
-            void this.plugin.saveSettings();
+            await this.plugin.saveSettings();
+            // 有可能api类型也修改了，重新创建API实例覆盖原来的
+            await this.plugin.createWallpaperApi(updatedConfig, this.plugin.settings.enabled);
             // 这里仅需刷新 api 列表
             this.displayWallpaperApis();
         });

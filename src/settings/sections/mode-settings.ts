@@ -3,7 +3,12 @@ import { t } from "../../i18n";
 import { ConfirmModal, TimeRuleModal } from "../../modals";
 import type DynamicThemeBackgroundPlugin from "../../plugin";
 import type { DTBSettings, TimeRule } from "../../types";
-import { DragSort, addDropdownTooltip, addEnhancedDropdownTooltip, generateId } from "../../utils";
+import {
+    DragSort,
+    addDropdownTooltip,
+    addEnhancedDropdownTooltip,
+    generateId,
+} from "../../utils";
 
 export class ModeSettingsSection {
     private plugin: DynamicThemeBackgroundPlugin;
@@ -143,18 +148,19 @@ export class ModeSettingsSection {
         container.empty();
 
         // 初始化时间规则拖拽排序
-        this.timeRuleDragSort = new DragSort<TimeRule>({
+        const timeRuleDragSort = new DragSort<TimeRule>({
             container,
             items: this.plugin.settings.timeRules,
             getItemId: (rule) => rule.id,
-            itemClass: "dtb-draggable",
-            idDataAttribute: "ruleId",
+            reorderLabels: { up: t("move_item_up"), down: t("move_item_down") },
             onReorder: async (reorderedRules) => {
                 this.plugin.settings.timeRules = reorderedRules;
                 await this.plugin.saveSettings();
+                this.plugin.startBackgroundManager();
                 this.displayTimeRules();
             },
         });
+        this.timeRuleDragSort = timeRuleDragSort;
 
         // 获取当前激活的时间规则
         const activeRule = this.plugin.getCurrentTimeRule();
@@ -217,15 +223,10 @@ export class ModeSettingsSection {
                     })
                 );
 
-            // 设置拖拽属性
-            setting.settingEl.addClass("dtb-draggable");
-            setting.settingEl.dataset.ruleId = rule.id;
-
             // 添加通用条目样式类
             setting.settingEl.addClass("dtb-button-container"); // 按钮样式
 
-            // 启用拖拽功能
-            this.timeRuleDragSort?.enableDragForElement(setting.settingEl, rule);
+            timeRuleDragSort.enableDragForElement(setting.settingEl, rule, setting.controlEl);
         });
     }
 

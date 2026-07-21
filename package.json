@@ -27,7 +27,7 @@
         "eslint-plugin-obsidianmd": "^0.4.1",
         "globals": "^17.6.0",
         "jiti": "^2.6.1",
-        "obsidian": "^1.10.3",
+        "obsidian": "^1.13.1",
         "prettier": "^3.7.3",
         "stylelint": "^16.26.1",
         "stylelint-config-idiomatic-order": "^10.0.0",

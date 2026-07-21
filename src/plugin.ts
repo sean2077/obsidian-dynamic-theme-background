@@ -5,21 +5,32 @@
 import { Notice, Plugin } from "obsidian";
 
 import { registerCommands } from "./commands";
-import { displayImperativeSettings } from "./core/obsidian-compat";
 import {
     BackgroundManager,
     BackgroundPersistence,
     EventBus,
+    MissingSecretReferenceError,
     StyleManager,
     TimeRuleScheduler,
+    assertSettingsCredentialsAreReferences,
+    hydrateWallpaperApiConfig,
     logger,
+    migrateSettingsCredentials,
     normalizeSettings,
 } from "./core";
 import { getDefaultSettings } from "./default-settings";
 import { t } from "./i18n";
 import { DTBSettingTab, DTBSettingsView, DTB_SETTINGS_VIEW_TYPE } from "./settings";
 import type { BackgroundItem, DTBSettings } from "./types";
-import { apiManager } from "./wallpaper-apis";
+import { apiManager, apiRegistry } from "./wallpaper-apis";
+import type { WallpaperApiConfig } from "./wallpaper-apis";
+
+function sensitiveParamKeys(config: WallpaperApiConfig): string[] {
+    return apiRegistry
+        .getParamDescriptors(config.type)
+        .filter((descriptor) => descriptor.type === "password")
+        .map((descriptor) => descriptor.key);
+}
 
 export default class DynamicThemeBackgroundPlugin extends Plugin {
     settings!: DTBSettings;
@@ -94,7 +105,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     private async initializeRuntime(generation: number): Promise<void> {
         for (const apiConfig of this.settings.wallpaperApis) {
             if (generation !== this.lifecycleGeneration) return;
-            await apiManager.createApi(apiConfig, false);
+            await this.createWallpaperApi(apiConfig, false);
         }
         if (generation === this.lifecycleGeneration && this.settings.enabled) {
             this.startBackgroundManager();
@@ -104,11 +115,53 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     async loadSettings() {
         const defaultSettings = getDefaultSettings();
         const loaded: unknown = await this.loadData();
-        this.settings = normalizeSettings(loaded, defaultSettings);
+        const normalized = normalizeSettings(loaded, defaultSettings);
+
+        try {
+            const migration = migrateSettingsCredentials(normalized, this.app.secretStorage, sensitiveParamKeys);
+            this.settings = migration.settings;
+            if (migration.migrated) {
+                await this.saveData(this.settings);
+            }
+        } catch (error) {
+            this.settings = normalized;
+            new Notice(t("notice_credential_migration_failed"), 0);
+            logger.error("Wallpaper API credential migration failed; existing settings were not overwritten");
+            throw error;
+        }
     }
 
     async saveSettings() {
+        assertSettingsCredentialsAreReferences(this.settings, sensitiveParamKeys);
         await this.saveData(this.settings);
+    }
+
+    prepareWallpaperApiConfig(config: WallpaperApiConfig): WallpaperApiConfig {
+        return hydrateWallpaperApiConfig(config, this.app.secretStorage);
+    }
+
+    async createWallpaperApi(config: WallpaperApiConfig, activate = config.enabled): Promise<boolean> {
+        let runtimeConfig: WallpaperApiConfig;
+        try {
+            runtimeConfig = this.prepareWallpaperApiConfig(config);
+        } catch (error) {
+            await apiManager.deleteApi(config.id);
+            const message =
+                error instanceof MissingSecretReferenceError
+                    ? t("notice_api_secret_missing")
+                    : t("notice_api_secret_unavailable");
+            apiManager.stateManager.notify(config.id, {
+                configEnabled: false,
+                instanceEnabled: false,
+                isLoading: false,
+                error: message,
+            });
+            logger.warn("A wallpaper API was not created because its credentials are unavailable");
+            return false;
+        }
+
+        await apiManager.createApi(runtimeConfig, activate);
+        return apiManager.getApiById(config.id) !== undefined;
     }
 
     // ============================================================================
@@ -301,7 +354,7 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
     refreshActiveSettings() {
         this.settingTabs.forEach((tab) => {
             if (tab.isActive()) {
-                displayImperativeSettings(tab);
+                tab.refresh();
             }
         });
         this.events.emit("settings:changed", { key: "enabled", value: this.settings.enabled });

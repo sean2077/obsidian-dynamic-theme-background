@@ -91,8 +91,17 @@ function isWallpaperApi(value: unknown): value is WallpaperApiConfig {
         isOptionalString(value.description) &&
         isValueRecord(value.params, isApiValue) &&
         (value.headers === undefined || isValueRecord(value.headers, (entry) => typeof entry === "string")) &&
+        (value.secretRefs === undefined || isSecretRefs(value.secretRefs)) &&
         (value.endpoints === undefined || isValueRecord(value.endpoints, isOptionalString)) &&
         (value.customSettings === undefined || isValueRecord(value.customSettings, isOptionalString))
+    );
+}
+
+function isSecretRefs(value: unknown): boolean {
+    return (
+        isRecord(value) &&
+        (value.params === undefined || isValueRecord(value.params, (entry) => typeof entry === "string")) &&
+        (value.headers === undefined || isValueRecord(value.headers, (entry) => typeof entry === "string"))
     );
 }
 
@@ -139,6 +148,12 @@ export function normalizeSettings(loaded: unknown, defaults: DTBSettings): DTBSe
     );
 
     return {
+        credentialStorageVersion: integerOrDefault(
+            loaded.credentialStorageVersion,
+            0,
+            0,
+            Number.MAX_SAFE_INTEGER
+        ),
         enabled: booleanOrDefault(loaded.enabled, fallback.enabled),
         statusBarEnabled: booleanOrDefault(loaded.statusBarEnabled, fallback.statusBarEnabled),
         blurDepth: numberOrDefault(loaded.blurDepth, fallback.blurDepth, 0, 30),
