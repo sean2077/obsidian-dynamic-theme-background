@@ -68,7 +68,7 @@ export default {
     reset_time_rules_button: "Restore defaults",
     reset_time_rules_tooltip: "Reset the time slot rules to their default settings.",
     time_rule_hint:
-        "💡 When time slot rules overlap, the first matching rule takes precedence. The indicator 🔥 means the current active rule.",
+        "💡 Drag rules or use the up/down buttons to reorder them. When rules overlap, the first match wins; 🔥 marks the active rule.",
     rule_name_label: "Rule name:",
     start_time_label: "Start time (hh:mm):",
     end_time_label: "End time (hh:mm):",
@@ -106,8 +106,10 @@ export default {
     gradient_css_label: "CSS gradient, for example linear-gradient(45deg, #ff0000, #0000ff):",
     select_background_option: "Select background",
     background_management_hint:
-        "💡 Tip: you can drag background items to reorder them; the background with 🔥 indicator is the currently applied background.",
+        "💡 Drag backgrounds or use the up/down buttons to reorder them; 🔥 marks the currently applied background.",
     drag_handle_tooltip: "Drag to reorder",
+    move_item_up: "Move up",
+    move_item_down: "Move down",
     random_wallpaper_settings_title: "Random wallpaper",
     enable_random_wallpaper_name: "Enable random wallpaper",
     enable_random_wallpaper_desc:
@@ -125,7 +127,7 @@ export default {
         "Restore the default wallpaper APIs provided by the plugin (will not overwrite existing APIs)",
     restore_default_apis_success: "🎉 Successfully restored default wallpaper APIs",
     wallpaper_api_hint:
-        "💡 You can add multiple API instances of the same type with different parameters to get different types of wallpapers.",
+        "💡 Add multiple API instances with different parameters; drag them or use the up/down buttons to reorder them.",
     add_api_bg_tooltip: "Click to add a new wallpaper from API",
     wallpaper_api_url_name: "Wallpaper API URL",
     wallpaper_api_url_desc:

@@ -106,27 +106,29 @@ export class BgManagementSection {
         container.empty();
 
         // 初始化背景拖拽排序
-        this.backgroundDragSort = new DragSort<BackgroundItem>({
+        const backgroundDragSort = new DragSort<BackgroundItem>({
             container,
             items: this.plugin.settings.backgrounds,
             getItemId: (bg) => bg.id,
-            itemClass: "dtb-draggable",
-            idDataAttribute: "bgId",
+            reorderLabels: { up: t("move_item_up"), down: t("move_item_down") },
             onReorder: async (reorderedBackgrounds) => {
+                const activeBackgroundId = this.plugin.background?.id;
                 this.plugin.settings.backgrounds = reorderedBackgrounds;
+                if (activeBackgroundId) {
+                    const activeIndex = reorderedBackgrounds.findIndex(
+                        (background) => background.id === activeBackgroundId
+                    );
+                    if (activeIndex >= 0) this.plugin.settings.currentIndex = activeIndex;
+                }
                 await this.plugin.saveSettings();
                 // 这里仅需刷新背景列表和时间规则列表
                 this.displayBackgrounds();
                 this.onChanged?.();
             },
         });
+        this.backgroundDragSort = backgroundDragSort;
         this.plugin.settings.backgrounds.forEach((bg: BackgroundItem, index: number) => {
-            const bgEl = container.createDiv("dtb-item dtb-draggable");
-
-            // 添加拖拽相关属性
-            bgEl.draggable = true;
-            bgEl.dataset.bgId = bg.id;
-            bgEl.dataset.index = index.toString();
+            const bgEl = container.createDiv("dtb-item");
 
             // 添加拖拽手柄
             const dragHandle = bgEl.createDiv("dtb-drag-handle");
@@ -185,8 +187,7 @@ export class BgManagementSection {
                 this.onChanged?.();
             };
 
-            // 启用拖拽功能
-            this.backgroundDragSort?.enableDragForElement(bgEl, bg);
+            backgroundDragSort.enableDragForElement(bgEl, bg, actions);
         });
     }
 

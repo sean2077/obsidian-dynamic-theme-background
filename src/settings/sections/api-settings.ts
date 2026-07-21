@@ -109,18 +109,18 @@ export class ApiSettingsSection {
         container.empty();
 
         // 初始化 API 拖拽排序
-        this.apiDragSort = new DragSort<WallpaperApiConfig>({
+        const apiDragSort = new DragSort<WallpaperApiConfig>({
             container,
             items: this.plugin.settings.wallpaperApis,
             getItemId: (api) => api.id,
-            itemClass: "dtb-draggable",
-            idDataAttribute: "apiId",
+            reorderLabels: { up: t("move_item_up"), down: t("move_item_down") },
             onReorder: async (reorderedApis) => {
                 this.plugin.settings.wallpaperApis = reorderedApis;
                 await this.plugin.saveSettings();
                 this.displayWallpaperApis();
             },
         });
+        this.apiDragSort = apiDragSort;
 
         // API 列表
         this.plugin.settings.wallpaperApis.forEach((apiConfig: WallpaperApiConfig, index: number) => {
@@ -275,15 +275,10 @@ export class ApiSettingsSection {
                     })
                 );
 
-            // 设置拖拽属性
-            setting.settingEl.addClass("dtb-draggable");
-            setting.settingEl.dataset.apiId = apiConfig.id;
-
             // 添加通用条目样式类
             setting.settingEl.addClass("dtb-button-container"); // 按钮样式
 
-            // 启用拖拽功能
-            this.apiDragSort?.enableDragForElement(setting.settingEl, apiConfig);
+            apiDragSort.enableDragForElement(setting.settingEl, apiConfig, setting.controlEl);
         });
     }
 

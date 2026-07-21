@@ -7,8 +7,10 @@ const styles = readFileSync("styles.css", "utf8");
 void test("constrained settings override the desktop card direction", () => {
     assert.match(
         styles,
-        /@media \(max-width: 1100px\) \{\s*\.dtb-item,\s*\.dtb-section-container \.setting-item \{\s*flex-direction: column;\s*align-items: stretch;/u
+        /@media \(max-width: 1100px\) \{\s*:has\(> \.dtb-hint\) > \.setting-item,\s*\.dtb-large-button-container \.setting-item,\s*\.dtb-item,\s*\.dtb-section-container \.setting-item \{\s*flex-direction: column;\s*align-items: stretch;/u
     );
+    assert.match(styles, /:has\(> \.dtb-hint\) > \.setting-item,/u);
+    assert.match(styles, /\.dtb-large-button-container \.setting-item,/u);
     assert.match(styles, /\.dtb-bg-name \{\s*min-width: 0;\s*overflow-wrap: anywhere;/u);
     assert.match(
         styles,

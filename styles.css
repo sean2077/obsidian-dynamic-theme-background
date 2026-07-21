@@ -592,6 +592,11 @@
     display: flex;
     gap: 0.6rem;
 }
+
+.dtb-reorder-button {
+    flex: 0 0 auto;
+    touch-action: manipulation;
+}
 /* 通用操作按钮 */
 .dtb-button,
 .dtb-button-container button {
@@ -1056,6 +1061,8 @@
 }
 
 @media (max-width: 1100px) {
+    :has(> .dtb-hint) > .setting-item,
+    .dtb-large-button-container .setting-item,
     .dtb-item,
     .dtb-section-container .setting-item {
         flex-direction: column;
@@ -1064,10 +1071,14 @@
         padding: 0.8rem !important;
     }
 
+    :has(> .dtb-hint) > .setting-item .setting-item-info,
+    .dtb-large-button-container .setting-item .setting-item-info,
     .dtb-section-container .setting-item .setting-item-info {
         margin-right: 0;
     }
 
+    :has(> .dtb-hint) > .setting-item .setting-item-control,
+    .dtb-large-button-container .setting-item .setting-item-control,
     .dtb-section-container .setting-item .setting-item-control {
         flex-wrap: wrap;
         justify-content: flex-start;
@@ -1191,7 +1202,9 @@
     .dtb-large-button,
     .dtb-large-button-container button,
     .dtb-link,
-    .dtb-remove-button {
+    .dtb-remove-button,
+    .dtb-button-container .dtb-reorder-button,
+    .dtb-reorder-button {
         min-width: 44px;
         min-height: 44px;
     }
