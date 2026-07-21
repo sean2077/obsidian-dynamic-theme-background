@@ -2,6 +2,7 @@ export { BackgroundManager } from "./background-manager";
 export {
     MissingSecretReferenceError,
     assertSettingsCredentialsAreReferences,
+    cloneWallpaperApiConfig,
     hydrateWallpaperApiConfig,
     migrateSettingsCredentials,
 } from "./credential-storage";

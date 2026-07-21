@@ -1,4 +1,5 @@
 import { Notice, Setting } from "obsidian";
+import { MAX_INTERVAL_MINUTES, MIN_INTERVAL_MINUTES } from "../../constants";
 import { t } from "../../i18n";
 import { ConfirmModal, TimeRuleModal } from "../../modals";
 import type DynamicThemeBackgroundPlugin from "../../plugin";
@@ -91,7 +92,7 @@ export class ModeSettingsSection {
                     button.setButtonText(t("reset_time_rules_button"));
                     button.setTooltip(t("reset_time_rules_tooltip"));
                     button.onClick(() => {
-                        this.plugin.settings.timeRules = this.defaultSettings.timeRules;
+                        this.plugin.settings.timeRules = this.defaultSettings.timeRules.map((rule) => ({ ...rule }));
                         this.plugin.startBackgroundManager(); // 重新启动背景管理器以应用更改
                         void this.plugin.saveSettings();
                         this.display(this.container);
@@ -114,17 +115,29 @@ export class ModeSettingsSection {
             new Setting(containerEl)
                 .setName(t("interval_name"))
                 .setDesc(t("interval_desc"))
-                .addText((text) =>
-                    text
+                .addText((text) => {
+                    text.inputEl.type = "number";
+                    text.inputEl.min = String(MIN_INTERVAL_MINUTES);
+                    text.inputEl.max = String(MAX_INTERVAL_MINUTES);
+                    text.inputEl.step = "1";
+                    return text
                         .setPlaceholder("60")
                         .setValue(this.plugin.settings.intervalMinutes.toString())
                         .onChange(async (value) => {
-                            const minutes = parseInt(value) || 60;
+                            const minutes = Number(value);
+                            if (
+                                !Number.isInteger(minutes) ||
+                                minutes < MIN_INTERVAL_MINUTES ||
+                                minutes > MAX_INTERVAL_MINUTES ||
+                                minutes === this.plugin.settings.intervalMinutes
+                            ) {
+                                return;
+                            }
                             this.plugin.settings.intervalMinutes = minutes;
                             await this.plugin.saveSettings();
                             this.plugin.startBackgroundManager();
-                        })
-                );
+                        });
+                });
 
             // 随机壁纸设置
             new Setting(containerEl)

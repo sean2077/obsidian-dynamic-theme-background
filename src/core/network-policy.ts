@@ -3,9 +3,11 @@ export const MAX_REMOTE_URL_LENGTH = 2_048;
 export const MAX_RESPONSE_BYTES = 2 * 1_024 * 1_024;
 export const REQUEST_TIMEOUT_MS = 15_000;
 
-const SECRET_KEY = /(?:api[-_]?key|authorization|client[-_]?id|secret|token)/iu;
-const SECRET_QUERY = /([?&](?:api[-_]?key|client[-_]?id|key|token)=)[^&#\s]*/giu;
-const AUTH_VALUE = /\b(?:Bearer|Client-ID)\s+[^\s,;]+/giu;
+const SECRET_NAME =
+    /(?:api[-_]?key|access[-_]?key|auth|client[-_.]?id|cookie|pass(?:word|phrase)|secret|token|(?:^|[-_.])key(?:$|[-_.]))/iu;
+const SECRET_QUERY =
+    /([?&#][^=&#\s]*(?:auth|client[-_.]?id|cookie|key|pass(?:word|phrase)|secret|token)[^=&#\s]*=)[^&#\s]*/giu;
+const AUTH_VALUE = /\b(?:Basic|Bearer|Client-ID|Token)\s+[^\s,;]+/giu;
 
 export interface RemoteUrlOptions {
     allowInsecureHttp?: boolean;
@@ -85,7 +87,7 @@ export function sanitizeForLog(value: unknown, depth = 0): unknown {
 
     const sanitized: Record<string, unknown> = {};
     for (const [key, item] of Object.entries(value)) {
-        sanitized[key] = SECRET_KEY.test(key) ? "[REDACTED]" : sanitizeForLog(item, depth + 1);
+        sanitized[key] = SECRET_NAME.test(key) ? "[REDACTED]" : sanitizeForLog(item, depth + 1);
     }
     return sanitized;
 }

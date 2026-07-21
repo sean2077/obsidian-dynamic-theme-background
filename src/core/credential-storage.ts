@@ -49,7 +49,7 @@ function cloneSecretRefs(secretRefs: WallpaperApiSecretRefs | undefined): Wallpa
     };
 }
 
-function cloneConfig(config: WallpaperApiConfig): WallpaperApiConfig {
+export function cloneWallpaperApiConfig(config: WallpaperApiConfig): WallpaperApiConfig {
     return {
         ...config,
         endpoints: config.endpoints ? { ...config.endpoints } : undefined,
@@ -63,7 +63,7 @@ function cloneConfig(config: WallpaperApiConfig): WallpaperApiConfig {
 function cloneSettings(settings: DTBSettings): DTBSettings {
     return {
         ...settings,
-        wallpaperApis: settings.wallpaperApis.map(cloneConfig),
+        wallpaperApis: settings.wallpaperApis.map(cloneWallpaperApiConfig),
     };
 }
 
@@ -229,7 +229,7 @@ function hydrateReferences(
 
 /** Returns a short-lived runtime clone containing the resolved credential values. */
 export function hydrateWallpaperApiConfig(config: WallpaperApiConfig, store: SecretStore): WallpaperApiConfig {
-    const hydrated = cloneConfig(config);
+    const hydrated = cloneWallpaperApiConfig(config);
     hydrated.headers ??= {};
     hydrateReferences(hydrated.params, hydrated.secretRefs?.params, config, store, "param");
     hydrateReferences(hydrated.headers, hydrated.secretRefs?.headers, config, store, "header");

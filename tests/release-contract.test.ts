@@ -4,6 +4,7 @@ import test from "node:test";
 
 void test("release CI installs the lockfile and runs the shared gate first", () => {
     const workflow = readFileSync(".github/workflows/release.yml", "utf8");
+    const evaluator = readFileSync("tools/quality/evaluate.mjs", "utf8");
     const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
         allowScripts?: Record<string, boolean>;
         scripts?: Record<string, string>;
@@ -15,6 +16,8 @@ void test("release CI installs the lockfile and runs the shared gate first", () 
     assert.doesNotMatch(workflow, /npm install/u);
     assert.equal(packageJson.scripts?.check, "npm run build && npm run lint && npm run lint:css && npm test");
     assert.deepEqual(packageJson.allowScripts, { "esbuild@0.28.1": true });
+    assert.match(evaluator, /pass:\s*passed/u);
+    assert.doesNotMatch(evaluator, /\n\s*passed,/u);
 });
 
 void test("version authorities and mobile compatibility stay aligned", () => {

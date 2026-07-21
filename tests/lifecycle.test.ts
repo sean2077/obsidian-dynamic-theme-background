@@ -39,3 +39,13 @@ void test("API configuration tests fail closed and always delete their temporary
     assert.match(modal, /if \(!success\)/u);
     assert.match(modal, /finally \{[\s\S]*await apiManager\.deleteApi\(testApiId\)/u);
 });
+
+void test("restarted background schedules reject stale timer callbacks", () => {
+    const manager = readFileSync("src/core/background-manager.ts", "utf8");
+
+    assert.match(manager, /private scheduleGeneration = 0/u);
+    assert.match(manager, /stop\(\): void \{[\s\S]*this\.scheduleGeneration \+= 1/u);
+    assert.match(manager, /const scheduleGeneration = this\.scheduleGeneration/u);
+    assert.match(manager, /if \(!this\.isCurrentSchedule\(scheduleGeneration\)\) return;/u);
+    assert.match(manager, /if \(!this\.isCurrentSchedule\(generation\)\) return;/u);
+});
