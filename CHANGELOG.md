@@ -1,3 +1,9 @@
+## [3.0.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/3.0.0...3.0.1) (2026-08-08)
+
+### Fixes
+
+* update vulnerable development dependencies to patched versions and require a clean dependency audit before publishing ([2a4fde3](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/2a4fde315d98e9c78deedd3fdb55a776b3130873))
+
 ## [3.0.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.10.2...3.0.0) (2026-08-08)
 
 ### BREAKING CHANGES
