@@ -2,7 +2,6 @@
  * 设置视图，用于在标签页中显示插件的设置
  */
 import { ItemView, WorkspaceLeaf } from "obsidian";
-import { displayImperativeSettings } from "../core/obsidian-compat";
 import { t } from "../i18n";
 import type DynamicThemeBackgroundPlugin from "../plugin";
 import { DTBSettingTab } from "./settings-tab";
@@ -41,8 +40,7 @@ export class DTBSettingsView extends ItemView {
 
         // 使用设置标签页的显示逻辑，但在我们自己的容器中
         if (this.settingTab) {
-            this.settingTab.containerEl = container as HTMLElement;
-            displayImperativeSettings(this.settingTab);
+            this.settingTab.displayWorkspaceView(container as HTMLElement);
         }
         return Promise.resolve();
     }

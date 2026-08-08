@@ -53,7 +53,7 @@ Persisted data passes through `src/core/settings.ts`, which clones defaults and 
 
 Provider password fields, credential-like custom query parameters, and every user-defined header value are persisted as SecretStorage IDs under `secretRefs`. `src/core/credential-storage.ts` owns lossless legacy migration, the plaintext save guard, and short-lived runtime hydration; `src/plugin.ts` is the only composition boundary that supplies `app.secretStorage`. Never pass a persisted provider config directly to `WallpaperApiManager` or write hydrated values back to plugin settings.
 
-Obsidian 1.13+ renders `DTBSettingTab.getSettingDefinitions()` as declarative pages. Keep `display()` and the alternate settings view as the Obsidian 1.11.4–1.12 compatibility path; new 1.13-only calls must stay behind `requireApiVersion` guards in `src/core/obsidian-compat.ts`.
+Obsidian 1.13+ renders `DTBSettingTab.getSettingDefinitions()` as declarative pages. Dynamic sections use `SettingDefinitionPage.page` with `SettingPage`; the alternate workspace view calls `displayWorkspaceView()` directly. Do not reintroduce the deprecated `PluginSettingTab.display()` fallback.
 
 ### Commands
 

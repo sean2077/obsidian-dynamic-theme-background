@@ -3,9 +3,8 @@
  * 协调各设置区块的展示和刷新
  */
 import { App, PluginSettingTab } from "obsidian";
-import type { Setting, SettingDefinitionItem } from "obsidian";
+import type { SettingDefinitionItem } from "obsidian";
 
-import { displayImperativeSettings, refreshDualSettings } from "../core/obsidian-compat";
 import { getDefaultSettings } from "../default-settings";
 import { t } from "../i18n";
 import type DynamicThemeBackgroundPlugin from "../plugin";
@@ -13,6 +12,7 @@ import type { DTBSettings } from "../types";
 import { generateId } from "../utils";
 import { VERSION } from "../version";
 import { ApiSettingsSection, BasicSettingsSection, BgManagementSection, ModeSettingsSection } from "./sections";
+import { createSettingsPage } from "./settings-page";
 
 export class DTBSettingTab extends PluginSettingTab {
     plugin: DynamicThemeBackgroundPlugin;
@@ -61,38 +61,40 @@ export class DTBSettingTab extends PluginSettingTab {
                 render: (setting) => {
                     this.activateSurface(true);
                     setting.settingEl.empty();
+                    setting.settingEl.addClass("dtb-settings-surface");
                     this.displayHeader(setting.settingEl);
                 },
             },
             {
                 type: "page",
                 name: t("basic_settings_title"),
-                items: [this.basicSettingsDefinition()],
+                page: () => this.createBasicSettingsPage(),
             },
             {
                 type: "page",
                 name: t("mode_settings_title"),
-                items: [this.modeSettingsDefinition()],
+                page: () => this.createModeSettingsPage(),
             },
             {
                 type: "page",
                 name: t("bg_management_title"),
-                items: [this.backgroundSettingsDefinition()],
+                page: () => this.createBackgroundSettingsPage(),
             },
             {
                 type: "page",
                 name: t("wallpaper_api_management_title"),
-                items: [this.apiSettingsDefinition()],
+                page: () => this.createApiSettingsPage(),
             },
         ];
     }
 
-    display(): void {
+    displayWorkspaceView(containerEl: HTMLElement): void {
         this.activateSurface(false);
         this.cleanup();
 
-        const { containerEl } = this;
+        this.containerEl = containerEl;
         containerEl.empty();
+        containerEl.addClass("dtb-settings-surface");
 
         this.displayHeader(containerEl);
 
@@ -127,9 +129,9 @@ export class DTBSettingTab extends PluginSettingTab {
 
     refresh(): void {
         if (this.declarativeActive) {
-            refreshDualSettings(this);
+            this.update();
         } else {
-            displayImperativeSettings(this);
+            this.displayWorkspaceView(this.containerEl);
         }
     }
 
@@ -159,77 +161,73 @@ export class DTBSettingTab extends PluginSettingTab {
         this.plugin.settingTabs.set(this.componentId, this);
     }
 
-    private basicSettingsDefinition(): SettingDefinitionItem {
-        return {
-            name: t("basic_settings_title"),
-            searchable: false,
-            render: (setting: Setting) => {
-                setting.settingEl.empty();
+    private createBasicSettingsPage(): ReturnType<typeof createSettingsPage> {
+        return createSettingsPage(
+            t("basic_settings_title"),
+            (containerEl) => {
                 const section = new BasicSettingsSection(this.plugin, this.defaultSettings);
                 this.basicSection = section;
-                section.display(setting.settingEl);
+                section.display(containerEl);
                 return () => {
                     section.cleanup();
                     if (this.basicSection === section) this.basicSection = undefined;
                 };
             },
-        };
+            () => this.activateSurface(true)
+        );
     }
 
-    private modeSettingsDefinition(): SettingDefinitionItem {
-        return {
-            name: t("mode_settings_title"),
-            searchable: false,
-            render: (setting: Setting) => {
-                setting.settingEl.empty();
+    private createModeSettingsPage(): ReturnType<typeof createSettingsPage> {
+        return createSettingsPage(
+            t("mode_settings_title"),
+            (containerEl) => {
                 const section = new ModeSettingsSection(this.plugin, this.defaultSettings);
                 this.modeSection = section;
-                section.display(setting.settingEl);
+                section.display(containerEl);
                 return () => {
                     section.cleanup();
                     if (this.modeSection === section) this.modeSection = undefined;
                 };
             },
-        };
+            () => this.activateSurface(true)
+        );
     }
 
-    private backgroundSettingsDefinition(): SettingDefinitionItem {
-        return {
-            name: t("bg_management_title"),
-            searchable: false,
-            render: (setting: Setting) => {
-                setting.settingEl.empty();
+    private createBackgroundSettingsPage(): ReturnType<typeof createSettingsPage> {
+        return createSettingsPage(
+            t("bg_management_title"),
+            (containerEl) => {
                 const section = new BgManagementSection(this.plugin, this.defaultSettings, {
                     onChanged: () => this.modeSection?.displayTimeRules(),
                 });
                 this.bgSection = section;
-                section.display(setting.settingEl);
+                section.display(containerEl);
                 return () => {
                     section.cleanup();
                     if (this.bgSection === section) this.bgSection = undefined;
                 };
             },
-        };
+            () => this.activateSurface(true)
+        );
     }
 
-    private apiSettingsDefinition(): SettingDefinitionItem {
-        return {
-            name: t("wallpaper_api_management_title"),
-            searchable: false,
-            render: (setting: Setting) => {
-                setting.settingEl.empty();
+    private createApiSettingsPage(): ReturnType<typeof createSettingsPage> {
+        return createSettingsPage(
+            t("wallpaper_api_management_title"),
+            (containerEl) => {
                 const section = new ApiSettingsSection(this.plugin, this.defaultSettings, {
                     onBackgroundsChanged: () => this.bgSection?.displayBackgrounds(),
                     onTimeRulesChanged: () => this.modeSection?.displayTimeRules(),
                 });
                 this.apiSection = section;
-                section.display(setting.settingEl);
+                section.display(containerEl);
                 return () => {
                     section.cleanup();
                     if (this.apiSection === section) this.apiSection = undefined;
                 };
             },
-        };
+            () => this.activateSurface(true)
+        );
     }
 
     private displayHeader(containerEl: HTMLElement) {
