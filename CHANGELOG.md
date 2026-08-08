@@ -1,3 +1,13 @@
+## [3.0.0](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.10.2...3.0.0) (2026-08-08)
+
+### BREAKING CHANGES
+
+* require Obsidian 1.13.0 or later; older Obsidian clients remain on plugin version 2.10.2
+
+### Fixes
+
+* render settings with Obsidian's native page API and adapt the layout to the available panel width ([b970326](https://github.com/sean2077/obsidian-dynamic-theme-background/commit/b970326721a96a1aef8133cc23402d38447274df))
+
 ## [2.10.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/2.10.1...2.10.2) (2026-07-21)
 
 ### Fixes
