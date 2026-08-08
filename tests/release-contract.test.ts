@@ -14,6 +14,7 @@ void test("release CI is tag-triggered and publishes verified changelog notes", 
     assert.match(workflow, /tags:\s*\n\s*- "\[0-9\]\*\.\[0-9\]\*\.\[0-9\]\*"/u);
     assert.doesNotMatch(workflow, /branches:/u);
     assert.match(workflow, /run: npm ci/u);
+    assert.match(workflow, /run: npm audit/u);
     assert.match(workflow, /git cat-file -t/u);
     assert.match(workflow, /merge-base --is-ancestor/u);
     assert.match(workflow, /npm run release:verify/u);
