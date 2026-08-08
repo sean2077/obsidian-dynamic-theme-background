@@ -46,7 +46,7 @@
 
 ## Installation
 
-> Requires Obsidian 1.11.4 or later.
+> Requires Obsidian 1.13.0 or later.
 
 ### Obsidian Community Plugins
 

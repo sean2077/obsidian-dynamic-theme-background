@@ -60,14 +60,15 @@ void test("version authorities and mobile compatibility stay aligned", () => {
     assert.equal(packageLock.packages[""].version, manifest.version);
     assert.match(versionSource, new RegExp(`"${manifest.version}"`, "u"));
     assert.equal(manifest.isDesktopOnly, false);
-    assert.equal(manifest.minAppVersion, "1.11.4");
+    assert.equal(manifest.minAppVersion, "1.13.0");
     assert.equal(packageJson.devDependencies?.obsidian, "^1.13.1");
     assert.match(readFileSync(".gitignore", "utf8"), /^main\.js$/mu);
 });
 
-void test("older Obsidian releases retain a compatible plugin fallback", () => {
+void test("older Obsidian clients retain the last compatible plugin release", () => {
     const versions = JSON.parse(readFileSync("versions.json", "utf8")) as Record<string, string>;
 
+    assert.equal(versions["2.10.2"], "1.11.4");
     assert.equal(versions["2.9.2"], "1.7.2");
 });
 
@@ -88,7 +89,7 @@ void test("both READMEs disclose network, credential-storage, and telemetry boun
     for (const path of ["README.md", "README.zh.md"]) {
         const readme = readFileSync(path, "utf8");
         assert.match(readme, /data\.json/u);
-        assert.match(readme, /Obsidian 1\.11\.4/u);
+        assert.match(readme, /Obsidian 1\.13\.0/u);
         assert.match(readme, /SecretStorage/u);
         assert.match(readme, /telemetry|遥测/u);
         assert.match(readme, /third party|第三方/u);

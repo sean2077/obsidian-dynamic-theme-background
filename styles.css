@@ -1053,11 +1053,82 @@ body .dtb-section-container .setting-item {
 }
 
 /* Section Header 样式 */
+.dtb-settings-surface {
+    container-name: dtb-settings;
+    container-type: inline-size;
+    width: 100%;
+    min-width: 0;
+}
+
 .dtb-section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
+}
+
+@container dtb-settings (max-width: 840px) {
+    .dtb-settings-surface .dtb-hint-section > .setting-item,
+    .dtb-settings-surface .dtb-large-button-container .setting-item,
+    .dtb-settings-surface .dtb-item,
+    .dtb-settings-surface .dtb-section-container .setting-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+        padding: 0.8rem;
+    }
+
+    .dtb-settings-surface .dtb-hint-section > .setting-item .setting-item-info,
+    .dtb-settings-surface .dtb-large-button-container .setting-item .setting-item-info,
+    .dtb-settings-surface .dtb-section-container .setting-item .setting-item-info {
+        margin-right: 0;
+    }
+
+    .dtb-settings-surface .dtb-hint-section > .setting-item .setting-item-control,
+    .dtb-settings-surface .dtb-large-button-container .setting-item .setting-item-control,
+    .dtb-settings-surface .dtb-section-container .setting-item .setting-item-control {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .dtb-settings-surface .dtb-bg-content {
+        flex-wrap: wrap;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .dtb-settings-surface .dtb-bg-content > .dtb-button-container {
+        flex: 1 0 100%;
+        justify-content: flex-end;
+    }
+
+    .dtb-settings-surface .dtb-bg-name {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}
+
+@container dtb-settings (max-width: 600px) {
+    .dtb-settings-surface .dtb-section-header {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .dtb-settings-surface .dtb-links {
+        flex-wrap: wrap;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .dtb-settings-surface .dtb-bg-content {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        min-width: 0;
+        gap: 0.75rem;
+    }
 }
 
 @media (max-width: 1100px) {

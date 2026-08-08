@@ -4,6 +4,21 @@ import test from "node:test";
 
 const styles = readFileSync("styles.css", "utf8");
 
+void test("settings pages respond to their content container instead of only the app window", () => {
+    assert.match(
+        styles,
+        /\.dtb-settings-surface \{[\s\S]*?container-name: dtb-settings;[\s\S]*?container-type: inline-size;[\s\S]*?\}/u
+    );
+    assert.match(
+        styles,
+        /@container dtb-settings \(max-width: 840px\) \{[\s\S]*?\.dtb-settings-surface \.dtb-item,[\s\S]*?flex-direction: column;[\s\S]*?align-items: stretch;/u
+    );
+    assert.match(
+        styles,
+        /@container dtb-settings \(max-width: 600px\) \{[\s\S]*?\.dtb-settings-surface \.dtb-section-header[\s\S]*?flex-wrap: wrap;/u
+    );
+});
+
 void test("constrained settings override the desktop card direction", () => {
     assert.match(
         styles,
