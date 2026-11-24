@@ -139,38 +139,42 @@ body.dtb-enabled > .dtb-background::after {
     background-color: var(--dtb-bg-color);
 }
 
-/* Layout wrappers never paint another tint. Scope to the app, not hover previews. */
+/* Layout wrappers never paint another tint. Scope to the app, not hover previews.
+ * The long ancestor chain is deliberate: plugin CSS loads before theme CSS, so a
+ * short selector loses same-specificity theme rules that paint opaque workspace
+ * backgrounds (for example Blue Topaz's bubble layout). Keep these chains when
+ * editing; shortening them silently restores the theme's opaque layers. */
 body.dtb-enabled .app-container,
 body.dtb-enabled .app-container .horizontal-main-container,
-body.dtb-enabled .app-container .workspace,
-body.dtb-enabled .app-container .workspace-split,
-body.dtb-enabled .app-container .workspace-tabs,
-body.dtb-enabled .app-container .workspace-tab-container {
+body.dtb-enabled .app-container .horizontal-main-container .workspace,
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-split,
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-tabs,
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-tab-container {
     background-color: transparent;
 }
 
-/* One readable surface per leaf, independent of the number of nested splits. */
-body.dtb-enabled .app-container .workspace .workspace-leaf {
+/* One readable surface per leaf, independent of nested splits and popout windows. */
+body.dtb-enabled .app-container .horizontal-main-container .workspace :is(.workspace-split, .workspace-window) .workspace-leaf {
     background-color: var(--dtb-surface-content);
 }
 
-body.dtb-enabled .app-container .workspace .mod-sidedock .workspace-leaf {
+body.dtb-enabled .app-container .horizontal-main-container .workspace .mod-sidedock .workspace-leaf {
     background-color: var(--dtb-surface-chrome);
 }
 
-body.dtb-enabled .workspace .workspace-leaf > .workspace-leaf-content {
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-leaf > .workspace-leaf-content {
     --file-header-background: transparent;
     --file-header-background-focused: transparent;
 
     background-color: transparent;
 }
 
-body.dtb-enabled .workspace .workspace-leaf > .workspace-leaf-content > .view-content,
-body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view,
-body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view > .cm-editor,
-body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view > .cm-editor > .cm-scroller,
-body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-reading-view,
-body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-reading-view > .markdown-preview-view {
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-leaf > .workspace-leaf-content > .view-content,
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view,
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view > .cm-editor,
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view > .cm-editor > .cm-scroller,
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-reading-view,
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-reading-view > .markdown-preview-view {
     background-color: transparent;
 }
 
@@ -180,9 +184,12 @@ body.dtb-enabled:not(.is-mobile) .workspace-split.mod-secondary-split .workspace
     background-color: var(--dtb-surface-chrome);
 }
 
-/* 1.14+ inner-tab tokens preserve hover/active states without repainting every tab. */
-body.dtb-enabled .workspace-tab-header-container {
+/* Keep the coordinated tab-strip chrome and 1.14+ inner-tab tokens. Themes often
+ * flatten this container to transparent, so repaint the surface here. */
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-tab-header-container {
     --tab-inner-background-active: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
+
+    background-color: var(--dtb-surface-chrome);
 }
 
 /* The hidden frame's window buttons sit over an already-painted tab strip. */
@@ -191,7 +198,7 @@ body.dtb-enabled.is-hidden-frameless:not(.is-fullscreen) .titlebar-button-contai
 }
 
 /* Stacked panes overlap. Their leaves and vertical headers must stay opaque. */
-body.dtb-enabled .app-container .workspace .workspace-tabs.mod-stacked .workspace-leaf {
+body.dtb-enabled .app-container .horizontal-main-container .workspace .workspace-tabs.mod-stacked .workspace-leaf {
     background-color: var(--background-primary);
 }
 
@@ -221,7 +228,7 @@ body.dtb-enabled .workspace-leaf-content[data-type="bases"] > .view-content > .b
 }
 
 /* Mobile drawers overlap the document, so retain native opaque drawer surfaces. */
-body.dtb-enabled.is-mobile .workspace-drawer .workspace-leaf {
+body.dtb-enabled.is-mobile .app-container .horizontal-main-container .workspace .workspace-drawer .workspace-leaf {
     background-color: transparent;
 }
 
