@@ -293,6 +293,27 @@ void test("closing or disabling windows prevents in-flight analysis from restori
     assert.equal(timers.size, 0);
 });
 
+void test("window-close teardown tolerates a destroyed popout document", () => {
+    const main = documentFixture();
+    const popout = documentFixture();
+    const { app } = appFixture(main.doc, [popout.doc]);
+    const manager = new StyleManager(app);
+    const background: BackgroundItem = { id: "color", name: "Color", type: "color", value: "#123456" };
+    manager.applyBackground(background, settingsFixture());
+
+    // Obsidian closes the popout window before dispatching `window-close`, so its
+    // document may no longer expose body or documentElement when it is detached.
+    Object.defineProperty(popout.doc, "body", { value: null });
+    Object.defineProperty(popout.doc, "documentElement", { value: null });
+
+    assert.doesNotThrow(() => manager.detachDocument(popout.doc));
+    assert.equal(popout.layers.size, 0);
+    manager.clear();
+    assert.equal(main.properties.size, 0);
+    assert.equal(main.classes.size, 0);
+    assert.equal(main.layers.size, 0);
+});
+
 void test("empty selections reset per-background filters and image analysis times out cleanly", async (context) => {
     const { timers, images } = installMainWindowTimers(context);
     const main = documentFixture();

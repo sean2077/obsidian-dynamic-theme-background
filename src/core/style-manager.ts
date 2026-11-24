@@ -80,9 +80,14 @@ export class StyleManager {
         this.cancelDocumentImageLoads(state);
         state.removeResizeListener();
         state.backgroundEl.remove();
-        doc.body.classList.remove("dtb-enabled");
-        for (const property of CSS_PROPERTIES) {
-            doc.documentElement.style.removeProperty(property);
+        // Obsidian dispatches `window-close` after closing the popout window, so
+        // its document may already be torn down. Cleanup must not throw and abort
+        // the remaining documents in `clear()`.
+        if (doc.body) doc.body.classList.remove("dtb-enabled");
+        if (doc.documentElement) {
+            for (const property of CSS_PROPERTIES) {
+                doc.documentElement.style.removeProperty(property);
+            }
         }
     }
 
@@ -100,7 +105,7 @@ export class StyleManager {
         const existing = this.documents.get(doc);
         if (existing) return existing;
         const targetWindow = doc.defaultView;
-        if (!targetWindow || targetWindow.closed) return null;
+        if (!targetWindow || targetWindow.closed || !doc.body) return null;
         const backgroundEl = doc.body.createDiv({
             cls: "dtb-background",
             attr: { "aria-hidden": "true" },
