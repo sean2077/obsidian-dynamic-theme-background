@@ -27,7 +27,7 @@
         "@types/node": "^24.10.1",
         "esbuild": "^0.28.1",
         "eslint": "^9.39.4",
-        "eslint-plugin-obsidianmd": "^0.4.1",
+        "eslint-plugin-obsidianmd": "^0.6.0",
         "globals": "^17.6.0",
         "jiti": "^2.6.1",
         "obsidian": "^1.13.1",
@@ -43,5 +43,10 @@
     },
     "allowScripts": {
         "esbuild@0.28.1": true
+    },
+    "overrides": {
+        "brace-expansion@1": "1.1.21",
+        "eslint-plugin-n": "18.5.0",
+        "moment": "2.31.0"
     }
 }
