@@ -60,11 +60,16 @@ export default class DynamicThemeBackgroundPlugin extends Plugin {
         // 初始化核心服务
         this.scheduler = new TimeRuleScheduler(this.settings.timeRules);
         this.styleManager = new StyleManager(this.app);
-        this.registerDomEvent(window, "resize", () => {
-            if (this.settings.enabled) {
-                this.styleManager.refreshViewport(this.background, this.settings);
-            }
-        });
+        this.registerEvent(
+            this.app.workspace.on("window-open", (workspaceWindow) => {
+                this.styleManager.attachDocument(workspaceWindow.doc);
+            })
+        );
+        this.registerEvent(
+            this.app.workspace.on("window-close", (workspaceWindow) => {
+                this.styleManager.detachDocument(workspaceWindow.doc);
+            })
+        );
         this.persistence = new BackgroundPersistence(this.app);
         this.bgManager = new BackgroundManager(this.scheduler, this.styleManager, this.events, this, () => {
             void this.saveSettings();

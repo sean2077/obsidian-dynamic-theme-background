@@ -21,7 +21,7 @@ void test("plugin-owned DOM events and teardown use registered lifecycle paths",
     const eventBus = readFileSync("src/core/event-bus.ts", "utf8");
     const styleManager = readFileSync("src/core/style-manager.ts", "utf8");
 
-    assert.equal((plugin.match(/registerDomEvent\(/gu) ?? []).length, 5);
+    assert.equal((plugin.match(/registerDomEvent\(/gu) ?? []).length, 4);
     assert.doesNotMatch(plugin, /\.addEventListener\(/u);
     assert.match(plugin, /setAttribute\("role", "button"\)/u);
     assert.match(plugin, /evt\.key === "Enter" \|\| evt\.key === " "/u);

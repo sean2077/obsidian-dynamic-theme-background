@@ -12,7 +12,7 @@
         "color-function-notation": "modern",
         "alpha-value-notation": "number",
         "media-feature-range-notation": null,
-        "selector-class-pattern": "^(dtb-[a-z0-9-]+|theme-(light|dark)|workspace.*|view.*|markdown-.*|cm-.*|setting-.*|status-.*|titlebar-.*|mod-.*|is-.*|tappable.*|enabled|disabled|error|loading|clickable-icon|side-dock-ribbon)$",
+        "selector-class-pattern": "^(dtb-[a-z0-9-]+|theme-(light|dark)|workspace.*|view.*|markdown-.*|cm-.*|setting-.*|status-.*|titlebar-.*|mod-.*|is-.*|tappable.*|enabled|disabled|error|loading|clickable-icon|side-dock-ribbon|app-container|horizontal-main-container|empty-state-action-list|text-icon-button|bases-view|bases-tbody|bases-table-container|bases-table|titlebar|sidebar-toggle-button)$",
         "value-keyword-case": [
             "lower",
             {
