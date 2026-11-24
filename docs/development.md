@@ -75,6 +75,8 @@ Image dimensions are cached by resource URL, while intelligent `cover` / `contai
 
 Structural selectors deliberately carry the full `body.dtb-enabled .app-container .horizontal-main-container .workspace ...` chain. Plugin styles are injected before theme styles, so shorter selectors lose equal-specificity theme rules that paint opaque workspace layers; Blue Topaz's bubble layout repaints `.workspace-split` and `.workspace-leaf-content` this way. Do not shorten those selectors, and do not add `!important` (the settings contract test rejects it). Verify a styling change against at least one card-style theme in a test vault.
 
+Content canvases from common views get the same treatment: Kanban's `.kanban-plugin` backdrop is transparent, and the Bases paginator's bar, header, group cell and zebra rows map onto the surface variables. Sticky Bases and paginator headers use `--dtb-surface-control` so scrolled rows cannot show through. When another frequent view still paints an opaque backdrop with native colors, add a scoped compatibility rule instead of restoring global variable overrides; keep cards, embedded notes and editing controls readable.
+
 Change runtime properties and CSS consumers together. Preserve CSS URL escaping, light/dark mappings, print exclusion, reduced-motion behavior, and complete disable/unload cleanup. Pure colors are represented as constant gradients so they remain valid `background-image` values.
 
 #### Workspace style checks

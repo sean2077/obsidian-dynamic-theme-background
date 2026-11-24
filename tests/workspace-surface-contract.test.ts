@@ -29,3 +29,17 @@ void test("workspace surfaces outrank themes that load after plugin styles", () 
         /body\.dtb-enabled \.app-container \.horizontal-main-container \.workspace \.workspace-tabs\.mod-stacked \.workspace-leaf \{\s*background-color: var\(--background-primary\);/u
     );
 });
+
+void test("community content canvases reuse the wallpaper surfaces", () => {
+    assert.match(styles, /body\.dtb-enabled \.kanban-plugin \{\s*background-color: transparent;/u);
+    assert.match(styles, /body\.dtb-enabled \.bp-pagination-bar \{\s*background-color: var\(--dtb-surface-chrome\);/u);
+    assert.match(
+        styles,
+        /body\.dtb-enabled \.bp-table-header,\s*body\.dtb-enabled \.bp-group-cell \{\s*background-color: var\(--dtb-surface-control\);/u
+    );
+    assert.match(
+        styles,
+        /body\.dtb-enabled \.bp-table-row:nth-child\(even\) \{\s*background-color: var\(--dtb-surface-content\);/u
+    );
+    assert.match(styles, /--bases-table-header-background: var\(--dtb-surface-control\);/u);
+});
