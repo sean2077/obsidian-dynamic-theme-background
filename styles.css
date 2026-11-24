@@ -216,15 +216,37 @@ body.dtb-enabled .workspace-leaf-content[data-type="empty"] .empty-state-action-
     }
 }
 
-/* Only the full-page Bases canvas is transparent. Sticky headers, edited cells,
- * cards, Canvas nodes, embedded bases and other specialist views keep theme fills. */
+/* Only the full-page Bases canvas is transparent. Sticky headers and summaries
+ * use the near-solid control surface; edited cells, cards, Canvas nodes and
+ * embedded bases keep their native fills. */
 body.dtb-enabled .workspace-leaf-content[data-type="bases"] > .view-content > .bases-view {
     --bases-cards-container-background: transparent;
     --bases-table-group-background: transparent;
+    --bases-table-header-background: var(--dtb-surface-control);
+    --bases-table-summary-background: var(--dtb-surface-control);
 }
 
 body.dtb-enabled .workspace-leaf-content[data-type="bases"] > .view-content > .bases-view > .bases-table-container > .bases-table > .bases-tbody {
     background-color: transparent;
+}
+
+/* Community canvases inside content views paint their own opaque backdrops with
+ * native surface colors. Let the wallpaper stay the shared backdrop instead. */
+body.dtb-enabled .kanban-plugin {
+    background-color: transparent;
+}
+
+body.dtb-enabled .bp-pagination-bar {
+    background-color: var(--dtb-surface-chrome);
+}
+
+body.dtb-enabled .bp-table-header,
+body.dtb-enabled .bp-group-cell {
+    background-color: var(--dtb-surface-control);
+}
+
+body.dtb-enabled .bp-table-row:nth-child(even) {
+    background-color: var(--dtb-surface-content);
 }
 
 /* Mobile drawers overlap the document, so retain native opaque drawer surfaces. */
