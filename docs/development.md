@@ -10,7 +10,7 @@ This guide holds lower-frequency implementation detail referenced by the root `A
 - `src/types.ts` and `src/default-settings.ts` define the settings contract and defaults; `src/settings/settings-tab.ts` composes the focused sections under `src/settings/sections/`, while `settings-view.ts` owns the alternate settings view.
 - `src/commands/index.ts` is the command registration point.
 - `src/wallpaper-apis/core/` owns provider contracts, validation, registry, state, and lifecycle; provider modules under `src/wallpaper-apis/providers/` self-register and are exported through `providers/index.ts`.
-- `styles.css` consumes the `--dtb-*` properties written by `src/core/style-manager.ts` and applies the `.dtb-enabled` runtime state.
+- `styles.css` consumes the `--dtb-*` properties written by `src/core/style-manager.ts`. `StyleManager` owns `.dtb-enabled` and one `.dtb-background` layer for each workspace document.
 - `docs/` is the static product site; its translated strings live in `docs/i18n/en.json` and `docs/i18n/zh.json`.
 
 ## Setup and checks
@@ -67,7 +67,30 @@ Custom providers append validated primitive `params` to the endpoint query. Quer
 
 ### Runtime styling
 
-`StyleManager` writes CSS custom properties while `styles.css` renders them. Change both sides together when adding or renaming a property, preserve light/dark mappings, CSS URL escaping, reduced-motion behavior, and `BackgroundManager.stop()` plus plugin unload cleanup.
+`StyleManager` owns every workspace document's background element, CSS custom properties, `.dtb-enabled` body class, resize listener and image-analysis cancellation. It discovers existing windows through the main workspace container and `iterateAllLeaves()`. The plugin forwards registered `window-open` / `window-close` events. Do not write or clear background state through focus-dependent `activeDocument` / `activeWindow` globals.
+
+Image dimensions are cached by resource URL, while intelligent `cover` / `contain` selection uses each target window's viewport. Detached image loaders and their timeout timers stay in the main window. Each completion checks both its document state and generation before writing. `BackgroundManager.stop()` and plugin unload must clean up all documents, including pending loads and listeners.
+
+`styles.css` draws the wallpaper and configured light/dark tint once in the owned layer. Content, chrome and controls use the `--dtb-surface-content`, `--dtb-surface-chrome` and `--dtb-surface-control` variables. Never replace the native `--background-primary` / `--background-secondary` families with translucent values: nested settings, menus, embedded editors, Canvas cards and sticky Bases headers depend on their original meaning. Limit editor transparency to the direct main-view child chain, and retain opaque overlapping stacked panes. The native translucent-window compatibility block uses background images because Obsidian forces those surfaces' background colors to transparent.
+
+Change runtime properties and CSS consumers together. Preserve CSS URL escaping, light/dark mappings, print exclusion, reduced-motion behavior, and complete disable/unload cleanup. Pure colors are represented as constant gradients so they remain valid `background-image` values.
+
+#### Workspace style checks
+
+The selectors and header/tab variables were checked against the official [Obsidian 1.15.1 release](https://github.com/obsidianmd/obsidian-releases/releases/tag/v1.15.1). The [1.14.3 changelog](https://obsidian.md/changelog/2026-09-29-desktop-v1.14.3/) describes the redesigned empty state and new tab variables. Keep `minAppVersion` at 1.13.0 unless a change actually requires a newer runtime API.
+
+Run the following relevant checks in a disposable vault after a styling change. Node tests exercise runtime ownership and asynchronous behavior with DOM facades; they do not render Obsidian or certify theme/device appearance.
+
+| Area | Check |
+|---|---|
+| Light/dark and frame | Switch themes and focus between windows. Inspect normal and hidden titlebars, both sidebars, ribbon and status bar. File headers must blend with the leaf without a separate opaque strip. |
+| New tab | Check New note, New base, New canvas and Open file, including pointer hover, keyboard focus, and a very narrow split. Preserve the native compact layout. |
+| Markdown and Bases | Check reading, Live Preview and Source modes. Scroll a Bases table and inspect sticky headers, edited cells, cards, summaries and embedded Bases. Embedded notes and Canvas nodes must retain readable native surfaces. |
+| Overlapping panes | Enable stacked tabs and scroll horizontally. Neither vertical tab headers nor the front leaf should reveal text from the leaf behind. Repeat with native translucent windows enabled outside fullscreen. |
+| Window lifecycle | Open a popout before and after enabling DTB. Resize windows to different aspect ratios, switch focus while an image loads, then close a popout and disable/re-enable DTB. There must be one owned layer per window and none after disable. |
+| Transient UI | Open settings in a modal and workspace view, a command menu, suggestions and a hover preview. Check that text, icons, input fields and native surfaces retain theme colors. |
+| Mobile and print | On a real mobile device, open/close drawers over a note and use touch controls. Export/print a note and confirm that the wallpaper and tint are absent. |
+| Existing settings | Reload saved global/per-image settings, test local/remote images, solid colors, gradients and an empty rule. The configured tint should be applied once and stale filters should not survive an empty selection. |
 
 ### Public documentation
 

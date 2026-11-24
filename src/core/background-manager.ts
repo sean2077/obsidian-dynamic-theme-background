@@ -72,7 +72,6 @@ export class BackgroundManager {
             window.clearTimeout(this.timeoutId);
             this.timeoutId = null;
         }
-        activeDocument.body.classList.remove("dtb-enabled");
         this.styleManager.clear();
         logger.debug("Background manager stopped");
     }
@@ -81,8 +80,6 @@ export class BackgroundManager {
         this.stop();
         const scheduleGeneration = this.scheduleGeneration;
         this.running = true;
-        activeDocument.body.classList.add("dtb-enabled");
-
         void this.update(settings, true);
 
         if (settings.mode === "time-based") {

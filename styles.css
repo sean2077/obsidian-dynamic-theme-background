@@ -83,54 +83,184 @@
     🚀 核心样式
 ============================================================================= */
 
-/* 工作区背景 */
-body.dtb-enabled .workspace-split,         /* 工作区分割容器 - 主要布局分割区域 */
-body.dtb-enabled .workspace-leaf,          /* 工作区叶子节点 - 单个面板容器 */
-body.dtb-enabled .workspace-tab-header-container,  /* 标签页头部容器 - 包含所有标签页 */
-body.dtb-enabled .workspace-tab-header,    /* 单个标签页头部 - 每个标签页的头部 */
-body.dtb-enabled .view-header,             /* 视图头部 - 文件/视图的顶部区域 */
-body.dtb-enabled .view-content,            /* 视图内容区 - 主要内容显示区域 */
-body.dtb-enabled .markdown-source-view,    /* Markdown源码视图 - 编辑模式 */
-body.dtb-enabled .markdown-preview-view,   /* Markdown预览视图 - 预览模式 */
-body.dtb-enabled .cm-editor /* CodeMirror编辑器 - 代码编辑器组件 */ {
-    /* 将所有背景相关的CSS变量覆盖为动态背景颜色 */
-    --background-primary: var(--dtb-bg-color); /* 主要背景色 */
-    --background-primary-alt: var(--dtb-bg-color); /* 主要背景色变体 */
-    --background-secondary: var(--dtb-bg-color); /* 次要背景色 */
-    --background-secondary-alt: var(--dtb-bg-color); /* 次要背景色变体 */
+/*
+ * One wallpaper + one configured tint per window. Keep Obsidian's semantic
+ * background variables intact: menus, settings, embeds and editing controls
+ * must not inherit a translucent --background-primary/secondary.
+ */
+body.dtb-enabled {
+    isolation: isolate;
+
+    --dtb-surface-content: color-mix(in srgb, var(--background-primary) 50%, transparent);
+    --dtb-surface-chrome: color-mix(in srgb, var(--background-secondary) 70%, transparent);
+    --dtb-surface-control: color-mix(in srgb, var(--background-primary) 88%, transparent);
+    --dtb-bg-color: var(--dtb-bg-color-dark, rgb(31 30 30 / 0.38));
+    --titlebar-background: var(--dtb-surface-chrome);
+    --titlebar-background-focused: var(--dtb-surface-chrome);
+    --ribbon-background: var(--dtb-surface-chrome);
+    --ribbon-background-collapsed: var(--dtb-surface-chrome);
+    --tab-container-background: var(--dtb-surface-chrome);
+    --sidebar-tab-container-background: var(--dtb-surface-chrome);
+    --tab-background-active: var(--dtb-surface-control);
+    --status-bar-background: var(--background-secondary);
 }
 
-/* 通过主题类切换遮罩变量：将 light/dark 两套变量映射到统一 --dtb-bg-color */
-.theme-light {
-    --dtb-bg-color: var(--dtb-bg-color-light, rgb(200 200 200 / 0.38));
+body.dtb-enabled.theme-light {
+    --dtb-bg-color: var(--dtb-bg-color-light, rgb(200 200 200 / 0.32));
 }
-.theme-dark {
-    --dtb-bg-color: var(--dtb-bg-color-dark, rgb(31 30 30 / 0.38));
+
+/* An owned element avoids competing with theme-owned workspace pseudo-elements. */
+body.dtb-enabled > .dtb-background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background-color: var(--background-primary);
 }
-.dtb-enabled .workspace::before {
-    background-image: var(--dtb-bg-image);
-    background-size: var(--dtb-bg-size);
-    background-repeat: no-repeat;
-    background-position: center;
-    filter: blur(var(--dtb-blur-depth)) brightness(var(--dtb-brightness)) saturate(var(--dtb-saturate));
+
+body.dtb-enabled > .dtb-background::before,
+body.dtb-enabled > .dtb-background::after {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: -1;
+    pointer-events: none;
 }
 
-/* 针对工作区其他部分的修改 */
-body.dtb-enabled .workspace-tab-header-container,
-body.dtb-enabled .workspace-tab-header-container .workspace-tab-header.tappable.is-active,
-body.dtb-enabled .workspace-tab-header.tappable.is-active,
-body.dtb-enabled .workspace-split.mod-vertical.mod-root,
-body.dtb-enabled .workspace-split.mod-horizontal.mod-sidedock.mod-left-split,
-body.dtb-enabled .workspace-split.mod-horizontal.mod-sidedock.mod-right-split,
-body.dtb-enabled .titlebar-button-container.mod-right,
-body.dtb-enabled .status-bar,
-body.dtb-enabled .workspace-ribbon::before,
-body.dtb-enabled .workspace-ribbon {
+body.dtb-enabled > .dtb-background::before {
+    background-image: var(--dtb-bg-image, none);
+    background-size: var(--dtb-bg-size, cover);
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: blur(var(--dtb-blur-depth, 0)) brightness(var(--dtb-brightness, 1)) saturate(var(--dtb-saturate, 1));
+}
+
+body.dtb-enabled > .dtb-background::after {
     background-color: var(--dtb-bg-color);
+}
+
+/* Layout wrappers never paint another tint. Scope to the app, not hover previews. */
+body.dtb-enabled .app-container,
+body.dtb-enabled .app-container .horizontal-main-container,
+body.dtb-enabled .app-container .workspace,
+body.dtb-enabled .app-container .workspace-split,
+body.dtb-enabled .app-container .workspace-tabs,
+body.dtb-enabled .app-container .workspace-tab-container {
+    background-color: transparent;
+}
+
+/* One readable surface per leaf, independent of the number of nested splits. */
+body.dtb-enabled .app-container .workspace .workspace-leaf {
+    background-color: var(--dtb-surface-content);
+}
+
+body.dtb-enabled .app-container .workspace .mod-sidedock .workspace-leaf {
+    background-color: var(--dtb-surface-chrome);
+}
+
+body.dtb-enabled .workspace .workspace-leaf > .workspace-leaf-content {
+    --file-header-background: transparent;
+    --file-header-background-focused: transparent;
+
+    background-color: transparent;
+}
+
+body.dtb-enabled .workspace .workspace-leaf > .workspace-leaf-content > .view-content,
+body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view,
+body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view > .cm-editor,
+body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-source-view > .cm-editor > .cm-scroller,
+body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-reading-view,
+body.dtb-enabled .workspace .workspace-leaf-content[data-type="markdown"] > .view-content > .markdown-reading-view > .markdown-preview-view {
+    background-color: transparent;
+}
+
+/* Current desktop sidebars use primary/secondary split classes; avoid left/right assumptions. */
+body.dtb-enabled:not(.is-mobile) .workspace-split.mod-primary-split .workspace-sidedock-vault-profile,
+body.dtb-enabled:not(.is-mobile) .workspace-split.mod-secondary-split .workspace-sidedock-vault-profile {
+    background-color: var(--dtb-surface-chrome);
+}
+
+/* 1.14+ inner-tab tokens preserve hover/active states without repainting every tab. */
+body.dtb-enabled .workspace-tab-header-container {
+    --tab-inner-background-active: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
+}
+
+/* The hidden frame's window buttons sit over an already-painted tab strip. */
+body.dtb-enabled.is-hidden-frameless:not(.is-fullscreen) .titlebar-button-container.mod-right {
+    background-color: transparent;
+}
+
+/* Stacked panes overlap. Their leaves and vertical headers must stay opaque. */
+body.dtb-enabled .app-container .workspace .workspace-tabs.mod-stacked .workspace-leaf {
+    background-color: var(--background-primary);
+}
+
+/* 1.14+ empty-tab actions need their own contrast against detailed wallpapers. */
+body.dtb-enabled .workspace-leaf-content[data-type="empty"] .empty-state-action-list > .text-icon-button.mod-pill {
+    background-color: var(--dtb-surface-control);
+    border-color: var(--background-modifier-border);
+    color: var(--text-normal);
+}
+
+@media (hover: hover) {
+    body.dtb-enabled .workspace-leaf-content[data-type="empty"] .empty-state-action-list > .text-icon-button.mod-pill:hover {
+        background-color: var(--background-primary);
+        border-color: var(--background-modifier-border-hover);
+    }
+}
+
+/* Only the full-page Bases canvas is transparent. Sticky headers, edited cells,
+ * cards, Canvas nodes, embedded bases and other specialist views keep theme fills. */
+body.dtb-enabled .workspace-leaf-content[data-type="bases"] > .view-content > .bases-view {
+    --bases-cards-container-background: transparent;
+    --bases-table-group-background: transparent;
+}
+
+body.dtb-enabled .workspace-leaf-content[data-type="bases"] > .view-content > .bases-view > .bases-table-container > .bases-table > .bases-tbody {
+    background-color: transparent;
+}
+
+/* Mobile drawers overlap the document, so retain native opaque drawer surfaces. */
+body.dtb-enabled.is-mobile .workspace-drawer .workspace-leaf {
+    background-color: transparent;
+}
+
+/* Obsidian's translucent-window mode forces several background colors to
+ * transparent. Paint these surfaces as images so its native color rules can
+ * remain intact, without losing contrast or exposing overlapping stacked text. */
+body.dtb-enabled.is-translucent:not(.is-fullscreen) {
+    --workspace-background-translucent: transparent;
+}
+
+body.dtb-enabled.is-translucent:not(.is-fullscreen) .workspace .workspace-leaf {
+    background-image: linear-gradient(var(--dtb-surface-content), var(--dtb-surface-content));
+}
+
+body.dtb-enabled.is-translucent:not(.is-fullscreen) .workspace .mod-sidedock .workspace-leaf,
+body.dtb-enabled.is-translucent:not(.is-fullscreen) .workspace-tab-header-container,
+body.dtb-enabled.is-translucent:not(.is-fullscreen) .workspace-sidedock-vault-profile,
+body.dtb-enabled.is-translucent:not(.is-fullscreen) .workspace-ribbon.mod-primary,
+body.dtb-enabled.is-translucent:not(.is-fullscreen) .workspace-ribbon.mod-primary::before {
+    background-image: linear-gradient(var(--dtb-surface-chrome), var(--dtb-surface-chrome));
+}
+
+body.dtb-enabled.is-translucent:not(.is-fullscreen) .workspace .workspace-tabs.mod-stacked .workspace-leaf {
+    background-image: linear-gradient(var(--background-primary), var(--background-primary));
+}
+
+/* Hidden titlebars overlay the tabs and must not paint a second chrome surface. */
+body.dtb-enabled.is-translucent:not(.is-fullscreen, .is-hidden-frameless) .titlebar {
+    background-image: linear-gradient(var(--dtb-surface-chrome), var(--dtb-surface-chrome));
+}
+
+body.dtb-enabled.is-translucent.mod-macos.is-hidden-frameless:not(.is-fullscreen, .is-popout-window, .is-mobile) .sidebar-toggle-button.mod-secondary {
+    background-image: linear-gradient(var(--dtb-surface-chrome), var(--dtb-surface-chrome));
+}
+
+@media print {
+    body.dtb-enabled > .dtb-background {
+        display: none;
+    }
 }
 
 /* =============================================================================
@@ -257,8 +387,7 @@ body .dtb-section-container .setting-item {
 }
 
 /* 仅亮主题下：插件设置项描述文字稍微加深，便于区分（不影响其他区域） */
-.theme-light .setting-item-description,
-.theme-light .dtb-section-container .setting-item .setting-item-description {
+.theme-light .dtb-settings-surface .setting-item-description {
     color: var(--text-normal);
     opacity: 0.95;
 }
@@ -1195,65 +1324,30 @@ body .dtb-section-container .setting-item {
     }
 }
 
-/* ===== 炫酷状态栏图标样式 ===== */
+/* Status controls follow the active theme and do not animate while idle. */
 .dtb-status-bar {
     display: flex;
     align-items: center;
     gap: 0.5em;
-    padding: 0.2em 1em 0.2em 0.8em;
-    border-radius: 1.2em;
-    font-weight: bold;
-    font-size: 1em;
-    color: var(--status-bar-text-color, var(--text-normal));
-    box-shadow: 0 1px 6px 0 rgb(80 180 255 / 0.1);
-    border: 1px solid var(--background-modifier-border);
-    position: relative;
-    overflow: hidden;
-    transition:
-        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        background 0.3s;
+    padding: 3px var(--size-2-2);
+    border-radius: var(--radius-s);
+    color: var(--status-bar-text-color, var(--text-muted));
 }
 .dtb-status-bar:hover {
-    box-shadow:
-        0 2px 12px 0 rgb(80 180 255 / 0.18),
-        0 0 8px 2px #91eac9;
-    background: linear-gradient(90deg, var(--status-bar-background, rgb(40 44 52 / 0.92)) 60%, #91eac9 100%);
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
 }
 .dtb-status-bar .dtb-status-icon {
-    width: 1.4em;
-    height: 1.4em;
-    margin-right: 0.3em;
-    filter: drop-shadow(0 0 2px #91eac9);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.dtb-status-bar:hover .dtb-status-icon {
-    transform: rotate(-12deg) scale(1.18);
-}
-.dtb-status-bar .dtb-status-text {
-    letter-spacing: 0.04em;
-    text-shadow: 0 1px 2px #0002;
-    font-size: 1em;
+    display: flex;
+    align-items: center;
+
+    --icon-size: var(--icon-xs);
 }
 .dtb-status-bar .dtb-status-dot {
-    width: 0.7em;
-    height: 0.7em;
+    width: 0.45em;
+    height: 0.45em;
     border-radius: 50%;
-    margin-left: 0.5em;
-    background: radial-gradient(circle, #91eac9 60%, var(--status-bar-background, #7f7fd5) 100%);
-    box-shadow: 0 0 4px 1px #91eac9;
-    animation: dtb-dot-pulse 1.2s infinite alternate;
-}
-@keyframes dtb-dot-pulse {
-    0% {
-        box-shadow:
-            0 0 8px 2px #91eac9,
-            0 0 2px 1px #fff8;
-    }
-    100% {
-        box-shadow:
-            0 0 16px 4px #91eac9,
-            0 0 4px 2px #fff8;
-    }
+    background-color: var(--interactive-accent);
 }
 
 .dtb-button:focus-visible,
@@ -1301,43 +1395,4 @@ body .dtb-section-container .setting-item {
     .dtb-status-dot {
         animation: none;
     }
-}
-
-/* =============================================================================
-   亮主题图标可见性优化（仅在插件启用时生效）
-   ============================================================================= */
-/* 统一图标颜色变量，便于主题/悬停态一致性处理 */
-.theme-light.dtb-enabled {
-    --icon-color: var(--text-normal);
-    --icon-color-hover: var(--text-accent);
-    --icon-color-active: var(--interactive-accent);
-}
-
-/* 常见可点击图标采用变量色，保证 currentColor 生效 */
-.theme-light.dtb-enabled .clickable-icon,
-.theme-light.dtb-enabled .workspace-tab-header .clickable-icon,
-.theme-light.dtb-enabled .view-header-icon,
-.theme-light.dtb-enabled .side-dock-ribbon .clickable-icon,
-.theme-light.dtb-enabled .status-bar .clickable-icon {
-    color: var(--icon-color);
-}
-
-.theme-light.dtb-enabled .clickable-icon:hover,
-.theme-light.dtb-enabled .workspace-tab-header .clickable-icon:hover,
-.theme-light.dtb-enabled .view-header-icon:hover,
-.theme-light.dtb-enabled .side-dock-ribbon .clickable-icon:hover,
-.theme-light.dtb-enabled .status-bar .clickable-icon:hover {
-    color: var(--icon-color-hover);
-}
-
-.theme-light.dtb-enabled .clickable-icon.is-active,
-.theme-light.dtb-enabled .clickable-icon:active {
-    color: var(--icon-color-active);
-}
-
-/* 确保 SVG 图标继承字体色生效 */
-.theme-light.dtb-enabled .clickable-icon svg,
-.theme-light.dtb-enabled .view-header-icon svg {
-    fill: none; /* 保持线框图标不被实心填充覆盖细节 */
-    stroke: currentColor;
 }

@@ -89,18 +89,22 @@
 
 ## Notes
 
-- Optimized for dark themes; light themes may need parameter adjustments
-- Uses Obsidian CSS variables — compatible with most themes
-- If your theme defines custom backgrounds, choose one or the other to avoid conflicts
+- The wallpaper and your light/dark tint are drawn once per window. Content panes, sidebars, tabs and headers use coordinated, theme-derived surfaces. Existing wallpaper settings and per-image overrides are preserved, although removing the old stacked tints can change the apparent opacity.
+- Workspace styling supports the current file-header tokens, tab states and redesigned new-tab actions. Theme text, icons, menus, settings and editing controls keep their native colors.
+- Pop-out windows share the selected background and calculate intelligent sizing for their own dimensions. Disabling the plugin removes its layers and styles from every tracked window.
+- Stacked panes, mobile drawers, Canvas cards and sticky Bases headers keep solid surfaces where transparency would reveal overlapping content. Obsidian's translucent-window option is handled separately.
+- Themes or CSS snippets with their own wallpapers or forceful background overrides can still conflict. Adjust the theme or snippet if necessary.
 
 <details>
-<summary>CSS Override Details</summary>
+<summary>Adjust workspace surface opacity with a CSS snippet</summary>
+
+These optional variables control the theme surface above the wallpaper and its configured tint. Higher percentages improve contrast. No change to your saved wallpaper settings is needed.
 
 ```css
-.dtb-enabled .workspace::before {
-    background-image: var(--dtb-bg-image);
-    filter: blur(var(--dtb-blur-depth)) brightness(var(--dtb-brightness)) saturate(var(--dtb-saturate));
-    /* ... */
+body.dtb-enabled {
+    --dtb-surface-content: color-mix(in srgb, var(--background-primary) 50%, transparent);
+    --dtb-surface-chrome: color-mix(in srgb, var(--background-secondary) 70%, transparent);
+    --dtb-surface-control: color-mix(in srgb, var(--background-primary) 88%, transparent);
 }
 ```
 

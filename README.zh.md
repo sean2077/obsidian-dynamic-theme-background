@@ -89,18 +89,22 @@
 
 ## 注意事项
 
-- 主要针对暗色主题优化，浅色主题可能需要调整参数
-- 使用 Obsidian CSS 变量，兼容大多数主题
-- 如果主题自带背景功能，请二选一避免冲突
+- 每个窗口只绘制一次壁纸和明暗主题遮罩。正文、侧栏、标签栏与页头使用协调的主题底色。现有壁纸设置及单张图片的覆盖设置都会保留，移除旧版重复叠加的遮罩后，视觉透明度可能有所变化。
+- 工作区样式适配当前页头变量、标签页状态和新版新标签页按钮。文字、图标、菜单、设置及编辑控件沿用主题原有配色。
+- 弹出窗口同步当前背景，并按各自窗口尺寸计算智能填充。禁用插件时会清理所有已跟踪窗口中的背景层和样式。
+- 叠放面板、移动端抽屉、Canvas 卡片和 Bases 固定表头在需要防止内容透叠的地方保留实底。Obsidian 的“半透明窗口”选项有独立适配。
+- 自带壁纸或强制覆盖背景的主题、CSS 片段仍可能产生冲突，需要相应调整。
 
 <details>
-<summary>CSS 覆盖说明</summary>
+<summary>通过 CSS 片段调整工作区底色透明度</summary>
+
+下面的可选变量控制壁纸与遮罩上方的主题底色。百分比越高，对比度越强，无需修改已保存的壁纸设置。
 
 ```css
-.dtb-enabled .workspace::before {
-    background-image: var(--dtb-bg-image);
-    filter: blur(var(--dtb-blur-depth)) brightness(var(--dtb-brightness)) saturate(var(--dtb-saturate));
-    /* ... */
+body.dtb-enabled {
+    --dtb-surface-content: color-mix(in srgb, var(--background-primary) 50%, transparent);
+    --dtb-surface-chrome: color-mix(in srgb, var(--background-secondary) 70%, transparent);
+    --dtb-surface-control: color-mix(in srgb, var(--background-primary) 88%, transparent);
 }
 ```
 
