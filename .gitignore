@@ -28,3 +28,4 @@ data.json
 .claude/settings.local.json
 .worktrees/
 .claude/allow-trunk-edit
+.agent-scaffold-symlink-*/
