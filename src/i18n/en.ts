@@ -13,7 +13,7 @@ export default {
     enable_status_bar_name: "Enable status bar",
     enable_status_bar_desc: "Turn the status bar feature on or off.",
     status_bar_title:
-        "🖱️left click: switch random wallpaper\n🖱️middle click: open settings tab\n🖱️right click: save current background",
+        "🖱️Left click: switch random wallpaper.\n🖱️Middle click: open settings tab.\n🖱️Right click: save current background.",
 
     // ===== 外观设置 =====
     appearance_settings_title: "Appearance",

@@ -363,7 +363,7 @@ export class WallpaperApiEditorModal extends Modal {
         secretContainer.setAttribute("aria-label", t("api_modal_header_secret"));
         const input = { key: keyInput, secretId };
         new SecretComponent(this.app, secretContainer).setValue(secretId).onChange((value) => {
-            input.secretId = value;
+            input.secretId = value ?? "";
         });
 
         const removeButton = row.createEl("button", {
@@ -459,7 +459,7 @@ export class WallpaperApiEditorModal extends Modal {
                 secretContainer.setAttribute("aria-label", descriptor.label);
                 setSecretRef(descriptor.key, currentRef);
                 new SecretComponent(this.app, secretContainer).setValue(currentRef).onChange((secretId) => {
-                    setSecretRef(descriptor.key, secretId);
+                    setSecretRef(descriptor.key, secretId ?? "");
                 });
                 return;
             }
