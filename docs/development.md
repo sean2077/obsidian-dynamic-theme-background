@@ -73,6 +73,8 @@ Image dimensions are cached by resource URL, while intelligent `cover` / `contai
 
 `styles.css` draws the wallpaper and configured light/dark tint once in the owned layer. Content, chrome and controls use the `--dtb-surface-content`, `--dtb-surface-chrome` and `--dtb-surface-control` variables. Never replace the native `--background-primary` / `--background-secondary` families with translucent values: nested settings, menus, embedded editors, Canvas cards and sticky Bases headers depend on their original meaning. Limit editor transparency to the direct main-view child chain, and retain opaque overlapping stacked panes. The native translucent-window compatibility block uses background images because Obsidian forces those surfaces' background colors to transparent.
 
+Structural selectors deliberately carry the full `body.dtb-enabled .app-container .horizontal-main-container .workspace ...` chain. Plugin styles are injected before theme styles, so shorter selectors lose equal-specificity theme rules that paint opaque workspace layers; Blue Topaz's bubble layout repaints `.workspace-split` and `.workspace-leaf-content` this way. Do not shorten those selectors, and do not add `!important` (the settings contract test rejects it). Verify a styling change against at least one card-style theme in a test vault.
+
 Change runtime properties and CSS consumers together. Preserve CSS URL escaping, light/dark mappings, print exclusion, reduced-motion behavior, and complete disable/unload cleanup. Pure colors are represented as constant gradients so they remain valid `background-image` values.
 
 #### Workspace style checks
