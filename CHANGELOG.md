@@ -1,3 +1,18 @@
+## [3.0.2](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/3.0.1...3.0.2) (2026-11-24)
+
+### Fixes
+
+* draw the wallpaper and the light/dark tint once per window on an owned background layer; content, sidebars, tab strip and headers now use coordinated theme surfaces instead of stacked tints
+* keep Obsidian's native background variables intact so menus, settings, embedded notes, Canvas cards and Bases editing controls stay readable
+* adapt workspace styling to Obsidian 1.14/1.15: file headers, tab states, new-tab actions, hidden titlebar buttons, stacked tabs, mobile drawers and the native translucent-window mode
+* share the selected background with existing and newly opened pop-out windows, size intelligent fill per window, and clean up every window when it closes or the plugin is disabled
+* blend Kanban boards, Bases tables and the Bases paginator into the wallpaper through theme- and community-view compatibility rules; sticky headers keep a near-solid surface
+* reset per-background filters when no background is selected, render solid colors as valid image gradients, and simplify the status bar styling
+
+### Dependency Updates
+
+* remediate development dependency advisories while keeping the Obsidian typings pinned to the minimum supported API
+
 ## [3.0.1](https://github.com/sean2077/obsidian-dynamic-theme-background/compare/3.0.0...3.0.1) (2026-08-08)
 
 ### Fixes
